@@ -1,0 +1,132 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  position: absolute;
+  width: 100%;
+  min-height: 100vw;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('./fonts/Inter.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Seenonim';
+  src: url('./fonts/Seenonim.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.main-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 768px) {
+  .main-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto;
+  }
+}
+
+.smartbox {
+  filter: blur(5px);
+}
+
+.master {
+  position: absolute;
+  overflow: hidden;
+  width: 100%;
+  min-height: 100%;
+}
+
+input {
+  width: 15vw;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  font-family: 'Inter';
+  color: rgba(0, 0, 0, 1);
+  line-height: 125%;
+}
+
+input:focus {
+  outline: none;
+}
+
+/* select {
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  font-family: 'Inter';
+  padding: 0 10px;
+  color: rgba(0, 0, 0, 1);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+} */
+
+.outerDiv {
+  position: relative;
+  display: flex;
+  width: 100%;
+  pointer-events: auto;
+}
+
+.innerDiv {
+  position: relative;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.centerer {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.maxer {
+  align-items: flex-end;
+  position: absolute;
+  bottom: 0;
+}
+
+.vector svg {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+}
+
+a {
+  cursor: pointer;
+}
+
+.smart-box-base {
+    border: none !important;
+    background-color: rgba(204, 221, 187, 1) !important;
+    width: 60% !important;
+    margin-left: 0 !important;
+    height: 45% !important;
+    position: relative !important;
+    top: 31% !important;
+    display: block !important; /* це важливо */
+    visibility: visible !important;
+}
+
+.smart-box-active {
+    border: 2px solid rgba(204, 221, 187, 1) !important;
+    background-color: transparent !important;
+}
