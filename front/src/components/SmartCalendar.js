@@ -2,10 +2,25 @@ import React, { useState, useRef, useEffect } from 'react';
 
 const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату" }) => {
   const [showCalendar, setShowCalendar] = useState(false);
-  const [date, setDate] = useState(value || null);
+  const [date, setDate] = useState(value || new Date(1972, 0, 1));
   const [view, setView] = useState('month'); // 'month' або 'year'
   const calendarRef = useRef(null);
   const inputRef = useRef(null);
+  
+  const calculateMaxBirthDate = () => {
+    const today = new Date();
+    const maxDate = new Date(
+      today.getFullYear() - 18,
+      today.getMonth(),
+      today.getDate()
+    );
+    // Очищаємо години, хвилини, секунди для точної дати
+    maxDate.setHours(0, 0, 0, 0);
+    return maxDate;
+  };
+
+  const maxBirthDate = calculateMaxBirthDate();
+  const minBirthDate = new Date(1950, 0, 1);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -88,6 +103,8 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
             value={date || new Date()}
             currentView={view}
             onViewChange={setView}
+            maxDate={maxBirthDate}
+            minDate={minBirthDate}
           />
         </div>
       )}
@@ -95,9 +112,21 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
   );
 };
 
-const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChange }) => {
+const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChange, maxDate, minDate}) => {
   const [date, setDate] = useState(value || new Date());
   const [yearViewStart, setYearViewStart] = useState(new Date().getFullYear() - 6);
+
+  const isDisabled = (day) => {
+    if (!day || !maxDate) return false;
+    
+    const cellDate = new Date(date.getFullYear(), date.getMonth(), day);
+
+    cellDate.setHours(0, 0, 0, 0);
+    const maxDateCopy = new Date(maxDate);
+    maxDateCopy.setHours(0, 0, 0, 0);
+    
+    return cellDate > maxDateCopy;
+  };
 
   const styles = {
     container: {
@@ -198,7 +227,19 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
   // Перемикання між видами
   const switchToYearView = () => {
     onViewChange('year');
-    setYearViewStart(date.getFullYear() - 6);
+    
+    // 👇 Встановлюємо початок так, щоб максимальний рік був у проміжку
+    const currentYear = date.getFullYear();
+    const maxYear = maxDate ? maxDate.getFullYear() : currentYear;
+    
+    // Якщо поточний рік більший за максимальний, коригуємо
+    if (currentYear > maxYear) {
+      setDate(new Date(maxYear, date.getMonth(), 1));
+    }
+    
+    // Встановлюємо початок виду років
+    const startYear = maxYear - 11; // Показуємо 12 років назад від максимального
+    setYearViewStart(startYear > maxYear - 11 ? maxYear - 11 : startYear);
   };
 
   const switchToMonthView = () => {
@@ -214,7 +255,12 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
     if (currentView === 'month') {
       setDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
     } else if (currentView === 'year') {
-      setYearViewStart(yearViewStart - 12);
+      const newStart = yearViewStart - 12;
+      if (minDate && newStart >= minDate.getFullYear()) {
+        setYearViewStart(newStart);
+      } else if (!minDate) {
+        setYearViewStart(newStart);
+      }
     }
   };
 
@@ -222,7 +268,12 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
     if (currentView === 'month') {
       setDate(new Date(date.getFullYear(), date.getMonth() + 1, 1));
     } else if (currentView === 'year') {
-      setYearViewStart(yearViewStart + 12);
+      const newStart = yearViewStart + 12;
+      if (maxDate && newStart <= maxDate.getFullYear()) {
+        setYearViewStart(newStart);
+      } else if (!maxDate) {
+        setYearViewStart(newStart);
+      }
     }
   };
 
@@ -243,6 +294,11 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
   // Обрання дня
   const selectDay = (day) => {
     const newDate = new Date(date.getFullYear(), date.getMonth(), day);
+
+    if (maxDate && newDate > maxDate) {
+      return; // Не викликаємо onChange, не змінюємо дату
+    }
+
     setDate(newDate);
     if (onChange) onChange(newDate);
   };
@@ -282,6 +338,9 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
   const generateYears = () => {
     const years = [];
     for (let i = yearViewStart; i < yearViewStart + 12; i++) {
+      if (maxDate && i > maxDate.getFullYear()) {
+        continue;
+      }
       years.push(i);
     }
     return years;
@@ -293,7 +352,15 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
     <div style={styles.container}>
       {/* Навігаційна панель */}
       <div style={styles.navigation}>
-        <button onClick={goToPrevious} style={styles.navButton}>
+        <button
+          onClick={goToPrevious} 
+          style={{
+            ...styles.navButton,
+            opacity: (currentView === 'year' && minDate && yearViewStart - 12 + 11 < minDate.getFullYear()) ? 0.3 : 1,
+            cursor: (currentView === 'year' && minDate && yearViewStart - 12 + 11 < minDate.getFullYear()) ? 'not-allowed' : 'pointer'
+          }}
+          disabled={currentView === 'year' && minDate && yearViewStart - 12 + 11 < minDate.getFullYear()}
+        >
           ‹
         </button>
         
@@ -332,7 +399,15 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
           )}
         </div>
         
-        <button onClick={goToNext} style={styles.navButton}>
+        <button
+          onClick={goToNext} 
+          style={{
+            ...styles.navButton,
+            opacity: (currentView === 'year' && maxDate && yearViewStart + 12 > maxDate.getFullYear()) ? 0.3 : 1,
+            cursor: (currentView === 'year' && maxDate && yearViewStart + 12 > maxDate.getFullYear()) ? 'not-allowed' : 'pointer'
+          }}
+          disabled={currentView === 'year' && maxDate && yearViewStart + 12 > maxDate.getFullYear()}
+        >
           ›
         </button>
       </div>
@@ -351,33 +426,57 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
               <div key={index} style={{ textAlign: 'center' }}>
                 {day && (
                   <button
-                    onClick={() => selectDay(day)}
+                    onClick={() => !isDisabled(day) && selectDay(day)}
                     style={{
                       ...styles.gridButton,
                       width: '36px',
                       height: '36px',
-                      background: isSelected(day) 
-                        ? '#F6DDD4' 
-                        : isToday(day)
-                          ? '#F6DDD466'
-                          : 'transparent',
-                      color: isSelected(day) || isToday(day)
-                        ? 'rgba(0,0,0,1)'
-                        : 'rgba(0,0,0,0.7)',
-                      fontWeight: isSelected(day) ? '600' : '400'
+                      background: isDisabled(day)
+                        ? 'rgba(0,0,0,0.05)'
+                        : (isSelected(day) 
+                          ? '#F6DDD4' 
+                          : isToday(day)
+                            ? '#F6DDD466'
+                            : 'transparent'),
+                      color: isDisabled(day)
+                        ? 'rgba(0,0,0,0.3)'
+                        : (isSelected(day) || isToday(day))
+                          ? 'rgba(0,0,0,1)'
+                          : 'rgba(0,0,0,0.7)',
+                      fontWeight: isSelected(day) ? '600' : '400',
+                      cursor: isDisabled(day) ? 'not-allowed' : 'pointer',
+                      opacity: isDisabled(day) ? 0.5 : 1,
+                      textDecoration: isDisabled(day) ? 'line-through' : 'none',
+                      position: 'relative'
                     }}
                     onMouseEnter={(e) => {
-                      if (!isSelected(day) && !isToday(day)) {
+                      if (!isSelected(day) && !isToday(day) && !isDisabled(day)) {
                         e.target.style.background = '#F6DDD44D';
+                        e.target.style.transform = 'scale(1.05)';
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (!isSelected(day) && !isToday(day)) {
+                      if (!isSelected(day) && !isToday(day) && !isDisabled(day)) {
                         e.target.style.background = 'transparent';
+                        e.target.style.transform = 'scale(1)';
                       }
                     }}
+                    disabled={isDisabled(day)}
+                    title={isDisabled(day) ? "Дата народження не може бути пізнішою" : ""}
                   >
                     {day}
+                    {/* {isDisabled(day) && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '2px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '4px',
+                        height: '4px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(255,0,0,0.3)'
+                      }} />
+                    )} */}
                   </button>
                 )}
               </div>

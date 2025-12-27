@@ -23,7 +23,7 @@ body {
 
 .main-grid {
   display: grid;
-  gap: 24px;
+  gap: 60px;
   grid-template-columns: 1fr 1fr;
 }
 
@@ -130,3 +130,21 @@ a {
     border: 2px solid rgba(204, 221, 187, 1) !important;
     background-color: transparent !important;
 }
+
+input::placeholder {
+  color: var(--placeholder-color);
+}
+
+.react-hint {
+  background-color: #F6DDD4; /* фон під стиль проекту */
+  color: #000;                /* текст */
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  opacity: 0.95;
+  transition: all 0.3s ease;
+  pointer-events: none; /* хінт “літає” і не заважає hover */
+}
+

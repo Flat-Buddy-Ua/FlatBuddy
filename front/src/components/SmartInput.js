@@ -1,60 +1,95 @@
-import React, { PureComponent } from 'react';
+// SmartInput.js
+import React, { useState, useEffect } from "react";
+import InputMask from "react-input-mask";
+import "./../index.css";
 
-export class SmartInput extends PureComponent {
-    state = {
-        value: this.props.defaultValue || '',
-        isFocused: false
-    };
+export function SmartInput({
+  defaultValue = "",
+  mask,
+  maskChar = "_",
+  onChange,   // will be called with newValue (string)
+  onFocus,    // will be called with native event
+  onBlur,
+  disabled,     // will be called with native event
+  ...rest
+}) {
+  // console.log("SmartInput render", { defaultValue, mask, disabled });
 
-    handleFocus = () => {
-        this.setState({ isFocused: true });
-        if (this.props.onFocus) {
-            this.props.onFocus(event);
-        }
-        
-        if (this.state.value === this.props.defaultValue) {
-            this.setState({ value: '' });
-        }
-    };
+  const [value, setValue] = useState(defaultValue);
 
-    handleBlur = () => {
-        this.setState({ isFocused: false });
+  // keep internal value if parent controls defaultValue change
+  useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]);
 
-        if (this.props.onBlur) {
-            this.props.onBlur(event);
-        }
+  const handleChange = (event) => {
+    const newValue = event?.target?.value ?? event;
+    setValue(newValue);
+    if (typeof onChange === "function") onChange(newValue);
+  };
 
-        if (this.state.value === '') {
-            this.setState({ value: this.props.defaultValue });
-        }
-    };
+  const handleFocus = (event) => {
+    if (typeof onFocus === "function") onFocus(event);
+  };
 
-    handleChange = (event) => {
-        this.setState({ value: event.target.value });
-        if (this.props.onChange) {
-            this.props.onChange(event.target.value);
-        }
-    };
+  const handleBlur = (event) => {
+    if (typeof onBlur === "function") onBlur(event);
+  };
 
-    render() {
-        return (
-            <input
-                value={this.state.value}
-                onFocus={this.handleFocus}
-                onBlur={this.handleBlur}
-                onChange={this.handleChange}
-                style={{
-                    width: "100%",
-                    height: "100%",
-                    paddingLeft: "20px",
-                    border: "none",
-                    background: "transparent",
-                    outline: "none",
-                    fontSize: "16px",
-                    fontFamily: "Inter",
-                    color: "rgba(0, 0, 0, 1)"
-                }}
-            />
-        );
-    }
+  const baseStyle = {
+    width: "100%",
+    height: "100%",
+    paddingLeft: "20px",
+    border: "none",
+    background: "transparent",
+    outline: "none",
+    fontSize: "16px",
+    fontFamily: "Inter",
+    color: disabled ? "#99999966" : "#000",
+    cursor: disabled ? "not-allowed" : "text",
+  };
+
+  // If no mask, render normal input but keep same contract (onChange gives string)
+  if (!mask) {
+    return (
+      <input
+        {...rest}
+        style={{
+          ...baseStyle,
+          "--placeholder-color": disabled ? "#99999980" : "#AAAAAA"
+        }}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => handleChange(e)}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      />
+    );
+  }
+
+  // WITH MASK: pass handlers to InputMask (important!)
+  return (
+    <InputMask
+      mask={mask}
+      maskChar={maskChar}
+      value={value}
+      disabled={disabled}
+      onChange={handleChange}   // InputMask will call this with event
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+    >
+      {(inputProps) => (
+        // do NOT override inputProps.onFocus/onBlur/onChange here
+        <input
+          {...inputProps}
+          {...rest}
+          disabled={disabled}     // allow placeholder, disabled, etc.
+          style={{
+            ...baseStyle,
+            "--placeholder-color": disabled ? "#ffff" : "#AAAAAA",
+          }}
+        />
+      )}
+    </InputMask>
+  );
 }

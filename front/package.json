@@ -1,5 +1,5 @@
 {
-  "name": "figma-to-react",
+  "name": "flatbuddy-react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -13,6 +13,8 @@
     "node-fetch": "^1.7.3",
     "react": "16.13.1",
     "react-dom": "16.13.1",
+    "react-hint": "^3.2.1",
+    "react-input-mask": "^2.0.4",
     "react-router-dom": "6.0.0-beta.0",
     "react-scripts": "4.0.3",
     "react-select": "^5.10.2",
