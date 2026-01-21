@@ -23,42 +23,33 @@ const detectValidationType = (children) => {
   }
   
   // Перевірка за значенням
-  if (stringValue.includes("@") || placeholder.includes("Email")) {
-    return "email";
-  }
-  if (stringValue === "Тарас" || stringValue.includes("Тарас") || 
-      placeholder.includes("Тарас") || placeholder.includes("Ім'я")) {
-    return "name";
-  }
-  if (stringValue === "Шевченко" || stringValue.includes("Шевченко") || 
-      placeholder.includes("Шевченко") || placeholder.includes("Прізвище")) {
-    return "surname";
-  }
-  if (stringValue === "Україна" || stringValue.includes("Україна") || 
-      placeholder.includes("країна") || placeholder.includes("Країна")) {
-    return "country";
-  }
-  if (placeholder.includes("телефон") || placeholder.includes("Телефон")) {
-    return "phone";
-  }
-  if (placeholder.includes("дата") || placeholder.includes("Дата")) {
-    return "birthDate";
-  }
-
-  if (mask.includes("+38(099)-999-99-99")) return "phone";
-
-  if (placeholder.includes("password")) {
-    return "password";
-  }
-  if (placeholder.includes("passConfirm")) {
-    return "passwordConfirm";
-  }
-
+  if (placeholder.includes("Тарас")) { return "name"; }
+  if (placeholder.includes("Шевченко")) { return "surname"; }
+  if (placeholder.includes("Країна")) { return "country"; }
+  if (placeholder.includes("Місто")) { return "city"; }
+  if (placeholder.includes("Стать")) { return "gender"; }
+  if (mask.includes("+38(099)-999-99-99")) { return "phone"; }
+  if (placeholder.includes("Email")) { return "email"; }
+  if (placeholder.includes("repeat_password")) { return "repeat_password"; }
+  if (placeholder.includes("password")) { return "password"; }
   
+  if (placeholder.includes("університет")) { return "university"; }
+  if (placeholder.includes("науки")) { return "faculty"; }
+  if (placeholder.includes("курс")) { return "course"; }
+  if (placeholder.includes("languages")) { return "languages"; }
+  if (placeholder.includes("охайність")) { return "cleanliness"; }
+  if (placeholder.includes("розклад")) { return "schedule"; }
+  if (placeholder.includes("стиль")) { return "style_of_life"; }
+  if (placeholder.includes("сну")) { return "sleep_schedule"; }
+  if (placeholder.includes("шкідливі")) { return "bad_habits"; }
+  if (placeholder.includes("хоббі")) { return "hobby"; }
+  if (placeholder.includes("Біографія")) { return "biography"; }
+  if (placeholder.includes("buddy")) { return "looking_for"; }
+
   return null;
 };
 
-export function SmartBox({ children, fieldName, formState, setFormState, disabled }) {
+export function SmartBox({ children, fieldName, formState, setFormState, disabled, mywidth="300px" }) {
     const [isActive, setIsActive] = useState(false);
     const [error, setError] = useState(null);
     const [value, setValue] = useState(
@@ -75,14 +66,18 @@ export function SmartBox({ children, fieldName, formState, setFormState, disable
     }, [children]);
 
     const handleValueChange = (newValue) => {
+      const realValue = newValue && newValue.value !== undefined ? newValue.value : newValue;
+
+      // console.log(`Handling value change for field "${fieldName}" with value:`, realValue);
+
       let validationError = null;
       if (validationType && validations[validationType]) {
         validationError = validations[validationType](newValue, formState);
       }
       const isValid = !validationError;
 
-      setFormState(fieldName, newValue, isValid);
-      setValue(newValue);
+      setFormState(fieldName, realValue, isValid);
+      setValue(realValue);
       setError(validationError);
     };
 
@@ -97,7 +92,8 @@ export function SmartBox({ children, fieldName, formState, setFormState, disable
         },
         onChange: (e) => {
             const newValue = e.target ? e.target.value : e;
-            handleValueChange(newValue);
+            const realValue = newValue && newValue.value !== undefined ? newValue.value : newValue;
+            handleValueChange(realValue);
             if (children.props.onChange) children.props.onChange(e);
         },
         value: value
@@ -110,8 +106,9 @@ export function SmartBox({ children, fieldName, formState, setFormState, disable
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 style={{
-                    width: "300px", 
-                    height: "50px",
+                    width: {mywidth}, 
+                    minHeight: "50px",
+                    height: "auto",
                     alignItems: "center",
                     transition: "0.2s ease",
                     boxShadow: error ? "0px 0px 10px 5px #ff3333" : isHovered || isActive ? disabled ? "0px 0px 10px 5px #99999966" : "0px 0px 10px 5px #F6DDD4" : "none",

@@ -1,7 +1,5 @@
-import { SiblingBox } from '@twilio-paste/core';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import Select from 'react-select';
-import { SingleValue } from 'react-select/animated';
 
 export function SmartSelect({
     options = [],

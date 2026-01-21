@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import { MAIN } from './Components';
+import { RegisterLayout } from './pages/RegisterLayout';
 import { Theme } from '@twilio-paste/core/theme';
 import registerServiceWorker from './registerServiceWorker';
 
-ReactDOM.render(<Theme.Provider theme="default"><MAIN /></Theme.Provider>, document.body);
+ReactDOM.render(<Theme.Provider theme="default"><RegisterLayout /></Theme.Provider>, document.body);
 registerServiceWorker();

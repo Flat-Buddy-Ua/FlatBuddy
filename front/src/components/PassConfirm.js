@@ -17,6 +17,7 @@ export function PassConfirm({ value, onChange, disabled }) {
         >
             <SmartInput
                 disabled={disabled}
+                margintop="0px"
                 placeholder="Пароль"
                 type={showPassword ? "text" : "password"}
                 value={value}

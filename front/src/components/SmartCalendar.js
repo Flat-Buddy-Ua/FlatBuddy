@@ -48,11 +48,7 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
 
   const formatDate = (date) => {
     if (!date) return '';
-    return date.toLocaleDateString('uk-UA', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return date.toISOString().split("T")[0];
   };
 
   return (
@@ -77,8 +73,12 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
         onMouseEnter={(e) => e.target.style.borderColor = '#F6DDD4CC'}
         onMouseLeave={(e) => e.target.style.borderColor = '#F6DDD4'}
       >
-        <span>{date ? formatDate(date) : placeholder}</span>
-        <span style={{ color: '#F6DDD4' }}>📅</span>
+        <span>{date ? date.toLocaleDateString('uk-UA', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }) : placeholder}</span>
+        {/* <span style={{ color: '#F6DDD4' }}>📅</span> */}
       </div>
 
       {/* Календар */}

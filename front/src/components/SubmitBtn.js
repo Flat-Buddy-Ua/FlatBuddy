@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import "./../index.css";
 
-export function SubmitBtn({ onClick, disabled}) {
+export function SubmitBtn({ onClick, disabled, btntext}) {
     const [isActive, setIsActive] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     
     const BaseBtnStyle = {
-        width: "75%",
+        width: "80%",
         height: "50px",
         border: "none",
         color: disabled ? "#999" : "#000",
@@ -14,7 +14,7 @@ export function SubmitBtn({ onClick, disabled}) {
         fontFamily: "Inter",
         cursor: "pointer",
         boxShadow: isHovered || isActive ? disabled ? "0px 0px 10px 5px #99999966" : "0px 0px 10px 5px #F6DDD4" : "0px 4px 6px rgba(0, 0, 0, 0.1)",
-        backgroundColor: disabled ? "white": "#F6DDD4",
+        backgroundColor: disabled ? "rgba(204, 221, 187, 0.1)": "#F6DDD4",
         cursor: disabled ? "not-allowed" : "pointer",
         transition: "background-color 0.3s ease",
     };
@@ -40,7 +40,7 @@ export function SubmitBtn({ onClick, disabled}) {
                 onMouseUp={() => setIsActive(false)}
                 onMouseLeave={() => setIsActive(false)}
             >
-                Далі
+                {btntext}
             </button>
 
             {disabled && isHovered &&

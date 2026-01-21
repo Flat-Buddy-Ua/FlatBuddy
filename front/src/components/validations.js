@@ -1,6 +1,8 @@
+import { lang } from "moment";
+
 // validations.js
 export const validations = {
-  // Для поля "Ім'я"
+
   name: (value) => {
     if (!value.trim()) return "Ім'я обов'язкове";
     if (!/^[А-Яа-яЄєІіЇїҐґ\s-]{2,50}$/.test(value)) {
@@ -17,10 +19,9 @@ export const validations = {
       return "Решта літер мають бути маленькими";
     }
 
-    return null; // null означає "помилки немає"
+    return null;
   },
   
-  // Для поля "Прізвище"
   surname: (value) => {
     if (!value.trim()) return "Прізвище обов'язкове";
     if (!/^[А-Яа-яЄєІіЇїҐґ\s-]{2,50}$/.test(value)) {
@@ -40,16 +41,21 @@ export const validations = {
     return null;
   },
   
-  // Для поля "Гендер" (селект)
+  country: (value) => {
+    if (!value || value === 0) return "Оберіть країну";
+    return null;
+  },
+
+  city: (value) => {
+    if (!value || value === 0) return "Оберіть місто";
+    return null;
+  },
+
   gender: (value) => {
-    const validGenders = ['Чоловік', 'Жінка', 'Інше'];
-    if (!validGenders.includes(value)) {
-      return "Оберіть один з варіантів";
-    }
+    if (!value || value === 0) return "Оберіть стать";
     return null;
   },
   
-  // Для дати народження
   birthDate: (value) => {
     if (!value) return "Дата обов'язкова";
     const birthDate = new Date(value);
@@ -59,7 +65,6 @@ export const validations = {
     return null;
   },
   
-  // Для email
   email: (value) => {
     if (!value.trim()) return "Email обов'язковий";
     if (!/\S+@\S+\.\S+/.test(value)) {
@@ -94,8 +99,6 @@ export const validations = {
       return `Невірний код оператора. Дозволені: ${validCodes.slice(0, 5).join(', ')}...`;
     }
 
-    
-
     if (value.includes("_")) return "Телефон має бути у форматі +38(0XX)-XXX-XX-XX";
   },
 
@@ -114,20 +117,54 @@ export const validations = {
     return null;
   },
 
-  passwordConfirm: (value, allValues) => {
+  repeat_password: (value, allValues) => {
     console.log("Validating passwordConfirm with value:", value, "and allValues:", allValues);
 
     if (!value?.trim()) return "Підтвердження пароля обов'язкове";
 
     // 🔑 якщо password ще нема — не валідимо confirm
-    if (!allValues?.password?.value) return null;
+    if (!allValues?.password?.realValue) return null;
 
     // 🔑 якщо password невалідний — confirm мовчить
     if (!allValues.password.isValid) return null;
 
-    if (value !== allValues.password.value) return "Паролі не співпадають";
+    if (value !== allValues.password.realValue) return "Паролі не співпадають";
 
     return null;
-  }
+  },
+
+  university: (value) => {
+    if (!value || value === 0) return "Вкажіть університет";
+    return null;
+  },
+  
+  faculty: (value) => {
+    if (!value) return "Вкажіть факультет";
+    if (value.length < 2) return "Як мінімум 2 символи";
+    if (value.length > 50) return "Максимум 50 символів";
+    return null;
+  },
+
+  course: (value) => {
+    if (!value) return "Вкажіть курс";
+    if (value.length < 2) return "Як мінімум 2 символи";
+    if (value.length > 50) return "Максимум 50 символів";
+    return null;
+  },
+
+  languages: (value) => {
+    if (!value || value.length === 0) return "Оберіть мови";
+    return null;
+  },
+
+  cleanliness: (value) => {
+    if (!value) return "Оберіть рівень охайності";
+    if (/^[1-5]?$/.test(value)) {
+      setValue(value);
+    }
+    return null;
+  },
+
+  
 
 };

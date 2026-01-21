@@ -1,26 +1,26 @@
 import React, { PureComponent } from 'react';
-import { SmartSelect } from './components/SmartSelect';
-import { SmartInput } from './components/SmartInput';
-import { SmartBox } from './components/SmartBox';
-import { SmartCreatable } from './components/SmartCreatable';
-import { CityOptions } from './components/CityOptions';
-import { Header } from './components/Header';
-import SmartCalendar from './components/SmartCalendar';
-import { PasswordInput } from './components/PasswordInfo';
-import { PassConfirm } from './components/PassConfirm';
-import { SubmitBtn } from './components/SubmitBtn';
+import { SmartSelect } from '../components/SmartSelect';
+import { SmartInput } from '../components/SmartInput';
+import { SmartBox } from '../components/SmartBox';
+import { SmartCreatable } from '../components/SmartCreatable';
+import { CityOptions } from '../components/CityOptions';
+import { Header } from '../components/Header';
+import SmartCalendar from '../components/SmartCalendar';
+import { PasswordInput } from '../components/PasswordInfo';
+import { PassConfirm } from '../components/PassConfirm';
+import { SubmitBtn } from '../components/SubmitBtn';
 
 function buildRegistrationPayload(formState) {
 	const result = {};
 
 	Object.keys(formState).forEach((key) => {
-		result[key] = formState[key].value;
+		result[key] = formState[key].realValue;
 	});
 		
 	return result;
 }
 
-export class MAIN extends PureComponent {
+export class Step1 extends PureComponent {
   	constructor(props) {
 		super(props);
 		this.state = {
@@ -29,10 +29,12 @@ export class MAIN extends PureComponent {
   	}
 
   	setFormState = (fieldName, value, isValid) => {
+		const realValue = value && value.value !== undefined ? value.value : value;
+
 		this.setState((prevState) => ({
 			formState: {
 			...prevState.formState,
-			[fieldName]: { value, isValid },
+			[fieldName]: { realValue, isValid },
 			},
 		}));
 	};
@@ -40,34 +42,37 @@ export class MAIN extends PureComponent {
 	handleSubmit = () => {
 		const payload = buildRegistrationPayload(this.state.formState);
 	
-		console.log("REGISTRATION JSON:", payload);
+		// console.log("REGISTRATION JSON:", payload);
 	
 		localStorage.setItem(
-			"registrationDraft",
+			"registrationDraft_1",
 			JSON.stringify(payload, null, 2)
 		);
 	};
 
   	render() {
 		const { formState } = this.state;
+		const { onNext } = this.props;
 
 		const REQUIRED_FIELDS = [
-  			"firstName",
-  			"lastName",
-			// "country",
+  			"first_name",
+  			"last_name",
+			"country",
 			"city",
 			"gender",
-			"birthDate",
-  			"phone",
+			"birthdate",
+  			"phone_number",
   			"email",
   			"password",
-  			"passwordConfirm"
+  			"repeat_password"
 		];
 
 
 		function isFormValid(formState) {
+			console.log("Validating form...", formState);
 
   			for (const field of REQUIRED_FIELDS) {
+				console.log("Checking field:", field, formState[field]);
     			if (!formState[field]) return false;
   			}
 
@@ -109,7 +114,7 @@ export class MAIN extends PureComponent {
             				<div>
             				  	<div style={labelStyle}>Ім’я</div>
             				  	<SmartBox
-									fieldName="firstName"
+									fieldName="first_name"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
@@ -121,7 +126,7 @@ export class MAIN extends PureComponent {
             				<div>
             				  	<div style={labelStyle}>Прізвище</div>
             				  	<SmartBox
-									fieldName="lastName"
+									fieldName="last_name"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
@@ -138,8 +143,11 @@ export class MAIN extends PureComponent {
 									setFormState={this.setFormState}
 								>
             				    	<SmartSelect
-            				      		options={[{ value: "ua", label: "Україна" }]}
-            				      		defaultValue={{ value: "ua", label: "Україна" }}
+            				      		options={[
+											{ value: 0, label: "Виберіть країну" },
+											{ value: 1, label: "Україна" }
+										]}
+										placeholder="Країна"
             				    	/>
             				  	</SmartBox>
             				</div>
@@ -154,7 +162,7 @@ export class MAIN extends PureComponent {
 								>
             				    	<SmartCreatable
             				      		options={CityOptions}
-            				      		defaultValue={CityOptions.find(o => o.value === "kyiv")}
+										placeholder="Місто"
             				    	/>
             				  	</SmartBox>
             				</div>
@@ -169,11 +177,12 @@ export class MAIN extends PureComponent {
 								>
             				    	<SmartSelect
             				      		options={[
-            				        		{ value: "male", label: "Чоловіча" },
-            				        		{ value: "female", label: "Жіноча" },
-            				        		{ value: "other", label: "Інша" },
+											{ value: 0, label: "Виберіть вашу стать" },
+            				        		{ value: 1, label: "Чоловіча" },
+            				        		{ value: 2, label: "Жіноча" },
+            				        		{ value: 3, label: "Інша" },
             				      		]}
-            				      		// defaultValue={{ value: "male", label: "Чоловіча" }}
+										placeholder="Стать"
             				    	/>
             				  	</SmartBox>
             				</div>
@@ -182,7 +191,7 @@ export class MAIN extends PureComponent {
 							<div>
 								<div style={labelStyle}>День Народження</div>
 								<SmartBox
-									fieldName="birthDate"
+									fieldName="birthdate"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
@@ -194,7 +203,7 @@ export class MAIN extends PureComponent {
 							<div>
 								<div style={labelStyle}>Номер телефону</div>
 								<SmartBox
-									fieldName="phone"
+									fieldName="phone_number"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
@@ -235,14 +244,14 @@ export class MAIN extends PureComponent {
 							<div>
 								<div style={labelStyle}>Підтвердження пароля</div>
 								<SmartBox
-									fieldName="passwordConfirm"
+									fieldName="repeat_password"
 									formState={formState}
 									setFormState={this.setFormState}
 									disabled={!formState.password?.isValid}
 								>
 									<PassConfirm
 										disabled={!formState.password?.isValid}
-										placeholder="passConfirm"
+										placeholder="repeat_password"
 									/>
 								</SmartBox>
 							</div>
@@ -258,9 +267,14 @@ export class MAIN extends PureComponent {
 								marginTop: "36px"
 							}}
 						>
-							<SubmitBtn onClick={this.handleSubmit} disabled={!isFormValid(formState)}>
-								Зареєструватися
-							</SubmitBtn>
+							<SubmitBtn
+								onClick={() => {
+									this.handleSubmit();
+									onNext();
+								}}
+								// disabled={!isFormValid(formState)}
+								btntext="Далі >"
+							/>
 						</div>
         			</div>
 				</div>

@@ -19,6 +19,7 @@ export function PasswordInput ({ value, onChange, onFocus, onBlur, name }) {
             }}
         >
             <SmartInput
+                margintop="0px"
                 placeholder="Пароль"
                 type={showPassword ? "text" : "password"}
                 name={name}

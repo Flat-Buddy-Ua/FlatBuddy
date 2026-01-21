@@ -1,39 +1,31 @@
-import React, { useState } from 'react';
+import { max } from 'moment';
+import React, { PureComponent } from 'react';
 import CreatableSelect from 'react-select/creatable';
 
-const CYRILLIC_REGEX = /^[\u0400-\u04FF\s-]*$/;
-
-export function SmartCreatable({
+export function MultiSelect({
     options = [],
     defaultValue = null,
     onChange,
     onFocus,
     onBlur,
     onMenuOpen,
-    onMenuClose
-})
+    onMenuClose, 
+    isMulti = true
+}) {
 
-{
-    const [selectedOption, setSelectedOption] = React.useState(defaultValue || options[0] || null);
-    
-    const [inputValue, setInputValue] = useState("");
+    const [selectedOptions, setSelectedOptions] = React.useState(
+        isMulti 
+            ? (Array.isArray(defaultValue) ? defaultValue : []) 
+            : defaultValue || null
+    );
 
     return (
         <CreatableSelect
-            value={selectedOption}
-            inputValue={inputValue}
-            onChange={(val) => {
-                setSelectedOption(val);
-                onChange?.(val);
-            }}
-            onInputChange={(inputValue, { action }) => {
-                if (action !== "input-change") {
-                    return;
-                }
-
-                if (CYRILLIC_REGEX.test(inputValue)) {
-                    setInputValue(inputValue);
-                }
+            isMulti={isMulti}
+            value={selectedOptions}
+            onChange={(selected) => {
+                setSelectedOptions(selected);
+                onChange?.(selected);
             }}
             onFocus={onFocus}
             onBlur={onBlur}
@@ -55,13 +47,14 @@ export function SmartCreatable({
                     background: 'transparent',
                     boxShadow: 'none',
                     fontSize: '16px',
-                    fontFamily: 'Inter',
+                    fontFamily: "'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif",
                 }),
                 menuPortal: (base) => ({
                     ...base,
                     width: '30%',
                     minWidth: '300px',
                     zIndex: 9999,
+                    fontFamily: "'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif",
                 }),
                 menu: (base) => ({
                     ...base,
@@ -69,11 +62,13 @@ export function SmartCreatable({
                     border: '1px solid #ccc',
                     minHeight: '100px',
                     maxHeight: '200px',
+                    fontFamily: "'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif",
                     // width: '120%'
                 }),
                 menuList: (base) => ({
                     ...base,
                     maxHeight: '200px',
+                    fontFamily: "'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif",
                     // width: '120%'
                 }),
                 option: (base, state) => ({
@@ -85,8 +80,30 @@ export function SmartCreatable({
                         backgroundColor: '#F6DDD480',
                     },
                     fontSize: '16px',
-                    fontFamily: 'Inter',
+                    fontFamily: "'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif",
                     // width: '120%'
+                }),
+                multiValue: (base) => ({
+                    ...base,
+                    backgroundColor: '#F6DDD4',
+                    borderRadius: '4px',
+                    padding: '2px 4px',
+                    margin: '2px',
+                    fontFamily: "'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif",
+                }),
+                multiValueLabel: (base) => ({
+                    ...base,
+                    color: 'black',
+                    fontWeight: 'normal',
+                    fontFamily: "'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif",
+                }),
+                multiValueRemove: (base) => ({
+                    ...base,
+                    color: '#666',
+                    ':hover': {
+                        backgroundColor: '#E8C9BC',
+                        color: 'black',
+                    },
                 }),
             }}
         />

@@ -23,7 +23,12 @@ body {
 
 .main-grid {
   display: grid;
-  gap: 60px;
+  gap: 40px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.submain-grid {
+  display: grid;
   grid-template-columns: 1fr 1fr;
 }
 
@@ -33,6 +38,16 @@ body {
     grid-template-rows: auto auto;
   }
 }
+
+@media (max-width: 768px) {
+  .submain-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto;
+    align-self: flex-start;
+    margin-left: 40px;
+  }
+}
+
 
 .smartbox {
   filter: blur(5px);
@@ -59,24 +74,6 @@ input {
 input:focus {
   outline: none;
 }
-
-/* select {
-  z-index: 1000;
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-size: 16px;
-  font-family: 'Inter';
-  padding: 0 10px;
-  color: rgba(0, 0, 0, 1);
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-} */
 
 .outerDiv {
   position: relative;
@@ -132,7 +129,12 @@ a {
 }
 
 input::placeholder {
-  color: var(--placeholder-color);
+  color: var(--placeholder-color-input);
+}
+
+textarea::placeholder {
+  opacity: 1;
+  color: var(--placeholder-color-text);
 }
 
 .react-hint {
@@ -148,3 +150,39 @@ input::placeholder {
   pointer-events: none; /* хінт “літає” і не заважає hover */
 }
 
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background-color: #F6DDD4;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+
+/* Chrome, Edge, Safari */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border: 3px solid #F6DDD4;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Firefox */
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border: 3px solid #F6DDD4;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Firefox track */
+.slider::-moz-range-track {
+  background-color: #F6DDD4;
+  height: 6px;
+  border-radius: 3px;
+}

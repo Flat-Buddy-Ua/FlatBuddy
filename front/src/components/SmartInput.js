@@ -7,17 +7,16 @@ export function SmartInput({
   defaultValue = "",
   mask,
   maskChar = "_",
-  onChange,   // will be called with newValue (string)
-  onFocus,    // will be called with native event
+  onChange,
+  onFocus,
   onBlur,
-  disabled,     // will be called with native event
+  disabled,
+  margintop="12px",
   ...rest
 }) {
-  // console.log("SmartInput render", { defaultValue, mask, disabled });
 
   const [value, setValue] = useState(defaultValue);
 
-  // keep internal value if parent controls defaultValue change
   useEffect(() => {
     setValue(defaultValue);
   }, [defaultValue]);
@@ -39,7 +38,9 @@ export function SmartInput({
   const baseStyle = {
     width: "100%",
     height: "100%",
+    marginTop: margintop,
     paddingLeft: "20px",
+    paddingRight: "20px",
     border: "none",
     background: "transparent",
     outline: "none",
@@ -49,14 +50,13 @@ export function SmartInput({
     cursor: disabled ? "not-allowed" : "text",
   };
 
-  // If no mask, render normal input but keep same contract (onChange gives string)
   if (!mask) {
     return (
       <input
         {...rest}
         style={{
           ...baseStyle,
-          "--placeholder-color": disabled ? "#99999980" : "#AAAAAA"
+          "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA"
         }}
         value={value}
         disabled={disabled}
@@ -67,26 +67,24 @@ export function SmartInput({
     );
   }
 
-  // WITH MASK: pass handlers to InputMask (important!)
   return (
     <InputMask
       mask={mask}
       maskChar={maskChar}
       value={value}
       disabled={disabled}
-      onChange={handleChange}   // InputMask will call this with event
+      onChange={handleChange}
       onFocus={handleFocus}
       onBlur={handleBlur}
     >
       {(inputProps) => (
-        // do NOT override inputProps.onFocus/onBlur/onChange here
         <input
           {...inputProps}
           {...rest}
-          disabled={disabled}     // allow placeholder, disabled, etc.
+          disabled={disabled}
           style={{
             ...baseStyle,
-            "--placeholder-color": disabled ? "#ffff" : "#AAAAAA",
+            "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA",
           }}
         />
       )}
