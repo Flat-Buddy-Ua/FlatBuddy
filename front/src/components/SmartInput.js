@@ -11,6 +11,7 @@ export function SmartInput({
   onFocus,
   onBlur,
   disabled,
+  inputGuard,
   margintop="12px",
   ...rest
 }) {
@@ -22,10 +23,20 @@ export function SmartInput({
   }, [defaultValue]);
 
   const handleChange = (event) => {
-    const newValue = event?.target?.value ?? event;
-    setValue(newValue);
-    if (typeof onChange === "function") onChange(newValue);
-  };
+  const rawValue = event?.target?.value ?? event;
+
+  if (typeof inputGuard === "function") {
+    const guardedValue = inputGuard(rawValue);
+    if (guardedValue === undefined) return;
+    setValue(guardedValue);
+    onChange?.(guardedValue);
+    return;
+  }
+
+  setValue(rawValue);
+  onChange?.(rawValue);
+};
+
 
   const handleFocus = (event) => {
     if (typeof onFocus === "function") onFocus(event);

@@ -42,6 +42,7 @@ const detectValidationType = (children) => {
   if (placeholder.includes("стиль")) { return "style_of_life"; }
   if (placeholder.includes("сну")) { return "sleep_schedule"; }
   if (placeholder.includes("шкідливі")) { return "bad_habits"; }
+  if (placeholder.includes("MBTI")) { return "mbti"; }
   if (placeholder.includes("хоббі")) { return "hobby"; }
   if (placeholder.includes("Біографія")) { return "biography"; }
   if (placeholder.includes("buddy")) { return "looking_for"; }

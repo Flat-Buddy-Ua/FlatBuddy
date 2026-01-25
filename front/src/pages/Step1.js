@@ -92,7 +92,7 @@ export class Step1 extends PureComponent {
         			<div style={{
 						width: "100%",
           				border: "3px solid #F6DDD4",
-          				padding: "40px",
+          				padding: "60px",
           				maxWidth: 800,
           				margin: "auto",
 						display: "flex",
@@ -101,14 +101,7 @@ export class Step1 extends PureComponent {
         			}}>
 					
           				{/* FORM GRID */}
-          				<div
-            				className='main-grid'
-            				style={{
-              					display: "grid",
-              					gap: "40px",
-              					gridTemplateColumns: "1fr 1fr",
-            				}}
-          				>
+          				<div className='main-grid'>
 
             				{/* FIELD 1 */}
             				<div>

@@ -159,12 +159,40 @@ export const validations = {
 
   cleanliness: (value) => {
     if (!value) return "Оберіть рівень охайності";
-    if (/^[1-5]?$/.test(value)) {
-      setValue(value);
-    }
     return null;
   },
 
-  
+  bad_habits: (value) => {
+    if (!value) return "Опишіть ваші шкідливі звички";
+    if (value.length < 2) return "Як мінімум 2 символи";
+    if (value.length > 100) return "Максимум 100 символів";
+    return null;
+  },
 
+  mbti: (value) => {
+    if (!value) return "Оберіть ваш MBTI тип";
+    if (value === 0) return "Вкажіть ваш MBTI тип";
+    return null;
+  },
+
+  hobby: (value) => {
+    if (!value) return "Вкажіть захоплення/хобі";
+    if (value.length < 2) return "Як мінімум 2 символи";
+    if (value.length > 200) return "Максимум 200 символів";
+    return null;
+  },
+
+  biography: (value) => {
+    if (!value) return "Вкажіть біографію";
+    if (value.length < 2) return "Як мінімум 2 символи";
+    if (value.length > 300) return "Максимум 300 символів";
+    return null;
+  },
+
+  looking_for: (value) => {
+    if (!value) return "Вкажіть, кого шукаєте";
+    if (value.length < 2) return "Як мінімум 2 символи";
+    if (value.length > 200) return "Максимум 200 символів";
+    return null;
+  }
 };

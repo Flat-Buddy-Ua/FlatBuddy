@@ -301,7 +301,15 @@ export class Step2 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartInput placeholder="Ваша охайність від 1 до 5"/>
+									<SmartInput
+										placeholder="Ваша охайність від 1 до 5"
+  										inputGuard={(value) => {
+  										  	if (value === "") return "";
+  										  	if (/^[1-5]$/.test(value)) return value;
+  										  	return undefined;
+  										}}
+									/>
+
 								</SmartBox>
 							</div>
 
