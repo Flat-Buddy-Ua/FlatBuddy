@@ -65,7 +65,6 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
           fontSize: '16px',
           color: date ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,1)',
           transition: 'all 0.3s ease',
-          marginBottom: '10px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
@@ -78,7 +77,6 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
           month: '2-digit',
           year: 'numeric'
         }) : placeholder}</span>
-        {/* <span style={{ color: '#F6DDD4' }}>📅</span> */}
       </div>
 
       {/* Календар */}

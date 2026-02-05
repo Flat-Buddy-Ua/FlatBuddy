@@ -11,7 +11,6 @@ import { UniversityOptions } from '../components/UniversityOptions';
 import { MultiSelect } from '../components/MultiSelect';
 import { languageOptions } from '../components/languageOptions';
 import { MBTI } from '../components/MBTI';
-import { SmartToggle } from '../components/SmartToggle';
 
 function buildRegistrationPayload(formState) {
 	const result = {};
@@ -60,7 +59,7 @@ export class Step2 extends PureComponent {
 	
 	render() {
 		const { formState } = this.state;
-		const { onNext, onBack } = this.props;
+		const { onNext } = this.props;
 		
 		const REQUIRED_FIELDS = [
   			"university",
@@ -99,7 +98,6 @@ export class Step2 extends PureComponent {
 		}	
 
 		const { isHoveredMBTI } = this.state;
-		const { isON } = this.state;
 
     	return (
       		<div>
@@ -107,12 +105,12 @@ export class Step2 extends PureComponent {
           			<Header />
         		</div>
         
-				<div style={{ padding: "40px" }}>
+				<div style={{ padding: "40px 20px 40px 20px" }}>
        				{/* CARD */}
         			<div style={{
 						width: "100%",
           				border: "3px solid #F6DDD4",
-          				padding: "60px",
+          				padding: "80px",
           				maxWidth: 800,
           				margin: "auto",
 						display: "flex",
@@ -204,7 +202,7 @@ export class Step2 extends PureComponent {
 								>
 									<MultiSelect
 										options={languageOptions}
-										placeholder="languages"
+										placeholder="Оберіть мови"
 									/>
 								</SmartBox>
 							</div>
@@ -417,9 +415,9 @@ export class Step2 extends PureComponent {
 									className='slider'
 									type='range'
 									defaultValue='0'
-									min='-100'
-									max='100'
-									step='100'
+									min='-1'
+									max='1'
+									step='1'
 									onChange={(e) => {
 										// console.log(e.target.value);
 										this.setFormState(
@@ -500,7 +498,7 @@ export class Step2 extends PureComponent {
 							</div>
           				</div>
 									
-						{/*SUBMIT BUTTON*/}
+						{/* SUBMIT BUTTON */}
 						<div
 							style={{
 								width: "100%",
@@ -510,14 +508,19 @@ export class Step2 extends PureComponent {
 								marginTop: "36px"
 							}}
 						>
-							<SubmitBtn
+							{/* <SubmitBtn
 								onClick={onBack}
 								btntext="< Назад"
-							/>
+							/> */}
 
 							<SubmitBtn
-								onClick={this.handleSubmit}
-								disabled={!isFormValid(formState)}
+								onClick={
+									() => {
+										this.handleSubmit();
+										onNext();
+									}
+								}
+								// disabled={!isFormValid(formState)}
 								btntext="Далі >"
 							/>
 						</div>

@@ -9,7 +9,8 @@ export function MultiSelect({
     onFocus,
     onBlur,
     onMenuOpen,
-    onMenuClose, 
+    onMenuClose,
+    placeholder,
     isMulti = true
 }) {
 
@@ -21,6 +22,7 @@ export function MultiSelect({
 
     return (
         <CreatableSelect
+            placeholder={placeholder}
             isMulti={isMulti}
             value={selectedOptions}
             onChange={(selected) => {

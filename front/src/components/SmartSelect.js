@@ -8,7 +8,8 @@ export function SmartSelect({
     onFocus,
     onBlur,
     onMenuOpen,
-    onMenuClose
+    onMenuClose,
+    mywidth = "100%",
 }) {
     const [selectedOption, setSelectedOption] = React.useState(defaultValue || options[0] || null);
 
@@ -31,7 +32,10 @@ export function SmartSelect({
             styles={{
                 control: (provided) => ({
                     ...provided,
-                    width: '100%',
+                    boxSizing: 'border-box',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    width: mywidth,
                     height: '100%',
                     minHeight: '44px',
                     paddingLeft: '10px',

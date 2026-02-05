@@ -87,12 +87,12 @@ export class Step1 extends PureComponent {
           			<Header />
         		</div>
         
-				<div style={{ padding: "40px" }}>
+				<div style={{ padding: "40px 20px 40px 20px" }}>
        				{/* CARD */}
         			<div style={{
 						width: "100%",
           				border: "3px solid #F6DDD4",
-          				padding: "60px",
+          				padding: "80px",
           				maxWidth: 800,
           				margin: "auto",
 						display: "flex",

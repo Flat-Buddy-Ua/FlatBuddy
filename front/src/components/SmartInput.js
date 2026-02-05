@@ -13,6 +13,9 @@ export function SmartInput({
   disabled,
   inputGuard,
   margintop="12px",
+  inputMode = "text",
+  pattern = null,
+  prefix = null,
   ...rest
 }) {
 
@@ -47,6 +50,7 @@ export function SmartInput({
   };
 
   const baseStyle = {
+    boxSizing: "border-box",
     width: "100%",
     height: "100%",
     marginTop: margintop,
@@ -63,18 +67,30 @@ export function SmartInput({
 
   if (!mask) {
     return (
-      <input
-        {...rest}
-        style={{
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {prefix && <span style={{
           ...baseStyle,
-          "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA"
-        }}
-        value={value}
-        disabled={disabled}
-        onChange={(e) => handleChange(e)}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-      />
+          width: "30px",
+          // marginTop: parseInt(margintop, 10) + 2 + "px",
+          marginRight: "0px",
+          paddingRight: "0px",
+          color: "#999999",
+        }}>{prefix}</span>}
+        <input
+          {...rest}
+          style={{
+            ...baseStyle,
+            "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA"
+          }}
+          value={value}
+          disabled={disabled}
+          onChange={(e) => handleChange(e)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          inputMode={inputMode}
+          pattern={pattern}
+        />
+      </div>
     );
   }
 

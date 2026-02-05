@@ -24,6 +24,7 @@ export function SmartCreatable({
             inputValue={inputValue}
             onChange={(val) => {
                 setSelectedOption(val);
+                setInputValue("");
                 onChange?.(val);
             }}
             onInputChange={(inputValue, { action }) => {
