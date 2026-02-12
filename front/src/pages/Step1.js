@@ -39,16 +39,33 @@ export class Step1 extends PureComponent {
 		}));
 	};
 
-	handleSubmit = () => {
+	handleSubmit = async () => {
 		const payload = buildRegistrationPayload(this.state.formState);
 	
-		// console.log("REGISTRATION JSON:", payload);
-	
-		localStorage.setItem(
-			"registrationDraft_1",
-			JSON.stringify(payload, null, 2)
-		);
-	};
+		// localStorage.setItem(
+		// 	"registrationDraft_2",
+		// 	JSON.stringify(payload, null, 2)
+		// );
+		
+		await fetch("/api/register", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(payload),
+		})
+		.then((res) => res.json())
+		.then((data) => {
+			console.log("Registration response:", data);
+			if (!data.success) {
+				alert("Помилка реєстрації: " + data.message);
+			}
+		})
+		.catch((error) => {
+			console.error("Registration error:", error);
+			alert("Сталася помилка при реєстрації. Спробуйте ще раз.");
+		});
+  	};
 
   	render() {
 		const { formState } = this.state;
@@ -265,7 +282,7 @@ export class Step1 extends PureComponent {
 									this.handleSubmit();
 									onNext();
 								}}
-								// disabled={!isFormValid(formState)}
+								disabled={!isFormValid(formState)}
 								btntext="Далі >"
 							/>
 						</div>
