@@ -1,14 +1,14 @@
-import React, { PureComponent } from 'react';
-import { SmartSelect } from '../components/SmartSelect';
-import { SmartInput } from '../components/SmartInput';
-import { SmartBox } from '../components/SmartBox';
-import { SmartCreatable } from '../components/SmartCreatable';
-import { CityOptions } from '../components/CityOptions';
-import { Header } from '../components/Header';
-import SmartCalendar from '../components/SmartCalendar';
-import { PasswordInput } from '../components/PasswordInfo';
-import { PassConfirm } from '../components/PassConfirm';
-import { SubmitBtn } from '../components/SubmitBtn';
+﻿import React, { PureComponent } from 'react';
+import { SmartSelect } from '../components/SmartSelect.jsx';
+import { SmartInput } from '../components/SmartInput.jsx';
+import { SmartBox } from '../components/SmartBox.jsx';
+import { SmartCreatable } from '../components/SmartCreatable.jsx';
+import { CityOptions } from '../components/CityOptions.jsx';
+import { Header } from '../components/Header.jsx';
+import SmartCalendar from '../components/SmartCalendar.jsx';
+import { PasswordInput } from '../components/PasswordInfo.jsx';
+import { PassConfirm } from '../components/PassConfirm.jsx';
+import { SubmitBtn } from '../components/SubmitBtn.jsx';
 
 function buildRegistrationPayload(formState) {
 	const result = {};
@@ -299,4 +299,5 @@ const labelStyle = {
   fontFamily: "Seenonim",
   color: "#000",
 };
+
 
