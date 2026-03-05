@@ -54,15 +54,15 @@ export class Step3 extends PureComponent {
 		.then((data) => {
 			console.log("Registration response:", data);
 			if (data.success) {
-				alert("Р РµС”СЃС‚СЂР°С†С–СЏ СѓСЃРїС–С€РЅР°!");
+				alert("Реєстрація успішна!");
 				window.location.href = "/login";
 			} else {
-				alert("РџРѕРјРёР»РєР° СЂРµС”СЃС‚СЂР°С†С–С—: " + data.message);
+				alert("Помилка реєстрації: " + data.message);
 			}
 		})
 		.catch((error) => {
 			console.error("Registration error:", error);
-			alert("РЎС‚Р°Р»Р°СЃСЏ РїРѕРјРёР»РєР° РїСЂРё СЂРµС”СЃС‚СЂР°С†С–С—. РЎРїСЂРѕР±СѓР№С‚Рµ С‰Рµ СЂР°Р·.");
+			alert("Сталася помилка при реєстрації. Спробуйте ще раз.");
 		});
   	};
 
@@ -133,7 +133,7 @@ export class Step3 extends PureComponent {
 							{/* ADVANTAGES */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-							  	<div style={labelStyle}>РћР±РµСЂС–С‚СЊ СЃРІРѕСЋ РїСЂРµС„РµСЂРµРЅС†С–СЋ</div>
+							  	<div style={labelStyle}>Оберіть свою преференцію</div>
 							  	<SmartBox
 									mywidth='650px'
 									fieldName="room_sharing_preference"
@@ -142,9 +142,9 @@ export class Step3 extends PureComponent {
 								>
 									<SmartSelect
 										options={[
-											{ value: 0, label: 'Р§РѕРјСѓ РІРё РЅР°РґР°С”С‚Рµ РїРµСЂРµРІР°РіСѓ?' },
-											{ value: 1, label: 'MРµРЅС– РєРѕРјС„РѕСЂС‚РЅРѕ РґС–Р»РёС‚Рё РєС–РјРЅР°С‚Сѓ Р· СЃРїС–РІРјРµС€РєР°РЅС†РµРј'},
-											{ value: 2, label: 'РЇ С…РѕС‡Сѓ РјР°С‚Рё РѕРєСЂРµРјСѓ РєС–РјРЅР°С‚Сѓ'},
+											{ value: 0, label: 'Чому ви надаєте перевагу?' },
+											{ value: 1, label: 'Mені комфортно ділити кімнату з співмешканцем'},
+											{ value: 2, label: 'Я хочу мати окрему кімнату'},
 										]}
 										mywidth='630px'
 										placeholder="room_sharing_preference"
@@ -155,7 +155,7 @@ export class Step3 extends PureComponent {
 							{/* WHO TO LIVE WITH */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-							  	<div style={labelStyle}>Р†Р· РєРёРј РІРё Р± С…РѕС‚С–Р»Рё РїСЂРѕР¶РёРІР°С‚Рё?</div>
+							  	<div style={labelStyle}>Із ким ви б хотіли проживати?</div>
 							  	<SmartBox
 									mywidth='650px'
 									fieldName="preferred_gender"
@@ -164,10 +164,10 @@ export class Step3 extends PureComponent {
 								>
 									<SmartSelect
 										options={[
-											{ value: 0, label: 'РћР±РµСЂС–С‚СЊ РІР°СЂС–Р°РЅС‚' },
-											{ value: 1, label: 'Р›РёС€Рµ Р· С…Р»РѕРїС†СЏРјРё' },
-											{ value: 2, label: 'Р›РёС€Рµ Р· РґС–РІС‡Р°С‚Р°РјРё' },
-											{ value: 3, label: 'РќРµ РјР°С” Р·РЅР°С‡РµРЅРЅСЏ' },
+											{ value: 0, label: 'Оберіть варіант' },
+											{ value: 1, label: 'Лише з хлопцями' },
+											{ value: 2, label: 'Лише з дівчатами' },
+											{ value: 3, label: 'Не має значення' },
 										]}
 										mywidth='630px'
 										placeholder="preferred_gender"
@@ -178,7 +178,7 @@ export class Step3 extends PureComponent {
 							{/* HOUSING STATUS */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>Р©Рѕ РЅР°Р№РєСЂР°С‰Рµ РѕРїРёСЃСѓС” РІР°С€Сѓ СЃРёС‚СѓР°С†С–СЋ?</div>
+								<div style={labelStyle}>Що найкраще описує вашу ситуацію?</div>
 								<SmartBox
 									mywidth='650px'
 									fieldName="housing_status"
@@ -187,9 +187,9 @@ export class Step3 extends PureComponent {
 								>
 									<SmartSelect
 										options={[
-											{ value: 0, label: 'РћР±РµСЂС–С‚СЊ РІР°СЂС–Р°РЅС‚' },
-											{ value: 1, label: 'РЇ С€СѓРєР°СЋ Р¶РёС‚Р»Рѕ С‚Р° СЃРїС–РІРјРµС€РєР°РЅС†СЏ' },
-											{ value: 2, label: 'РЇ С€СѓРєР°СЋ Р»РёС€Рµ СЃРїС–РІРјРµС€РєР°РЅС†СЏ, РјР°СЋ СЃРІРѕС”/РѕСЂРµРЅРґРѕРІР°РЅРµ Р¶РёС‚Р»Рѕ' },
+											{ value: 0, label: 'Оберіть варіант' },
+											{ value: 1, label: 'Я шукаю житло та співмешканця' },
+											{ value: 2, label: 'Я шукаю лише співмешканця, маю своє/орендоване житло' },
 										]}
 										mywidth='630px'
 										placeholder="housing_status"
@@ -200,17 +200,17 @@ export class Step3 extends PureComponent {
 							{/* BUDGET */}
 
 							<div>
-								<div style={{...labelStyle, marginBottom: "8px", marginTop: "14px"}}>РЇРєРёР№ РІР°С€ Р±СЋРґР¶РµС‚?</div>
+								<div style={{...labelStyle, marginBottom: "8px", marginTop: "14px"}}>Який ваш бюджет?</div>
 								<SmartBox
 									fieldName="budget"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
 									<SmartInput
-										placeholder="Р’РєР°Р¶С–С‚СЊ СЃСѓРјСѓ РІ РіСЂРЅ"
+										placeholder="Вкажіть суму в грн"
 										type="number"
 										step="100"
-										prefix="в‚ґ"
+										prefix="₴"
 									/>
 								</SmartBox>
 							</div>
@@ -218,14 +218,14 @@ export class Step3 extends PureComponent {
 							{/* DISTRICT */}
 
 							<div>
-								<div style={{...labelStyle, marginBottom: "0px"}}>Р Р°Р№РѕРЅ/-Рё РїСЂРѕР¶РёРІР°РЅРЅСЏ</div>
+								<div style={{...labelStyle, marginBottom: "0px"}}>Район/-и проживання</div>
 								<div style={{
 									fontSize: "12px",
 									fontFamily: "Inter",
 									color: "#000",
 									marginTop: "-4px",
 									marginBottom: "6px"
-								}}>РћР±РµСЂС–С‚СЊ Р±Р°Р¶Р°РЅРёР№ СЂР°Р№РѕРЅ/СЂР°Р№РѕРЅРё РїСЂРѕР¶РёРІР°РЅРЅСЏ</div>
+								}}>Оберіть бажаний район/райони проживання</div>
 								<SmartBox
 									fieldName="preferred_districts"
 									formState={formState}
@@ -234,7 +234,7 @@ export class Step3 extends PureComponent {
 									<SmartSelect
 										isMulti
 										options={[
-											{ value: 0, label: 'РћР±РµСЂС–С‚СЊ СЂР°Р№РѕРЅ/-Рё' }
+											{ value: 0, label: 'Оберіть район/-и' }
 										]}
 										placeholder="districts"
 									/>
@@ -244,35 +244,35 @@ export class Step3 extends PureComponent {
 							{/* TERM */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>РќР° СЏРєРёР№ С‚РµСЂРјС–РЅ РїР»Р°РЅСѓС”С‚Рµ РїСЂРѕР¶РёРІР°РЅРЅСЏ?</div>
+								<div style={labelStyle}>На який термін плануєте проживання?</div>
 								<SmartBox
 									mywidth="650px"
 									fieldName="planned_duration"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Р’Р°С€ С‚РµСЂРјС–РЅ РїСЂРѕР¶РёРІР°РЅРЅСЏ"/>
+									<SmartText placeholder="Ваш термін проживання"/>
 								</SmartBox>
 							</div>
 
 							{/* LOOKING FOR */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>РљРѕР»Рё РїР»Р°РЅСѓС”С‚Рµ РїРѕС‡Р°С‚Рё РїСЂРѕР¶РёРІР°РЅРЅСЏ?</div>
+								<div style={labelStyle}>Коли плануєте почати проживання?</div>
 								<SmartBox
 									mywidth="650px"
 									fieldName="move_in_date"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Р’Р°С€Р° РґР°С‚Р° РїРѕС‡Р°С‚РєСѓ РїСЂРѕР¶РёРІР°РЅРЅСЏ"/>
+									<SmartText placeholder="Ваша дата початку проживання"/>
 								</SmartBox>
 							</div>
 
 							{/* PET */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>Р§Рё С” Сѓ РІР°СЃ РґРѕРјР°С€РЅС–Р№ СѓР»СЋР±Р»РµРЅРµС†СЊ?</div>
+								<div style={labelStyle}>Чи є у вас домашній улюбленець?</div>
 								<SmartBox
 									mywidth="650px"
 									fieldName="has_pet"
@@ -281,9 +281,9 @@ export class Step3 extends PureComponent {
 								>
 									<SmartSelect
 										options={[
-											{ value: 0, label: 'РћР±РµСЂС–С‚СЊ РІР°СЂС–Р°РЅС‚' },
-											{ value: true, label: 'РўР°Рє, С”' },
-											{ value: false, label: 'РќС–, РЅРµРјР°' },
+											{ value: 0, label: 'Оберіть варіант' },
+											{ value: true, label: 'Так, є' },
+											{ value: false, label: 'Ні, нема' },
 										]}
 										mywidth='630px'
 										placeholder="pet"
@@ -295,14 +295,14 @@ export class Step3 extends PureComponent {
 
 							{formState.has_pet?.realValue === true && (
 								<div style={{ gridColumn: "1 / -1" }}>
-									<div style={labelStyle}>Р РѕР·РєР°Р¶С–С‚СЊ РїСЂРѕ СЃРІРѕС—С… СѓР»СЋР±Р»РµРЅС†С–РІ</div>
+									<div style={labelStyle}>Розкажіть про своїх улюбленців</div>
 									<SmartBox
 										mywidth="650px"
 										fieldName="pet_description"
 										formState={formState}
 										setFormState={this.setFormState}
 									>
-										<SmartText placeholder="Р’Р°С€С– СѓР»СЋР±Р»РµРЅС†С–"/>
+										<SmartText placeholder="Ваші улюбленці"/>
 									</SmartBox>
 								</div>
 							)}
@@ -320,13 +320,13 @@ export class Step3 extends PureComponent {
 						>
 							{/* <SubmitBtn
 								onClick={onBack}
-								btntext="< РќР°Р·Р°Рґ"
+								btntext="< Назад"
 							/> */}
 
 							<SubmitBtn
 								onClick={this.handleSubmit}
 								disabled={!isFormValid(formState)}
-								btntext="РќР°РґС–СЃР»Р°С‚Рё"
+								btntext="Надіслати"
 							/>
 						</div>
         			</div>
@@ -342,5 +342,6 @@ const labelStyle = {
   fontFamily: "Seenonim",
   color: "#000",
 };
+
 
 
