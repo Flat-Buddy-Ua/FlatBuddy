@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { Header } from "../components/Header.jsx";
 
-export function Card() {
+export function Card({ onGoHome, onLoginClick, onFindRoommate }) {
     const [cardData, setCardData] = useState(null);
     const [photoIndex, setPhotoIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
@@ -43,9 +43,14 @@ export function Card() {
     const moreInfo = cardData?.moreInfo || "Національний уніерситет \"Львівська політехніка\"\nСистеми Штучного Інтелекту, 2 курс\nПоліт. координата: Центрист\nГотовий до переїзду: з 1 вересня\nПереваги: охайний, некурящий, люблю готувати\nНедоліки: іноді можу бути надто тихим, не люблю гучну музику";
 
     return (
-        <div className="tinder-page">
+        <div className="landing-page">
             <div className="header-grid">
-                <Header />
+                <Header
+                    onFBClick={onGoHome}
+                    onHomeClick={onGoHome}
+                    onLoginClick={onLoginClick}
+                    onFindRoommateClick={onFindRoommate}
+                />
             </div>
             <main className="tinder-card-stage">
                 <article className={`tinder-card ${isFlipped ? "is-flipped" : ""}`}>

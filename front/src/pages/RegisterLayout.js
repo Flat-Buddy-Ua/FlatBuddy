@@ -28,6 +28,10 @@ export class RegisterLayout extends PureComponent {
 		this.setState({ step: 4 });
 	};
 
+	startStep1 = () => {
+		this.setState({ step: 1 });
+	};
+
 	goHome = () => {
 		this.setState({ step: 0 });
 	};
@@ -45,18 +49,51 @@ export class RegisterLayout extends PureComponent {
         		return (
 					<MAIN
 						onFindRoommate={this.startStep4}
-						onLoginClick={this.startStep4}
+						onLoginClick={this.startStep1}
 						onGoHome={this.goHome}
 					/>
 				);
       		case 1:
-        		return <Step1 data={formData} onNext={this.nextStep} onChange={this.updateForm} onGoHome={this.goHome} />;
+        		return (
+					<Step1
+						data={formData}
+						onNext={this.nextStep}
+						onChange={this.updateForm}
+						onGoHome={this.goHome}
+						onLoginClick={this.startStep1}
+						onFindRoommate={this.startStep4}
+					/>
+				);
       		case 2:
-        		return <Step2 data={formData} onNext={this.nextStep} onBack={this.prevStep} onChange={this.updateForm} onGoHome={this.goHome} />;
+        		return (
+					<Step2
+						data={formData}
+						onNext={this.nextStep}
+						onBack={this.prevStep}
+						onChange={this.updateForm}
+						onGoHome={this.goHome}
+						onLoginClick={this.startStep4}
+						onFindRoommate={this.startStep4}
+					/>
+				);
       		case 3:
-        		return <Step3 data={formData} onBack={this.prevStep} onGoHome={this.goHome} />;
+        		return (
+					<Step3
+						data={formData}
+						onBack={this.prevStep}
+						onGoHome={this.goHome}
+						onLoginClick={this.startStep4}
+						onFindRoommate={this.startStep4}
+					/>
+				);
       		case 4:
-        		return <Card />;
+        		return (
+					<Card
+						onGoHome={this.goHome}
+						onLoginClick={this.startStep1}
+						onFindRoommate={this.startStep4}
+					/>
+				);
 			default:
         		return <MAIN onFindRoommate={this.startStep1} onLoginClick={this.startStep1} onGoHome={this.goHome} />;
     	}

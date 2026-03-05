@@ -48,16 +48,16 @@ export function Header({
         <nav className={`fb-header__nav ${isMenuOpen ? "is-open" : ""}`} aria-label="Main navigation">
           <div className="fb-header__left">
             <button type="button" className="fb-header__link" onClick={() => handleMenuAction(onHomeClick)}>
-              Home
+              Дім
             </button>
             <button type="button" className="fb-header__link" onClick={() => handleMenuAction(onFindRoommateClick)}>
-              Find a roommate
+              Знайти buddy
             </button>
           </div>
 
           <div className="fb-header__right">
             <button type="button" className="fb-header__link" onClick={() => handleMenuAction(onRentClick)}>
-              Rent an apartment
+              Знайти оселю
             </button>
             <button type="button" className="fb-header__login" onClick={() => handleMenuAction(onLoginClick)} aria-label="Log in">
               <svg className="fb-header__login-icon-user" viewBox="0 0 16 16" aria-hidden="true">

@@ -8,10 +8,21 @@ export function MAIN({ onFindRoommate, onLoginClick, onGoHome }) {
 
             <main className="landing-main">
                 <section className="landing-hero">
-                    <h1 className="landing-title">FLAT BUDDY</h1>
+                    <h1 className="landing-title">
+                        <span style={{color: "black"}}>F</span>
+                        <span style={{color: "#F58A3D"}}>L</span>
+                        <span style={{color: "black"}}>A</span>
+                        <span style={{color: "#FCD531"}}>T</span>
+                        <br />
+                        <span style={{color: "black"}}> B</span>
+                        <span style={{color: "#FCD531"}}>U</span>
+                        <span style={{color: "black"}}>D</span>
+                        <span style={{color: "#F58A3D"}}>D</span>
+                        <span style={{color: "black"}}>Y</span>
+                    </h1>
                     <p className="landing-about">
-                        Flat Buddy is a simple platform to find housing and a compatible roommate in one flow.
-                        You can browse profiles, compare preferences, and start a safe conversation before moving in.
+                        Flat Buddy — це проста та зручнаплатформа для пошуку житла та співмешканців (buddy) в одному процесі.
+                        Ви можете переглядати профілі, порівнювати вподобання та вести безпечну розмову перед переїздом.
                     </p>
 
                     <div className="landing-actions">

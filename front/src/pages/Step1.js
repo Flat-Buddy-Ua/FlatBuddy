@@ -99,10 +99,13 @@ export class Step1 extends PureComponent {
 		}	
 
     	return (
-      		<div>
-        		<div className='header-grid'>
-          			<Header />
-        		</div>
+      		<div className="landing-page">
+        		<Header
+						onFBClick={this.props.onGoHome}
+						onHomeClick={this.props.onGoHome}
+						onLoginClick={this.props.onLoginClick}
+						onFindRoommateClick={this.props.onFindRoommate}
+				/>
         
 				<div style={{ padding: "40px 20px 40px 20px" }}>
        				{/* CARD */}
@@ -299,5 +302,4 @@ const labelStyle = {
   fontFamily: "Seenonim",
   color: "#000",
 };
-
 

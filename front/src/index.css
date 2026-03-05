@@ -204,7 +204,7 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px 32px;
+  padding: 50px 16px 32px;
 }
 
 .tinder-card {
@@ -585,12 +585,39 @@ textarea::placeholder {
 }
 
 .landing-about {
+  position: relative;
+  padding: 20px 30px;
   margin: 10px 16px 64px 16px;
   font-family: 'Inter', sans-serif;
   font-size: clamp(15px, 1.7vw, 18px);
-  line-height: 1.6;
+  line-height: 1.1;
   max-width: 820px;
 }
+
+/* правий верхній кут */
+.landing-about::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+}
+
+/* лівий нижній кут */
+.landing-about::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+}
+
 
 .landing-actions {
   margin: 32px 0 32px 0;
@@ -657,3 +684,4 @@ textarea::placeholder {
     margin-top: 16px;
   }
 }
+

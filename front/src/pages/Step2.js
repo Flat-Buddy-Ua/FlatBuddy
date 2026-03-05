@@ -119,7 +119,12 @@ export class Step2 extends PureComponent {
     	return (
       		<div>
         		<div className='header-grid'>
-          			<Header onFBClick={this.props.onGoHome} onHomeClick={this.props.onGoHome} />
+          			<Header
+						onFBClick={this.props.onGoHome}
+						onHomeClick={this.props.onGoHome}
+						onLoginClick={this.props.onLoginClick}
+						onFindRoommateClick={this.props.onFindRoommate}
+					/>
         		</div>
         
 				<div style={{ padding: "40px 20px 40px 20px" }}>
