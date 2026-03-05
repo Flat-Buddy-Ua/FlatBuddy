@@ -54,7 +54,7 @@ export class Step3 extends PureComponent {
 		.then((data) => {
 			console.log("Registration response:", data);
 			if (data.success) {
-				alert("Реєстрація успішна!");
+				alert("Реєстрація успішна");
 				window.location.href = "/login";
 			} else {
 				alert("Помилка реєстрації: " + data.message);

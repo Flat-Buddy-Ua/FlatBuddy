@@ -60,12 +60,12 @@ export class Step2 extends PureComponent {
 		.then((data) => {
 			console.log("Registration response:", data);
 			if (!data.success) {
-				alert("������� ���������: " + data.message);
+				alert("Помилка реєстрації: " + data.message);
 			}
 		})
 		.catch((error) => {
 			console.error("Registration error:", error);
-			alert("������� ������� ��� ���������. ��������� �� ���.");
+			alert("Сталася помилка при реєстрації. Спробуйте ще раз.");
 		});
   	};
 
@@ -142,7 +142,7 @@ export class Step2 extends PureComponent {
 					
 						{/* FORM GRID */}
           				<div className='submain-grid'>
-							<div style={labelStyle}>��������� ������</div>
+							<div style={labelStyle}>Фотографія профілю</div>
           				</div>
 
 						<div style={{
@@ -167,14 +167,14 @@ export class Step2 extends PureComponent {
 							{/* UNIVER */}
 
 							<div>
-								<div style={labelStyle}>������ �����</div>
+								<div style={labelStyle}>Заклад освіти</div>
 								<SmartBox
 									fieldName="university"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
 									<SmartCreatable
-										placeholder="������ ��� ������ ��� ����������"
+										placeholder="Оберіть або введіть свій університет"
 										options={UniversityOptions}
 									/>
 								</SmartBox>
@@ -183,40 +183,40 @@ export class Step2 extends PureComponent {
 							{/* FACULTY */}
 
 							<div>
-								<div style={labelStyle}>������������</div>
+								<div style={labelStyle}>Спеціалізація</div>
 								<SmartBox
 									fieldName="faculty"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartInput placeholder="���������, ����'����� �����" />
+									<SmartInput placeholder="Наприклад, Комп'ютерні науки" />
 								</SmartBox>
 							</div>
 							
 							{/* COURSE */}
 
 							<div>
-								<div style={{...labelStyle, marginBottom: "8px", marginTop: "14px"}}>����</div>
+								<div style={{...labelStyle, marginBottom: "8px", marginTop: "14px"}}>Курс</div>
 								<SmartBox
 									fieldName="course"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartInput placeholder="���������, 2-� ����" />
+									<SmartInput placeholder="Наприклад, 2-й курс" />
 								</SmartBox>
 							</div>
 
 							{/* LANGUAGES */}
 
 							<div>
-								<div style={{...labelStyle, marginBottom: "0px"}}>����</div>
+								<div style={{...labelStyle, marginBottom: "0px"}}>Мови</div>
 								<div style={{
 									fontSize: "12px",
 									fontFamily: "Inter",
 									color: "#000",
 									marginTop: "-4px",
 									marginBottom: "6px"
-								}}>�������� ���� ����������</div>
+								}}>Допустимі мови спілкування</div>
 								<SmartBox
 									fieldName="languages"
 									formState={formState}
@@ -224,7 +224,7 @@ export class Step2 extends PureComponent {
 								>
 									<MultiSelect
 										options={languageOptions}
-										placeholder="������ ����"
+										placeholder="Оберіть мови"
 									/>
 								</SmartBox>
 							</div>
@@ -232,7 +232,7 @@ export class Step2 extends PureComponent {
 							{/* POLITICAL AND ECONOMIC COORDINATES */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>�������� ����������</div>
+								<div style={labelStyle}>Політична координата</div>
 								<div style={{
 									fontSize: "12px",
 									fontFamily: "Inter",
@@ -240,7 +240,7 @@ export class Step2 extends PureComponent {
 									marginTop: "-4px",
 									marginBottom: "6px"
 								}}>
-									<p>���� �� �� ����� �� �������� ����������, ������� ���� �� ����������
+									<p>Якщо ви не знаєте своєї політичної координати, пройдіть тест за посиланням
 										<br />
 											<a href="https://www.idrlabs.com/political-coordinates/test.php">
 												https://www.idrlabs.com/political-coordinates/test.php
@@ -275,9 +275,9 @@ export class Step2 extends PureComponent {
 									color: "#000",
 									marginTop: "-4px"
 								}}>
-									<span>˳���</span>
-									<span style={{marginLeft: "16px", fontSize: "21px", pointerEvents: "none"}}>�</span>
-									<span>������</span>
+									<span>Лівий</span>
+									<span style={{marginLeft: "16px", fontSize: "21px", pointerEvents: "none"}}>·</span>
+									<span>Правий</span>
 								</div>
 							</div>
 
@@ -306,23 +306,23 @@ export class Step2 extends PureComponent {
 									color: "#000",
 									marginTop: "-4px"
 								}}>
-									<span>˳���������</span>
-									<span style={{marginLeft: "11px", fontSize: "21px", pointerEvents: "none"}}>�</span>
-									<span>�����������</span>
+									<span>Ліберальний</span>
+									<span style={{marginLeft: "11px", fontSize: "21px", pointerEvents: "none"}}>·</span>
+									<span>Комунітарний</span>
 								</div>
 							</div>
 
 							{/* CLEANLINESS */}
 
 							<div>
-								<div style={labelStyle}>��������</div>
+								<div style={labelStyle}>Охайність</div>
 								<SmartBox
 									fieldName="cleanliness"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
 									<SmartInput
-										placeholder="���� �������� �� 1 �� 5"
+										placeholder="Ваша охайність від 1 до 5"
   										inputGuard={(value) => {
   										  	if (value === "") return "";
   										  	if (/^[1-5]$/.test(value)) return value;
@@ -336,53 +336,53 @@ export class Step2 extends PureComponent {
 							{/* SCHEDULE */}
 
 							<div>
-								<div style={labelStyle}>�������</div>
+								<div style={labelStyle}>Розклад</div>
 								<SmartBox
 									fieldName="schedule"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="������� ��� �������"/>
+									<SmartText placeholder="Опишіть ваш розклад"/>
 								</SmartBox>
 							</div>
 
 							{/* STYLE OF LIFE */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>����� �����</div>
+								<div style={labelStyle}>Стиль життя</div>
 								<SmartBox
 									mywidth="650px"
 									fieldName="style_of_life"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="������� ��� ����� �����"/>
+									<SmartText placeholder="Опишіть ваш стиль життя"/>
 								</SmartBox>
 							</div>
 
 							{/* SLEEP SCHEDULE */}
 
 							<div>
-								<div style={labelStyle}>����� ���</div>
+								<div style={labelStyle}>Графік сну</div>
 								<SmartBox
 									fieldName="sleep_schedule"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="������� ��� ����� ���"/>
+									<SmartText placeholder="Опишіть ваш графік сну"/>
 								</SmartBox>
 							</div>
 
 							{/* BAD HABITS */}
 
 							<div>
-								<div style={labelStyle}>������ ������</div>
+								<div style={labelStyle}>Шкідливі звички</div>
 								<SmartBox
 									fieldName="bad_habits"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="������� ���� ������ ������"/>
+									<SmartText placeholder="Опишіть ваші шкідливі звички"/>
 								</SmartBox>
 							</div>
 
@@ -396,7 +396,7 @@ export class Step2 extends PureComponent {
 									setFormState={this.setFormState}
 								>
 									<SmartSelect
-										placeholder="������ ��� MBTI ���"
+										placeholder="Оберіть ваш MBTI тип"
 										options={MBTI}
 									/>
 								</SmartBox>
@@ -408,7 +408,7 @@ export class Step2 extends PureComponent {
 											color: "#000",
 											marginRight: "8px",
 										}}
-									>���� �� ���� ��� ���:</span>
+									>Якщо не знаєш свій тип:</span>
 									<button
 										type='button'
 										onClick={() => this.handleLinkClick('https://www.16personalities.com/uk/bezkoshtovnyy-test-na-vyznachennya-osobystosti')}
@@ -424,7 +424,7 @@ export class Step2 extends PureComponent {
 											border: isHoveredMBTI ? "2px solid transparent" : "2px solid #F6DDD4",
 											borderRadius: "4px",
 										}}>
-										?? ���� MBTI
+										Тест MBTI
 									</button>
 								</div>
 							</div>
@@ -432,7 +432,7 @@ export class Step2 extends PureComponent {
 							{/* INTRO-/EXTROVERT */}
 
 							<div>
-								<div style={labelStyle}>���������/����������</div>
+								<div style={labelStyle}>Інтроверт/екстраверт</div>
 								<input
 									className='slider'
 									type='range'
@@ -458,9 +458,9 @@ export class Step2 extends PureComponent {
 									color: "#000",
 									marginTop: "-4px"
 								}}>
-									<span>�</span>
-									<span style={{marginLeft: '4px'}}>�</span>
-									<span>�</span>
+									<span>·</span>
+									<span style={{marginLeft: '4px'}}>·</span>
+									<span>·</span>
 								</div> */}
 								
 								<div style={{
@@ -471,51 +471,51 @@ export class Step2 extends PureComponent {
 									fontFamily: "Inter",
 									color: "#000",
 								}}>
-									<span>���������</span>
-									<span style={{marginLeft: '12px'}}>�������</span>
-									<span>����������</span>
+									<span>Інтроверт</span>
+									<span style={{marginLeft: '12px'}}>Амбіверт</span>
+									<span>Екстраверт</span>
 								</div>
 							</div>
 
 							{/* HOBBY */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>����������/����</div>
+								<div style={labelStyle}>Захоплення/хоббі</div>
 								<SmartBox
 									mywidth="650px"
 									fieldName="hobby"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="�������� ��� ��� ���������� �� ����"/>
+									<SmartText placeholder="Розкажіть про свої захоплення та хоббі"/>
 								</SmartBox>
 							</div>
 
 							{/* BIOGRAPHY */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>��������</div>
+								<div style={labelStyle}>Біографія</div>
 								<SmartBox
 									mywidth="650px"
 									fieldName="biography"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="��������"/>
+									<SmartText placeholder="Біографія"/>
 								</SmartBox>
 							</div>
 
 							{/* LOOKING FOR */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>���� ������</div>
+								<div style={labelStyle}>Кого шукаєте</div>
 								<SmartBox
 									mywidth="650px"
 									fieldName="looking_for"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="������� ������ �������� buddy"/>
+									<SmartText placeholder="Опишіть вашого шуканого buddy"/>
 								</SmartBox>
 							</div>
           				</div>
@@ -532,7 +532,7 @@ export class Step2 extends PureComponent {
 						>
 							{/* <SubmitBtn
 								onClick={onBack}
-								btntext="< �����"
+								btntext="< Назад"
 							/> */}
 
 							<SubmitBtn
@@ -543,7 +543,7 @@ export class Step2 extends PureComponent {
 									}
 								}
 								disabled={!isFormValid(formState)}
-								btntext="��� >"
+								btntext="Далі >"
 							/>
 						</div>
         			</div>
