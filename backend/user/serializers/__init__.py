@@ -8,4 +8,8 @@ __all__ = [
     "UserProfileSerializer",
     "UserPhotoSerializer",
     "UserHousingSerializer"
+<<<<<<< HEAD
 ]
+=======
+]
+>>>>>>> master

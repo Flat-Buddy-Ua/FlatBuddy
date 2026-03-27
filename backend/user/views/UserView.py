@@ -1,8 +1,10 @@
 from user.models import User
 from user.serializers import UserSerializer
-from user.views.BaseView import BaseViewSet
+from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser
 
 
-class UserViewSet(BaseViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
