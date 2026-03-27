@@ -7,6 +7,7 @@ from user.models import UserPhoto, UserProfile
 class UserProfileSerializer(serializers.ModelSerializer):
 
     photo = serializers.ListField(
+
         child=serializers.ImageField(),
         write_only=True,
         required=True
@@ -33,6 +34,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         key = int(value)
         if key not in UNIVERSITY_CHOICES.keys():
             raise serializers.ValidationError(
+
                 "A valid option must be selected from the list")
         return UNIVERSITY_CHOICES[key]
 
@@ -43,6 +45,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         for item in value:
             photo_validation = UserPhotoSerializer(data={'image': item})
+
             if not photo_validation.is_valid():
                 raise serializers.ValidationError(photo_validation.errors)
         return value
@@ -56,6 +59,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             if lang not in LANGUAGE_CHOICES.keys():
                 raise serializers.ValidationError(
                     "A valid option must be selected from the list")
+
             else:
                 languages.append(LANGUAGE_CHOICES[lang])
         return languages
@@ -75,9 +79,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
             return "Ультраправий"
         else:
             raise serializers.ValidationError(
+
                 "The coordinate is outside the valid range [-100, 100]")
 
+
 # Вісь Y
+
+
     def validate_political_coordinate_social(self, value):
 
         if -100 <= value < -60:
@@ -92,6 +100,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             return "Ультраавторитарний"
         else:
             raise serializers.ValidationError(
+
                 "The coordinate is outside the valid range [-100, 100]")
 
     def create(self, validated_data):
@@ -100,6 +109,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "political_coordinate_economic", None)
         social_coordinate = validated_data.pop(
             "political_coordinate_social", None)
+
         uploaded_photos = validated_data.pop('photo', None)
 
         validated_data['political_view'] = [
@@ -127,15 +137,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 for photo in uploaded_photos
             ]
         UserPhoto.objects.bulk_create(photos)
+
         return profile
 
     def validate_cleanliness(self, value):
         if value not in [1, 2, 3, 4, 5]:
             raise serializers.ValidationError(
+
                 "Valid values: 1, 2, 3, 4, 5")
         return value
 
     def validate_style_of_life(self, value):
+
         if not value.strip():
             raise serializers.ValidationError("Це поле обов'язкове")
         return value

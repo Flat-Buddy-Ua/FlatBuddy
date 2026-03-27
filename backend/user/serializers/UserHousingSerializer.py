@@ -1,9 +1,12 @@
 from rest_framework import serializers
+
 # from django.utils.translation import gettext_lazy as _
+
 from user.models import UserHousing
 from user.constants.choices import (
     ROOM_SHARING_CHOICES,
     PREFERRED_GENDER_CHOICES,
+
     HOUSING_STATUS_CHOICES
 )
 

@@ -20,7 +20,9 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR.parent / 'front'
 
+
 load_dotenv(BASE_DIR / '.env')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -33,6 +35,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+STATIC_URL = 'static/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 # Application definition
 
@@ -84,6 +90,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'flatbuddy.wsgi.application'
+
+
 STATICFILES_DIRS = [
     FRONTEND_DIR / 'build' / 'static',
 ]
@@ -147,7 +155,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'

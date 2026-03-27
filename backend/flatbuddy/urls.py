@@ -2,12 +2,14 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 from django.conf import settings
+
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 from django.conf.urls.static import static
 from user.views import UserViewSet, UserProfileViewSet, UserHousingViewSet, UserRegistrationView
+
 from django.views.generic import TemplateView
 
 router = routers.DefaultRouter()

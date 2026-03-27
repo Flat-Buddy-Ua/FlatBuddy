@@ -1,4 +1,5 @@
 from datetime import date
+
 import re
 from rest_framework import serializers
 from user.constants.choices import CITY_CHOICES, COUNTRY_CHOICES, VALID_GENDERS
@@ -25,6 +26,7 @@ VALID_UA_PHONE_CODES = [
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     country = serializers.CharField(required=True)
     city = serializers.CharField(required=True)
     gender = serializers.CharField(required=True)
