@@ -1,4 +1,5 @@
-from datetime import date, datetime
+from datetime import date
+
 import re
 from rest_framework import serializers
 from user.constants.choices import CITY_CHOICES, COUNTRY_CHOICES, VALID_GENDERS
@@ -25,6 +26,11 @@ VALID_UA_PHONE_CODES = [
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    country = serializers.CharField(required=True)
+    city = serializers.CharField(required=True)
+    gender = serializers.CharField(required=True)
+    birthdate = serializers.DateField(required=True)
     password = serializers.CharField(write_only=True, required=True)
     repeat_password = serializers.CharField(write_only=True, required=True)
 
@@ -37,38 +43,24 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
     def validate_first_name(self, value):
-        if len(value) <= 2:
-            raise serializers.ValidationError(
-                "Має містити більше ніж 2 символи")
-
-        if len(value) >= 50:
-            raise serializers.ValidationError(
-                "Має містити менше ніж 50 символів")
 
         if not value[0].isupper():
             raise serializers.ValidationError(
-                "Перша літера має бути великою")
+                "The first letter should be capitalized")
 
         if not re.match(UKRAINIAN_PATTERN, value):
-            raise serializers.ValidationError("Тільки українські літери")
+            raise serializers.ValidationError("Only Ukrainian characters")
 
         return value
 
     def validate_last_name(self, value):
-        if len(value) <= 2:
-            raise serializers.ValidationError(
-                "Має містити більше ніж 2 символи")
-
-        if len(value) >= 50:
-            raise serializers.ValidationError(
-                "Має містити менше ніж 50 символів")
 
         if not value[0].isupper():
             raise serializers.ValidationError(
-                "Перша літера має бути великою")
+                "The first letter should be capitalized")
 
         if not re.match(UKRAINIAN_PATTERN, value):
-            raise serializers.ValidationError("Тільки українські літери")
+            raise serializers.ValidationError("Only Ukrainian characters")
 
         return value
 
@@ -76,7 +68,7 @@ class UserSerializer(serializers.ModelSerializer):
         key = int(value)
         if key not in COUNTRY_CHOICES.keys():
             raise serializers.ValidationError(
-                "Має бути обрано дійсний варіант зі списку")
+                "A valid option must be selected from the list")
 
         return COUNTRY_CHOICES[key]
 
@@ -84,7 +76,7 @@ class UserSerializer(serializers.ModelSerializer):
         key = int(value)
         if key not in CITY_CHOICES.keys():
             raise serializers.ValidationError(
-                "Має бути обрано дійсний варіант зі списку")
+                "A valid option must be selected from the list")
 
         return CITY_CHOICES[key]
 
@@ -92,21 +84,21 @@ class UserSerializer(serializers.ModelSerializer):
         key = int(value)
         if key not in VALID_GENDERS.keys():
             raise serializers.ValidationError(
-                "Має бути обрано дійсний варіант зі списку")
+                "A valid option must be selected from the list")
 
         return VALID_GENDERS[key]
 
     def validate_birthdate(self, value):
         # З фронта надсилається такий формат дати: 2006-10-19T21:00:00.000Z
         # Переформатування у запис: рік-місяць-день
-        value = datetime.fromisoformat(value)
-        value = value.date()
+        # value = datetime.fromisoformat(value)
+        # value = value.date()
 
         min_date = date(1950, 1, 1)
         max_date = date.today()
 
         if min_date > value or max_date < value:
-            raise serializers.ValidationError("Некоректна дата")
+            raise serializers.ValidationError("Invalid date")
 
         return value
 
@@ -117,34 +109,28 @@ class UserSerializer(serializers.ModelSerializer):
 
         if len(value) != 12:
             raise serializers.ValidationError(
-                "Має містити 12 цифр"
+                "Must be 12 digits long"
             )
 
         phone_code = value[2:5]
         if phone_code not in VALID_UA_PHONE_CODES:
             raise serializers.ValidationError(
-                "Невірний код мобільного оператора України")
+                "Incorrect Ukrainian mobile carrier code")
 
         # нормалізований вигляд: +380XXXXXXXXX
         value = f"+{value}"
-        # окрема перевірка на унікальність, бо в модельці unique для цього поля не працює
+
         if User.objects.filter(phone_number=value).exists():
             raise serializers.ValidationError(
-                "Цей номер телефону вже зареєстрований")
+                "This phone number is already registered")
 
         return value
 
-    def validate_email(self, value):
-        if len(value) >= 50:
-            raise serializers.ValidationError(
-                "Має містити не більше ніж 50 символів")
-
-        return value
+    def validate(self, data):
+        if data['password'] != data['repeat_password']:
+            raise serializers.ValidationError("The passwords don't match")
+        return data
 
     def create(self, validated_data):
-        password = validated_data.pop("password")
-        repeat_password = validated_data.pop("repeat_password")
-        user = User.create_user_with_password(
-            validated_data, password, repeat_password)
-        user.save()
-        return user
+        validated_data.pop("repeat_password")
+        return User.objects.create_user(**validated_data)
