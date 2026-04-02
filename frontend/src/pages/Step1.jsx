@@ -182,7 +182,7 @@ export default function Step1 ({ isEditing }) {
             			  	</SmartBox>
             			</div>
 
-						<div>
+						<div style={{ position: "relative", zIndex: 1001 }}>
 							<div style={labelStyle}>День Народження</div>
 							<SmartBox
 								fieldName="birthdate"

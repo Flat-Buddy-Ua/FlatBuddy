@@ -86,15 +86,14 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
           ref={calendarRef}
           style={{
             position: 'absolute',
-            top: 'calc(100% + 5px)',
+            top: 'calc(100% + 10px)',
             left: 0,
-            zIndex: 1000,
-            background: 'white',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-            padding: '15px',
-            minWidth: '320px',
-            maxHeight: '400px',
-            overflowY: 'auto'
+            width: '300px',
+            backgroundColor: '#ffffff',
+            border: '2px solid #111',
+            boxShadow: '6px 6px 0px #111',
+            padding: '16px',
+            zIndex: 9999,
           }}
         >
           <FlatBuddyCalendar 
