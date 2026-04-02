@@ -1,4 +1,3 @@
-import { max } from 'moment';
 import React, { PureComponent } from 'react';
 import CreatableSelect from 'react-select/creatable';
 

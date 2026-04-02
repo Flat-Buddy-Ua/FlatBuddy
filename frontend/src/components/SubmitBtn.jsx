@@ -8,15 +8,32 @@ export function SubmitBtn({ onClick, disabled, btntext}) {
     const BaseBtnStyle = {
         width: "80%",
         height: "50px",
-        border: "none",
-        color: disabled ? "#999" : "#000",
-        fontSize: "16px",
-        fontFamily: "Inter",
-        cursor: "pointer",
-        boxShadow: isHovered || isActive ? disabled ? "0px 0px 10px 5px #99999966" : "0px 0px 10px 5px #F6DDD4" : "0px 4px 6px rgba(0, 0, 0, 0.1)",
-        backgroundColor: disabled ? "rgba(204, 221, 187, 0.1)": "#F6DDD4",
+        
+        border: disabled ? "2px solid #99999966" : "2px solid #111",
+        color: disabled ? "#999" : "#111",
+        fontSize: "18px",
+        fontFamily: "'Seenonim', 'Inter', sans-serif",
+        
+        backgroundColor: disabled ? "transparent" : "#FCD531", 
         cursor: disabled ? "not-allowed" : "pointer",
-        transition: "background-color 0.3s ease",
+        
+        transition: "all 0.2s ease",
+        
+        boxShadow: disabled 
+            ? "none" 
+            : isActive 
+                ? "none" 
+                : isHovered 
+                    ? "4px 4px 0px #111" 
+                    : "none",
+                    
+        transform: disabled 
+            ? "translate(0, 0)" 
+            : isActive 
+                ? "translate(0, 0)" 
+                : isHovered 
+                    ? "translate(-2px, -2px)" 
+                    : "translate(0, 0)",
     };
 
     return (

@@ -3,33 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@twilio-paste/core": "10.11.0",
-    "@twilio-paste/icons": "5.4.0",
     "browser-locale": "^1.0.3",
-    "chalk": "^4.1.2",
-    "jsdom": "^27.4.0",
-    "lodash.memoize": "^4.1.2",
-    "memoize": "^10.2.0",
+    "dayjs": "^1.11.10",
     "memoize-one": "^6.0.0",
-    "moment": "^2.20.1",
-    "node-fetch": "^1.7.3",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.22.3",
     "react-hint": "^3.2.1",
     "react-input-mask": "^2.0.4",
-    "react-router-dom": "6.0.0-beta.0",
-    "react-scripts": "4.0.3",
-    "react-select": "^5.10.2",
-    "svg-to-jsx": "0.0.21"
+    "react-select": "^5.10.2"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "dotenv": "^5.0.1"
+    "dotenv": "^5.0.1",
+    "@vitejs/plugin-react": "^6.0.1",
+    "vite": "^8.0.3"
   },
   "browserslist": {
     "production": [

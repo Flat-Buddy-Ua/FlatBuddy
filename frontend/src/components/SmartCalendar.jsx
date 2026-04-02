@@ -52,7 +52,7 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div style={{ position: 'relative', width: '100%', zIndex: 1000 }}>
       {/* Поле вводу */}
       <div
         ref={inputRef}
@@ -67,7 +67,8 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
           transition: 'all 0.3s ease',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          zIndex: 1001,
         }}
         onMouseEnter={(e) => e.target.style.borderColor = '#F6DDD4CC'}
         onMouseLeave={(e) => e.target.style.borderColor = '#F6DDD4'}
@@ -580,4 +581,4 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
   );
 };
 
-export default SmartCalendar;
+export { SmartCalendar };

@@ -8,42 +8,41 @@ const detectValidationType = (children) => {
     return children.props.validationType;
   }
 
-  const placeholder = children.props.placeholder || "";
-  const mask = children.props.mask || "";
+  const name = children.props.name || "";
 
-  if (placeholder.includes("РўР°СЂР°СЃ")) return "name";
-  if (placeholder.includes("РЁРµРІС‡РµРЅРєРѕ")) return "surname";
-  if (placeholder.includes("РљСЂР°С—РЅР°")) return "country";
-  if (placeholder.includes("РњС–СЃС‚Рѕ")) return "city";
-  if (placeholder.includes("РЎС‚Р°С‚СЊ")) return "gender";
-  if (mask.includes("+38(099)-999-99-99")) return "phone";
-  if (placeholder.includes("Email")) return "email";
-  if (placeholder.includes("repeat_password")) return "repeat_password";
-  if (placeholder.includes("password")) return "password";
+  if (name.includes("first_name")) return "name";
+  if (name.includes("last_name")) return "surname";
+  if (name.includes("country")) return "country";
+  if (name.includes("city")) return "city";
+  if (name.includes("gender")) return "gender";
+  if (name.includes("phone_number")) return "phone";
+  if (name.includes("email")) return "email";
+  if (name.includes("repeat_password")) return "repeat_password";
+  if (name.includes("password")) return "password";
 
-  if (placeholder.includes("СѓРЅС–РІРµСЂСЃРёС‚РµС‚")) return "university";
-  if (placeholder.includes("РЅР°СѓРєРё")) return "faculty";
-  if (placeholder.includes("РєСѓСЂСЃ")) return "course";
-  if (placeholder.includes("languages")) return "languages";
-  if (placeholder.includes("РѕС…Р°Р№РЅС–СЃС‚СЊ")) return "cleanliness";
-  if (placeholder.includes("СЂРѕР·РєР»Р°Рґ")) return "schedule";
-  if (placeholder.includes("СЃС‚РёР»СЊ")) return "style_of_life";
-  if (placeholder.includes("СЃРЅСѓ")) return "sleep_schedule";
-  if (placeholder.includes("С€РєС–РґР»РёРІС–")) return "bad_habits";
-  if (placeholder.includes("MBTI")) return "mbti";
-  if (placeholder.includes("С…РѕР±Р±С–")) return "hobby";
-  if (placeholder.includes("Р‘С–РѕРіСЂР°С„С–СЏ")) return "biography";
-  if (placeholder.includes("buddy")) return "looking_for";
+  if (name.includes("university")) return "university";
+  if (name.includes("faculty")) return "faculty";
+  if (name.includes("course")) return "course";
+  if (name.includes("languages")) return "languages";
+  if (name.includes("cleanliness")) return "cleanliness";
+  if (name.includes("schedule")) return "schedule";
+  if (name.includes("style_of_life")) return "style_of_life";
+  if (name.includes("sleep_schedule")) return "sleep_schedule";
+  if (name.includes("bad_habits")) return "bad_habits";
+  if (name.includes("mbti")) return "mbti";
+  if (name.includes("hobby")) return "hobby";
+  if (name.includes("biography")) return "biography";
+  if (name.includes("looking_for")) return "looking_for";
 
-  if (placeholder.includes("room_sharing_preference")) return "room_sharing_preference";
-  if (placeholder.includes("preferred_gender")) return "preferred_gender";
-  if (placeholder.includes("housing_status")) return "housing_status";
-  if (placeholder.includes("РіСЂРЅ")) return "budget";
-  if (placeholder.includes("districts")) return "districts";
-  if (placeholder.includes("Р’Р°С€ С‚РµСЂРјС–РЅ РїСЂРѕР¶РёРІР°РЅРЅСЏ")) return "planned_duration";
-  if (placeholder.includes("Р’Р°С€Р° РґР°С‚Р° РїРѕС‡Р°С‚РєСѓ РїСЂРѕР¶РёРІР°РЅРЅСЏ")) return "move_in_date";
-  if (placeholder.includes("pet")) return "pet";
-  if (placeholder.includes("Р’Р°С€С– СѓР»СЋР±Р»РµРЅС†С–")) return "pets_description";
+  if (name.includes("room_sharing_preference")) return "room_sharing_preference";
+  if (name.includes("preferred_gender")) return "preferred_gender";
+  if (name.includes("housing_status")) return "housing_status";
+  if (name.includes("budget")) return "budget";
+  if (name.includes("preferred_districts")) return "preferred_districts";
+  if (name.includes("planned_duration")) return "planned_duration";
+  if (name.includes("move_in_date")) return "move_in_date";
+  if (name.includes("has_pet")) return "has_pet";
+  if (name.includes("pet_description")) return "pet_description";
 
   return null;
 };
@@ -54,6 +53,11 @@ export function SmartBox({ children, fieldName, formState, setFormState, disable
   const [value, setValue] = useState(children && children.props ? children.props.defaultValue || "" : "");
   const [validationType, setValidationType] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
+
+  const [accentColor] = useState(() => {
+    const colors = ["#F58A3D", "#FCD531"]; // Чорний, Оранжевий, Жовтий
+    return colors[Math.floor(Math.random() * colors.length)];
+  });
 
   useEffect(() => {
     const type = detectValidationType(children);
@@ -102,17 +106,21 @@ export function SmartBox({ children, fieldName, formState, setFormState, disable
           minHeight: "50px",
           height: "auto",
           alignItems: "center",
-          transition: "0.2s ease",
+          transition: "all 0.2s ease", 
           boxShadow: error
-            ? "0px 0px 10px 5px #ff3333"
+            ? "4px 4px 0px #ff3333"
             : isHovered || isActive
               ? disabled
-                ? "0px 0px 10px 5px #99999966"
-                : "0px 0px 10px 5px #F6DDD4"
+                ? "none" 
+                : `4px 4px 0px ${accentColor}`
               : "none",
-          border: disabled ? "2px solid #99999966" : isActive ? "2px solid #F6DDD4" : "2px solid transparent",
-          background: disabled ? "transparent" : "#F6DDD4",
+          
+          border: disabled ? "2px solid #99999966" : error ? "2px solid #ff3333" : "2px solid transparent", 
+          // 🟢 Змінили фон на білий (якщо хочеш лишити персиковий - поверни #F6DDD4)
+          background: disabled ? "transparent" : "#F6DDD4", 
           cursor: disabled ? "not-allowed" : "text",
+          // 🟢 Додаємо ефект "підстрибування" при наведенні
+          transform: (isHovered || isActive) && !disabled ? "translate(-2px, -2px)" : "translate(0, 0)",
         }}
       >
         {childWithProps}
@@ -130,7 +138,6 @@ export function SmartBox({ children, fieldName, formState, setFormState, disable
             fontWeight: "500",
             backgroundColor: "rgba(255, 255, 255, 0.9)",
             padding: "3px 8px",
-            borderRadius: "4px",
             zIndex: 10,
             whiteSpace: "nowrap",
             boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
