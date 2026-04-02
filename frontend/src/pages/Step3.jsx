@@ -147,7 +147,7 @@ export class Step3 extends PureComponent {
 											{ value: 2, label: 'Я хочу мати окрему кімнату'},
 										]}
 										mywidth='630px'
-										placeholder="room_sharing_preference"
+										name="room_sharing_preference"
 									/>
 							  	</SmartBox>
 							</div>
@@ -170,7 +170,7 @@ export class Step3 extends PureComponent {
 											{ value: 3, label: 'Не має значення' },
 										]}
 										mywidth='630px'
-										placeholder="preferred_gender"
+										name="preferred_gender"
 									/>
 							  	</SmartBox>
 							</div>
@@ -192,7 +192,7 @@ export class Step3 extends PureComponent {
 											{ value: 2, label: 'Я шукаю лише співмешканця, маю своє/орендоване житло' },
 										]}
 										mywidth='630px'
-										placeholder="housing_status"
+										name="housing_status"
 									/>
 								</SmartBox>
 							</div>
@@ -207,6 +207,7 @@ export class Step3 extends PureComponent {
 									setFormState={this.setFormState}
 								>
 									<SmartInput
+										name="budget"
 										placeholder="Вкажіть суму в грн"
 										type="number"
 										step="100"
@@ -236,7 +237,7 @@ export class Step3 extends PureComponent {
 										options={[
 											{ value: 0, label: 'Оберіть район/-и' }
 										]}
-										placeholder="districts"
+										name="preferred_districts"
 									/>
 								</SmartBox>
 							</div>
@@ -251,7 +252,7 @@ export class Step3 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Ваш термін проживання"/>
+									<SmartText name="planned_duration" placeholder="Ваш термін проживання"/>
 								</SmartBox>
 							</div>
 
@@ -265,7 +266,7 @@ export class Step3 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Ваша дата початку проживання"/>
+									<SmartText name="move_in_date" placeholder="Ваша дата початку проживання"/>
 								</SmartBox>
 							</div>
 
@@ -286,7 +287,7 @@ export class Step3 extends PureComponent {
 											{ value: false, label: 'Ні, нема' },
 										]}
 										mywidth='630px'
-										placeholder="pet"
+										name="has_pet"
 									/>
 								</SmartBox>
 							</div>
@@ -302,7 +303,7 @@ export class Step3 extends PureComponent {
 										formState={formState}
 										setFormState={this.setFormState}
 									>
-										<SmartText placeholder="Ваші улюбленці"/>
+										<SmartText name="pet_description" placeholder="Ваші улюбленці"/>
 									</SmartBox>
 								</div>
 							)}

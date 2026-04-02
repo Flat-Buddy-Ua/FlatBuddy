@@ -174,6 +174,7 @@ export class Step2 extends PureComponent {
 									setFormState={this.setFormState}
 								>
 									<SmartCreatable
+										name="university"
 										placeholder="Оберіть або введіть свій університет"
 										options={UniversityOptions}
 									/>
@@ -189,7 +190,7 @@ export class Step2 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartInput placeholder="Наприклад, Комп'ютерні науки" />
+									<SmartInput name="faculty" placeholder="Наприклад, Комп'ютерні науки" />
 								</SmartBox>
 							</div>
 							
@@ -202,7 +203,7 @@ export class Step2 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartInput placeholder="Наприклад, 2-й курс" />
+									<SmartInput name="course" placeholder="Наприклад, 2-й курс" />
 								</SmartBox>
 							</div>
 
@@ -223,6 +224,7 @@ export class Step2 extends PureComponent {
 									setFormState={this.setFormState}
 								>
 									<MultiSelect
+										name="languages"
 										options={languageOptions}
 										placeholder="Оберіть мови"
 									/>
@@ -322,6 +324,7 @@ export class Step2 extends PureComponent {
 									setFormState={this.setFormState}
 								>
 									<SmartInput
+										name="cleanliness"
 										placeholder="Ваша охайність від 1 до 5"
   										inputGuard={(value) => {
   										  	if (value === "") return "";
@@ -342,7 +345,7 @@ export class Step2 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Опишіть ваш розклад"/>
+									<SmartText name="schedule" placeholder="Опишіть ваш розклад"/>
 								</SmartBox>
 							</div>
 
@@ -356,7 +359,7 @@ export class Step2 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Опишіть ваш стиль життя"/>
+									<SmartText name="style_of_life" placeholder="Опишіть ваш стиль життя"/>
 								</SmartBox>
 							</div>
 
@@ -369,7 +372,7 @@ export class Step2 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Опишіть ваш графік сну"/>
+									<SmartText name="sleep_schedule" placeholder="Опишіть ваш графік сну"/>
 								</SmartBox>
 							</div>
 
@@ -382,7 +385,7 @@ export class Step2 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Опишіть ваші шкідливі звички"/>
+									<SmartText name="bad_habits" placeholder="Опишіть ваші шкідливі звички"/>
 								</SmartBox>
 							</div>
 
@@ -396,6 +399,7 @@ export class Step2 extends PureComponent {
 									setFormState={this.setFormState}
 								>
 									<SmartSelect
+										name="mbti"
 										placeholder="Оберіть ваш MBTI тип"
 										options={MBTI}
 									/>
@@ -480,14 +484,14 @@ export class Step2 extends PureComponent {
 							{/* HOBBY */}
 
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>Захоплення/хоббі</div>
+								<div style={labelStyle}>Захоплення/хобі</div>
 								<SmartBox
 									mywidth="650px"
 									fieldName="hobby"
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Розкажіть про свої захоплення та хоббі"/>
+									<SmartText name="hobby" placeholder="Розкажіть про свої захоплення та хобі"/>
 								</SmartBox>
 							</div>
 
@@ -501,7 +505,7 @@ export class Step2 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Біографія"/>
+									<SmartText name="biography" placeholder="Біографія"/>
 								</SmartBox>
 							</div>
 
@@ -515,7 +519,7 @@ export class Step2 extends PureComponent {
 									formState={formState}
 									setFormState={this.setFormState}
 								>
-									<SmartText placeholder="Опишіть вашого шуканого buddy"/>
+									<SmartText name="looking_for" placeholder="Опишіть вашого шуканого buddy"/>
 								</SmartBox>
 							</div>
           				</div>

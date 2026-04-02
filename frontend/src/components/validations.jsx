@@ -1,5 +1,3 @@
-import { lang } from "moment";
-
 // validations.js
 export const validations = {
 

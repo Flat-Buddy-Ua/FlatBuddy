@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import InputMask from "react-input-mask";
 import "./../index.css";
-import { min } from "moment";
 
 export function SmartText({
 	defaultValue = "",

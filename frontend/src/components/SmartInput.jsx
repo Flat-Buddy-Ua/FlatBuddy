@@ -12,7 +12,7 @@ export function SmartInput({
   onBlur,
   disabled,
   inputGuard,
-  margintop="12px",
+  margintop="14px",
   inputMode = "text",
   pattern = null,
   prefix = null,
