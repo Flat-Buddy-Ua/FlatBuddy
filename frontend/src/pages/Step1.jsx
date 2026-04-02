@@ -57,28 +57,30 @@ export default function Step1 ({ isEditing }) {
 
 		const payload = buildRegistrationPayload(formState);
 
-		try {
-			const response = await fetch("https://flatbuddyua.com/api/register", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(payload),
-			});
+		// try {
+		// 	const response = await fetch("https://flatbuddyua.com/api/register", {
+		// 		method: "POST",
+		// 		headers: {
+		// 			"Content-Type": "application/json",
+		// 		},
+		// 		body: JSON.stringify(payload),
+		// 	});
 
-			const data = await response.json();	
-			console.log("Registration response:", data);
+		// 	const data = await response.json();	
+		// 	console.log("Registration response:", data);
 
-			if (data.success) {
-				alert("Реєстрація успішна");
-				navigate("/login");
-			} else {
-				alert("Помилка реєстрації: " + data.message);
-			}
-		} catch (error) {
-			console.error("Registration error:", error);
-			alert("Сталася помилка при реєстрації. Спробуйте ще раз.");
-		}	
+		// 	if (data.success) {
+		// 		alert("Реєстрація успішна");
+		// 		navigate("/login");
+		// 	} else {
+		// 		alert("Помилка реєстрації: " + data.message);
+		// 	}
+		// } catch (error) {
+		// 	console.error("Registration error:", error);
+		// 	alert("Сталася помилка при реєстрації. Спробуйте ще раз.");
+		// }	
+
+		navigate("/")
 
   	};
 
