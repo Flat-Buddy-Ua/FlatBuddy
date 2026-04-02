@@ -77,7 +77,7 @@ ROOT_URLCONF = 'flatbuddy.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [FRONTEND_DIR / 'build'],
+        'DIRS': [FRONTEND_DIR / 'dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,7 +93,7 @@ WSGI_APPLICATION = 'flatbuddy.wsgi.application'
 
 
 STATICFILES_DIRS = [
-    FRONTEND_DIR / 'build' / 'static',
+    FRONTEND_DIR / 'dist' / 'static',
 ]
 
 # Database
