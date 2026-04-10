@@ -2,7 +2,7 @@ from datetime import date
 
 import re
 from rest_framework import serializers
-from user.constants.choices import CITY_CHOICES, COUNTRY_CHOICES, VALID_GENDERS
+from user.constants.choices import Country, City, Gender
 from user.models import User
 
 UKRAINIAN_PATTERN = r"^[А-ЩЬЮЯҐЄІЇ][а-щьюяґєії'\-]*$"
@@ -27,9 +27,9 @@ VALID_UA_PHONE_CODES = [
 
 class UserSerializer(serializers.ModelSerializer):
 
-    country = serializers.CharField(required=True)
-    city = serializers.CharField(required=True)
-    gender = serializers.CharField(required=True)
+    country = serializers.IntegerField(required=True)
+    city = serializers.IntegerField(required=True)
+    gender = serializers.IntegerField(required=True)
     birthdate = serializers.DateField(required=True)
     password = serializers.CharField(write_only=True, required=True)
     repeat_password = serializers.CharField(write_only=True, required=True)
@@ -63,30 +63,6 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Only Ukrainian characters")
 
         return value
-
-    def validate_country(self, value):
-        key = int(value)
-        if key not in COUNTRY_CHOICES.keys():
-            raise serializers.ValidationError(
-                "A valid option must be selected from the list")
-
-        return COUNTRY_CHOICES[key]
-
-    def validate_city(self, value):
-        key = int(value)
-        if key not in CITY_CHOICES.keys():
-            raise serializers.ValidationError(
-                "A valid option must be selected from the list")
-
-        return CITY_CHOICES[key]
-
-    def validate_gender(self, value):
-        key = int(value)
-        if key not in VALID_GENDERS.keys():
-            raise serializers.ValidationError(
-                "A valid option must be selected from the list")
-
-        return VALID_GENDERS[key]
 
     def validate_birthdate(self, value):
         # З фронта надсилається такий формат дати: 2006-10-19T21:00:00.000Z

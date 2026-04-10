@@ -1,4 +1,5 @@
 ﻿import React, { PureComponent } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SmartSelect } from '../components/SmartSelect.jsx';
@@ -12,10 +13,46 @@ import { PasswordInput } from '../components/PasswordInfo.jsx';
 import { PassConfirm } from '../components/PassConfirm.jsx';
 import { SubmitBtn } from '../components/SubmitBtn.jsx';
 
+import { fetchWithAuth } from '../utils/api.js';
+
 function buildRegistrationPayload(formState) {
 	const result = {};
 	Object.keys(formState).forEach((key) => {
-		result[key] = formState[key].realValue;
+		let value = formState[key].realValue;
+		if (value && typeof value === 'object' && value.value !== undefined) {
+			value = value.value;
+		}
+
+		if (key === 'birthdate' && value) {
+			
+			// Варіант А: Дата прийшла як європейський рядок (DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY)
+			if (typeof value === 'string' && value.match(/^\d{2}[./-]\d{2}[./-]\d{4}$/)) {
+				const parts = value.split(/[./-]/);
+				const day = parts[0];
+				const month = parts[1];
+				const year = parts[2];
+				value = `${year}-${month}-${day}`;
+			} 
+			// Варіант Б: Дата прийшла як об'єкт з кастомного календаря
+			else if (typeof value === 'object' && value.year && value.month && value.day) {
+				const monthNum = typeof value.month === 'object' ? value.month.number : value.month;
+				const month = String(monthNum).padStart(2, '0');
+				const day = String(value.day).padStart(2, '0');
+				value = `${value.year}-${month}-${day}`;
+			}
+			// Варіант В: Це стандартний JS-рядок (напр. "2006-08-29T21:00:00.000Z")
+			else {
+				const dateObj = new Date(value);
+				if (!isNaN(dateObj)) {
+					const year = dateObj.getFullYear();
+					const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+					const day = String(dateObj.getDate()).padStart(2, '0');
+					value = `${year}-${month}-${day}`;
+				}
+			}
+		}
+
+		result[key] = value;
 	});	
 	return result;
 }
@@ -28,67 +65,205 @@ const REQUIRED_FIELDS = [
   	"password", "repeat_password"
 ];
 
+const COUNTRY_OPTIONS = [
+	{ value: 0, label: "Виберіть країну" },
+	{ value: 1, label: "Україна" }
+];
+	
+const GENDER_OPTIONS = [
+	{ value: 0, label: "Виберіть вашу стать" },
+    { value: 1, label: "Чоловіча" },
+    { value: 2, label: "Жіноча" },
+    { value: 3, label: "Інша" },
+];
+
 export default function Step1 ({ isEditing }) {
 	const [formState, setFormState] = React.useState({});
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [submitError, setSubmitError] = useState("");
+	const BASE_URL = import.meta.env.VITE_API_URL;
 	const navigate = useNavigate();
 
-  	const handleFieldChange = (fieldName, value, isValid) => {
-		const realValue = value && value.value !== undefined ? value.value : value;
-
-		setFormState((prevState) => ({
-        	...prevState,
-        	[fieldName]: { realValue, isValid },
-    	}));
-	};
-
-	const isFormValid = (formState) => {
-  		for (const field of REQUIRED_FIELDS) {
-    		if (!formState[field]) return false;
-  		}
-
-  		return Object.values(formState).every(field => field.isValid === true);
+	const getObjValue = (optArray, value) => {
+		return optArray.find(opt => opt.value === value) || null;
 	}
 
-	const handleSubmit = async () => {
-		if (!isFormValid(formState)) {
-			alert("Будь ласка, заповніть всі обов'язкові поля правильно.");
-			return;
-		}
+	useEffect(() => {
+        if (!isEditing) return;
 
-		const payload = buildRegistrationPayload(formState);
+        const fetchProfile = async () => {
+            try {
+                const BASE_URL = import.meta.env.VITE_API_URL;
+                const response = await fetchWithAuth(`${BASE_URL}/api/profile/general/`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+					console.log("Отримані дані профілю:", data);
+					let formattedPhone = data.phone_number;
+					if (typeof formattedPhone === 'string') {
+					    const m = formattedPhone.match(/^\+38(\d{3})(\d{3})(\d{2})(\d{2})$/);
+					    if (m) {
+					        formattedPhone = `+38(${m[1]})-${m[2]}-${m[3]}-${m[4]}`;
+					    }
+					}
 
-		try {
-			const response = await fetch("https://flatbuddyua.com/api/register", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(payload),
-			});
+					setFormState(prevState => ({
+						...prevState,
+						
+						first_name: { value: data.first_name, realValue: data.first_name, isValid: true },
+						last_name: { value: data.last_name, realValue: data.last_name, isValid: true },
+						country: { value: getObjValue(COUNTRY_OPTIONS, data.country.value), realValue: data.country.value, isValid: true },
+						city: { value: getObjValue(CityOptions, data.city.value), realValue: data.city.value, isValid: true },
+						gender: { value: getObjValue(GENDER_OPTIONS, data.gender.value), realValue: data.gender.value, isValid: true },
+						birthdate: { value: data.birthdate, realValue: data.birthdate, isValid: true },
+						phone_number: { value: formattedPhone, realValue: formattedPhone, isValid: true },
+						email: { value: data.email, realValue: data.email, isValid: true },
+					}));
 
-			const data = await response.json();	
-			console.log("Registration response:", data);
+					console.log("Профіль завантажено:", data);
+                }
+            } catch (error) {
+                console.error("Помилка завантаження профілю:", error);
+            }
+        };
+        
+        fetchProfile();
 
-			if (data.success) {
-				alert("Реєстрація успішна");
-				navigate("/login");
-			} else {
-				alert("Помилка реєстрації: " + data.message);
-			}
-		} catch (error) {
-			console.error("Registration error:", error);
-			alert("Сталася помилка при реєстрації. Спробуйте ще раз.");
-		}	
-  	};
+    }, [isEditing]);
+
+	const isFormValid = (formState) => {
+		const fieldsToCheck = isEditing
+			? REQUIRED_FIELDS.filter(field => field !== "password" && field !== "repeat_password")
+			: REQUIRED_FIELDS;
+
+  		for (const field of fieldsToCheck) {
+    		if (!formState[field] || !formState[field].realValue) return false;
+            
+            if (formState[field].isValid === false) return false;
+  		}
+
+	  	return true;
+	}
+
+	const handleRegister = async (payload) => {
+	    setIsSubmitting(true);
+	    setSubmitError("");
+
+	    try {
+	        const response = await fetch(`${BASE_URL}/api/register/`, {
+	            method: "POST",
+	            headers: {
+	                "Content-Type": "application/json",
+	            },
+	            body: JSON.stringify(payload),
+	        });
+
+	        if (response.ok) {
+				const tokenData = await response.json();
+				localStorage.setItem("access_token", tokenData.access);
+				if (tokenData?.refresh) localStorage.setItem("refresh_token", tokenData.refresh);
+
+				window.dispatchEvent(new Event("storage"));
+	            navigate('/buddies', { state: { justRegistered: true } });
+				
+	        } else {
+	            const errorData = await response.json();
+	            setSubmitError(errorData.detail || "Помилка реєстрації. Перевірте дані.");
+	            console.error("Помилка реєстрації:", errorData);
+
+				setFormState(prevState => {
+					// Робимо копію поточного стейту
+					const newState = { ...prevState };
+
+					// Пробігаємось по всіх полях, які прислали помилку (напр. "email", "phone_number")
+					Object.keys(errorData).forEach(fieldName => {
+						// Перевіряємо, чи є таке поле у нашій формі
+						if (newState[fieldName]) {
+							newState[fieldName] = {
+								...newState[fieldName], // зберігаємо введене value/realValue
+								isValid: false,         // робимо поле невалідним (щоб SmartBox став червоним)
+								// DRF зазвичай віддає масив рядків, тому беремо перший елемент [0]
+								errorText: Array.isArray(errorData[fieldName]) 
+									? errorData[fieldName][0] 
+									: errorData[fieldName]
+							};
+						}
+					});
+
+					// Якщо бекенд прислав помилку, не прив'язану до конкретного поля
+					if (errorData.non_field_errors) {
+						alert(errorData.non_field_errors[0]); // Можеш потім замінити на гарний Toast
+					}
+
+					console.log(formState.email);
+					return newState;
+				});
+	        }
+	    } catch (error) {
+	        setSubmitError("Помилка мережі. Спробуйте пізніше.");
+	        console.error("Network error:", error);
+	    } finally {
+	        setIsSubmitting(false);
+	    }
+	};
+
+	const handleUpdate = async (payload) => {
+	    setIsSubmitting(true);
+	    setSubmitError("");
+
+	    try {
+	        const { email, password, repeat_password, ...safeUpdatePayload } = payload;
+
+	        const response = await fetchWithAuth(`${BASE_URL}/api/profile/general/`, {
+	            method: "PATCH",
+	            headers: {
+	                "Content-Type": "application/json",
+	            },
+	            body: JSON.stringify(safeUpdatePayload),
+	        });
+
+	        if (response.ok) {
+	            alert("Дані успішно оновлено!"); 
+	        } else {
+	            const errorData = await response.json().catch(() => ({}));
+	            setSubmitError(errorData.detail || "Не вдалося оновити профіль.");
+	            console.error("Помилка оновлення:", errorData);
+	        }
+	    } catch (error) {
+	        setSubmitError("Помилка мережі. Спробуйте пізніше.");
+	        console.error("Network error:", error);
+	    } finally {
+	        setIsSubmitting(false);
+	    }
+	};
+
+	const onSubmitClick = () => {
+	    const payload = buildRegistrationPayload(formState);
+	
+	    if (isEditing) {
+	        handleUpdate(payload);
+	    } else {
+	        handleRegister(payload);
+	    }
+	};
+
+	const navStepStyle = (isActive) => ({
+        padding: "10px 20px",
+        border: isActive ? "2px solid #111" : "2px solid #F6DDD4",
+        backgroundColor: isActive ? "#FCD531" : "transparent",
+        color: "#111",
+        fontFamily: "'Seenonim', 'Inter', sans-serif",
+        fontSize: "16px",
+        cursor: isActive ? "default" : "pointer",
+        transition: "all 0.2s ease",
+        transform: isActive ? "translate(-2px, -2px)" : "none",
+        boxShadow: isActive ? "4px 4px 0px #111" : "none",
+    });
 
     return (
   		<div className="landing-page">
-    		<Header
-			    onFBClick={() => navigate('/')}
-			    onHomeClick={() => navigate('/')}
-			    onLoginClick={() => navigate('/login')}
-			    onFindRoommateClick={() => navigate('/register')}
-			/>
+    		<Header	/>
         
 			<div style={{ padding: "40px 20px 40px 20px" }}>
        			{/* CARD */}
@@ -103,6 +278,31 @@ export default function Step1 ({ isEditing }) {
 					alignItems: "center",
         		}}>
 					
+				{isEditing && (
+					<div style={{
+            	        display: "flex",
+            	        gap: "15px",
+            	        marginBottom: "40px",
+            	        width: "100%",
+            	        justifyContent: "center",
+            	        flexWrap: "wrap"
+            	    }}>
+            	        <div style={navStepStyle(true)}>1. Базові дані</div>
+            	        <div 
+            	            style={navStepStyle(false)} 
+            	            onClick={() => navigate('/profile/step-2')}
+            	        >
+            	            2. Проживання
+            	        </div>
+            	        <div 
+            	            style={navStepStyle(false)} 
+            	            onClick={() => navigate('/profile/step-3')}
+            	        >
+            	            3. Про мене
+            	        </div>
+            	    </div>
+            	)}
+
           			{/* FORM GRID */}
           			<div className='main-grid'>
 
@@ -111,7 +311,7 @@ export default function Step1 ({ isEditing }) {
             			  	<SmartBox
 								fieldName="first_name"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 							>
             			    	<SmartInput name="first_name" placeholder="Тарас" />
             			  	</SmartBox>
@@ -122,7 +322,7 @@ export default function Step1 ({ isEditing }) {
             			  	<SmartBox
 								fieldName="last_name"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 							>
             			    	<SmartInput name="last_name" placeholder="Шевченко" />
             			  	</SmartBox>
@@ -133,13 +333,10 @@ export default function Step1 ({ isEditing }) {
             			  	<SmartBox
 								fieldName="country"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 							>
             			    	<SmartSelect
-            			      		options={[
-										{ value: 0, label: "Виберіть країну" },
-										{ value: 1, label: "Україна" }
-									]}
+            			      		options={COUNTRY_OPTIONS}
 									placeholder="Країна"
 									name="country"
             			    	/>
@@ -151,7 +348,7 @@ export default function Step1 ({ isEditing }) {
             			  	<SmartBox
 								fieldName="city"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 							>
             			    	<SmartCreatable
             			      		options={CityOptions}
@@ -166,15 +363,10 @@ export default function Step1 ({ isEditing }) {
             			  	<SmartBox
 								fieldName="gender"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 							>
             			    	<SmartSelect
-            			      		options={[
-										{ value: 0, label: "Виберіть вашу стать" },
-            			        		{ value: 1, label: "Чоловіча" },
-            			        		{ value: 2, label: "Жіноча" },
-            			        		{ value: 3, label: "Інша" },
-            			      		]}
+            			      		options={GENDER_OPTIONS}
 									placeholder="Стать"
 									name="gender"
             			    	/>
@@ -186,7 +378,7 @@ export default function Step1 ({ isEditing }) {
 							<SmartBox
 								fieldName="birthdate"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 							>
 								<SmartCalendar />
 							</SmartBox>
@@ -197,7 +389,7 @@ export default function Step1 ({ isEditing }) {
 							<SmartBox
 								fieldName="phone_number"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 							>
 								<SmartInput
 									placeholder="+38(0__)-___-__-__"
@@ -215,7 +407,7 @@ export default function Step1 ({ isEditing }) {
 							<SmartBox
 								fieldName="email"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 							>
 								<SmartInput
 									placeholder="Електронна пошта"
@@ -224,23 +416,27 @@ export default function Step1 ({ isEditing }) {
 							</SmartBox>
 						</div>
 
+					{!isEditing && (
 						<div>
 							<div style={labelStyle}>Пароль</div>
 							<SmartBox
 								fieldName="password"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 							>
 								<PasswordInput name="password"/>
 							</SmartBox>
 						</div>
 
+					)}
+
+					{!isEditing && (
 						<div>
 							<div style={labelStyle}>Підтвердження пароля</div>
 							<SmartBox
 								fieldName="repeat_password"
 								formState={formState}
-								setFormState={handleFieldChange}
+								setFormState={setFormState}
 								disabled={!formState.password?.isValid}
 							>
 								<PassConfirm
@@ -249,6 +445,8 @@ export default function Step1 ({ isEditing }) {
 								/>
 							</SmartBox>
 						</div>
+					)}
+
           			</div>
 									
 					{/*SUBMIT BUTTON*/}
@@ -262,12 +460,9 @@ export default function Step1 ({ isEditing }) {
 						}}
 					>
 						<SubmitBtn
-							onClick={() => {
-								handleSubmit();
-								// onNext();
-							}}
+							onClick={onSubmitClick}
 							disabled={!isFormValid(formState)}
-							btntext="Зареєструватися"
+							btntext={isEditing ? "Оновити" : "Зареєструватися"}
 						/>
 					</div>
         		</div>

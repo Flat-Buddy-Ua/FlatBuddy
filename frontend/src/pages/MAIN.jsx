@@ -7,12 +7,7 @@ export default function MAIN() {
 
     return (
         <div className="landing-page">
-            <Header 
-                onLoginClick={() => navigate('/login')} 
-                onFBClick={() => navigate('/')} 
-                onHomeClick={() => navigate('/')}
-                onFindRoommateClick={() => navigate('/buddies')}
-            />
+            <Header />
 
             <main className="landing-main">
                 <section className="landing-hero">

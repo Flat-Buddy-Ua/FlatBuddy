@@ -44,7 +44,7 @@ export function RegisterLayout() {
 
                 <Route
                     path="/buddies"
-                    element={<Card />}
+                    element={<Card onGoHome={() => {navigate('/')}} />}
                 />
 
                 {/* Інші кроки редагування доступні тільки для профілю */}

@@ -3,6 +3,8 @@ from django.db.models import JSONField
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
+from user.constants.choices import Country, City, Gender
+
 # ROOM_SHARING_CHOICES = [
 #     ('Mені комфортно ділити кімнату з співмешканцем',
 #      'Mені комфортно ділити кімнату з співмешканцем'),
@@ -40,13 +42,13 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     username = None
-    country = models.CharField(null=True, blank=True)
-    city = models.CharField(null=True, blank=True)
-    gender = models.CharField(null=True, blank=True)
+    country = models.IntegerField(choices=Country.choices, null=True, blank=True)
+    city = models.IntegerField(choices=City.choices, null=True, blank=True)
+    gender = models.IntegerField(choices=Gender.choices, null=True, blank=True)
     birthdate = models.DateField(null=True, blank=True)
     phone_number = models.CharField(unique=True, blank=True)
     email = models.EmailField(
-        unique=True, max_length=50, null=True, blank=True)
+        unique=True, max_length=254, null=True, blank=True)
 
     objects = UserManager()
     USERNAME_FIELD = 'email'

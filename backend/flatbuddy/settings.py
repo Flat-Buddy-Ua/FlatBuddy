@@ -33,7 +33,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'flatbuddy.com']
 
 STATIC_URL = 'static/'
 
@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'user',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -136,7 +137,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
-    )
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
@@ -166,3 +168,10 @@ AUTH_USER_MODEL = 'user.User'
 
 STATIC_URL = '/static/backend/'
 STATIC_ROOT = BASE_DIR / 'static'
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'FlatBuddy API',
+    'DESCRIPTION': 'FlatBuddy API Documentation',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
