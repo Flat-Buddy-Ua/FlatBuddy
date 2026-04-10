@@ -1,8 +1,30 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+const parseSafeDate = (val) => {
+  if (!val) return new Date(1972, 0, 1); // Дефолтна дата, якщо нічого немає
+  if (val instanceof Date) return val;   // Якщо це вже Date, повертаємо як є
+
+  if (typeof val === 'string') {
+    // Перевіряємо формат DD.MM.YYYY, DD-MM-YYYY або DD/MM/YYYY
+    const euMatch = val.match(/^(\d{2})[./-](\d{2})[./-](\d{4})$/);
+    if (euMatch) {
+      // Місяці в JavaScript починаються з 0, тому euMatch[2] - 1
+      return new Date(euMatch[3], euMatch[2] - 1, euMatch[1]);
+    }
+
+    // Якщо це стандартний формат (наприклад, ISO "YYYY-MM-DD")
+    const parsed = new Date(val);
+    if (!isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  return new Date(1972, 0, 1); // Безпечний фолбек, якщо нічого не підійшло
+};
+
 const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату" }) => {
   const [showCalendar, setShowCalendar] = useState(false);
-  const [date, setDate] = useState(value || new Date(1972, 0, 1));
+  const [date, setDate] = useState(() => parseSafeDate(value));
   const [view, setView] = useState('month'); // 'month' або 'year'
   const calendarRef = useRef(null);
   const inputRef = useRef(null);
@@ -50,6 +72,10 @@ const SmartCalendar = ({ onChange, value, placeholder = "Оберіть дату
     if (!date) return '';
     return date.toISOString().split("T")[0];
   };
+
+  useEffect(() => {
+    setDate(parseSafeDate(value));
+  }, [value]);
 
   return (
     <div style={{ position: 'relative', width: '100%', zIndex: 1000 }}>

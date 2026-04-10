@@ -29,19 +29,19 @@ export default function MAIN() {
                     </p>
 
                     <div className="landing-actions">
-                        <button
-                            type="button"
-                            className="landing-btn landing-btn-primary"
-                            onClick={() => navigate('/register')}
-                        >
-                            {"Знайти співмешканця"}
-                        </button>
                         <button 
                             type="button" 
                             className="landing-btn landing-btn-secondary"
                             onClick={() => navigate('/register')}
                         >
-                            {"Знайти житло"}
+                            {"Зареєструватись"}
+                        </button>
+                        <button
+                            type="button"
+                            className="landing-btn landing-btn-primary"
+                            onClick={() => navigate('/buddies')}
+                        >
+                            {"Знайти співмешканця"}
                         </button>
                     </div>
                 </section>

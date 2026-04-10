@@ -98,30 +98,54 @@ export default function Step1 ({ isEditing }) {
                 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log("Отримані дані профілю:", data);
                     
-					console.log("Отримані дані профілю:", data);
-					let formattedPhone = data.phone_number;
-					if (typeof formattedPhone === 'string') {
-					    const m = formattedPhone.match(/^\+38(\d{3})(\d{3})(\d{2})(\d{2})$/);
-					    if (m) {
-					        formattedPhone = `+38(${m[1]})-${m[2]}-${m[3]}-${m[4]}`;
-					    }
-					}
+                    // Форматування телефону
+                    let formattedPhone = data.phone_number;
+                    if (typeof formattedPhone === 'string') {
+                        const m = formattedPhone.match(/^\+38(\d{3})(\d{3})(\d{2})(\d{2})$/);
+                        if (m) {
+                            formattedPhone = `+38(${m[1]})-${m[2]}-${m[3]}-${m[4]}`;
+                        }
+                    }
 
-					setFormState(prevState => ({
-						...prevState,
-						
-						first_name: { value: data.first_name, realValue: data.first_name, isValid: true },
-						last_name: { value: data.last_name, realValue: data.last_name, isValid: true },
-						country: { value: getObjValue(COUNTRY_OPTIONS, data.country.value), realValue: data.country.value, isValid: true },
-						city: { value: getObjValue(CityOptions, data.city.value), realValue: data.city.value, isValid: true },
-						gender: { value: getObjValue(GENDER_OPTIONS, data.gender.value), realValue: data.gender.value, isValid: true },
-						birthdate: { value: data.birthdate, realValue: data.birthdate, isValid: true },
-						phone_number: { value: formattedPhone, realValue: formattedPhone, isValid: true },
-						email: { value: data.email, realValue: data.email, isValid: true },
-					}));
+                    // 1. Знаходимо повні об'єкти для селектів за їхніми ID, які прийшли з бекенду
+                    // Зверни увагу: використовуємо просто data.country, а не data.country.value
+                    const selectedCity = CityOptions.find(opt => opt.value === data.city) || 
+    					(data.city ? { value: data.city, label: data.city } : null);
+                    const selectedCountry = COUNTRY_OPTIONS.find(opt => opt.value === data.country) || null;
+                    const selectedGender = GENDER_OPTIONS.find(opt => opt.value === data.gender) || null;
 
-					console.log("Профіль завантажено:", data);
+                    // 2. Оновлюємо стейт
+                    setFormState(prevState => ({
+                        ...prevState,
+                        
+                        first_name: { value: data.first_name, realValue: data.first_name, isValid: true },
+                        last_name: { value: data.last_name, realValue: data.last_name, isValid: true },
+                        
+                        // Для селектів передаємо знайдений об'єкт повністю у realValue
+                        country: { 
+                            value: selectedCountry?.label || "", // Текстова назва для відображення
+                            realValue: selectedCountry,          // Об'єкт для SmartSelect та відправки на бек
+                            isValid: !!selectedCountry 
+                        },
+                        city: { 
+                            value: selectedCity?.label || "", 
+                            realValue: selectedCity, 
+                            isValid: !!selectedCity 
+                        },
+                        gender: { 
+                            value: selectedGender?.label || "", 
+                            realValue: selectedGender, 
+                            isValid: !!selectedGender 
+                        },
+                        
+                        birthdate: { value: data.birthdate, realValue: data.birthdate, isValid: true },
+                        phone_number: { value: formattedPhone, realValue: formattedPhone, isValid: true },
+                        email: { value: data.email, realValue: data.email, isValid: true },
+                    }));
+
+                    console.log("Профіль завантажено:", data);
                 }
             } catch (error) {
                 console.error("Помилка завантаження профілю:", error);
@@ -248,18 +272,33 @@ export default function Step1 ({ isEditing }) {
 	    }
 	};
 
-	const navStepStyle = (isActive) => ({
+	const navStepStyle = (isActive, isDisabled = false) => ({
         padding: "10px 20px",
         border: isActive ? "2px solid #111" : "2px solid #F6DDD4",
-        backgroundColor: isActive ? "#FCD531" : "transparent",
-        color: "#111",
+        backgroundColor: isActive ? "#FCD531" : isDisabled ? "#F7F1EE" : "transparent",
+        color: isDisabled ? "#8A817C" : "#111",
         fontFamily: "'Seenonim', 'Inter', sans-serif",
         fontSize: "16px",
-        cursor: isActive ? "default" : "pointer",
+        cursor: isActive ? "default" : isDisabled ? "not-allowed" : "pointer",
         transition: "all 0.2s ease",
         transform: isActive ? "translate(-2px, -2px)" : "none",
         boxShadow: isActive ? "4px 4px 0px #111" : "none",
+        opacity: isDisabled ? 0.7 : 1,
+        pointerEvents: isDisabled ? "none" : "auto",
     });
+
+	const formCardStyle = {
+		width: "100%",
+		maxWidth: 800,
+		border: "3px solid #F6DDD4",
+		padding: "clamp(24px, 6vw, 80px)",
+		margin: "auto",
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "center",
+		boxSizing: "border-box",
+		overflowX: "hidden",
+	};
 
     return (
   		<div className="landing-page">
@@ -267,16 +306,7 @@ export default function Step1 ({ isEditing }) {
         
 			<div style={{ padding: "40px 20px 40px 20px" }}>
        			{/* CARD */}
-        		<div style={{
-					width: "100%",
-        			border: "3px solid #F6DDD4",
-        			padding: "80px",
-        			maxWidth: 800,
-        			margin: "auto",
-					display: "flex",
-					flexDirection: "column",
-					alignItems: "center",
-        		}}>
+        		<div style={formCardStyle}>
 					
 				{isEditing && (
 					<div style={{
@@ -289,14 +319,14 @@ export default function Step1 ({ isEditing }) {
             	    }}>
             	        <div style={navStepStyle(true)}>1. Базові дані</div>
             	        <div 
-            	            style={navStepStyle(false)} 
-            	            onClick={() => navigate('/profile/step-2')}
+            	            style={navStepStyle(false, true)} 
+            	            aria-disabled="true"
             	        >
             	            2. Проживання
             	        </div>
             	        <div 
-            	            style={navStepStyle(false)} 
-            	            onClick={() => navigate('/profile/step-3')}
+            	            style={navStepStyle(false, true)} 
+            	            aria-disabled="true"
             	        >
             	            3. Про мене
             	        </div>
@@ -304,7 +334,7 @@ export default function Step1 ({ isEditing }) {
             	)}
 
           			{/* FORM GRID */}
-          			<div className='main-grid'>
+          			<div className='main-grid step1-main-grid'>
 
             			<div>
             			  	<div style={labelStyle}>Ім’я</div>
@@ -312,6 +342,7 @@ export default function Step1 ({ isEditing }) {
 								fieldName="first_name"
 								formState={formState}
 								setFormState={setFormState}
+								mywidth="100%"
 							>
             			    	<SmartInput name="first_name" placeholder="Тарас" />
             			  	</SmartBox>
@@ -323,6 +354,7 @@ export default function Step1 ({ isEditing }) {
 								fieldName="last_name"
 								formState={formState}
 								setFormState={setFormState}
+								mywidth="100%"
 							>
             			    	<SmartInput name="last_name" placeholder="Шевченко" />
             			  	</SmartBox>
@@ -334,9 +366,11 @@ export default function Step1 ({ isEditing }) {
 								fieldName="country"
 								formState={formState}
 								setFormState={setFormState}
+								mywidth="100%"
 							>
             			    	<SmartSelect
             			      		options={COUNTRY_OPTIONS}
+									defaultValue={COUNTRY_OPTIONS[0]}
 									placeholder="Країна"
 									name="country"
             			    	/>
@@ -349,9 +383,11 @@ export default function Step1 ({ isEditing }) {
 								fieldName="city"
 								formState={formState}
 								setFormState={setFormState}
+								mywidth="100%"
 							>
             			    	<SmartCreatable
             			      		options={CityOptions}
+									defaultValue={CityOptions[0]}
 									placeholder="Місто"
 									name="city"
             			    	/>
@@ -364,6 +400,7 @@ export default function Step1 ({ isEditing }) {
 								fieldName="gender"
 								formState={formState}
 								setFormState={setFormState}
+								mywidth="100%"
 							>
             			    	<SmartSelect
             			      		options={GENDER_OPTIONS}
@@ -379,6 +416,7 @@ export default function Step1 ({ isEditing }) {
 								fieldName="birthdate"
 								formState={formState}
 								setFormState={setFormState}
+								mywidth="100%"
 							>
 								<SmartCalendar />
 							</SmartBox>
@@ -390,6 +428,7 @@ export default function Step1 ({ isEditing }) {
 								fieldName="phone_number"
 								formState={formState}
 								setFormState={setFormState}
+								mywidth="100%"
 							>
 								<SmartInput
 									placeholder="+38(0__)-___-__-__"
@@ -408,6 +447,7 @@ export default function Step1 ({ isEditing }) {
 								fieldName="email"
 								formState={formState}
 								setFormState={setFormState}
+								mywidth="100%"
 							>
 								<SmartInput
 									placeholder="Електронна пошта"
@@ -423,6 +463,7 @@ export default function Step1 ({ isEditing }) {
 								fieldName="password"
 								formState={formState}
 								setFormState={setFormState}
+								mywidth="100%"
 							>
 								<PasswordInput name="password"/>
 							</SmartBox>
@@ -438,6 +479,7 @@ export default function Step1 ({ isEditing }) {
 								formState={formState}
 								setFormState={setFormState}
 								disabled={!formState.password?.isValid}
+								mywidth="100%"
 							>
 								<PassConfirm
 									disabled={!formState.password?.isValid}

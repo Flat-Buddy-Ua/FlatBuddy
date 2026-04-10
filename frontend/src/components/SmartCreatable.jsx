@@ -5,6 +5,8 @@ const CYRILLIC_REGEX = /^[\u0400-\u04FF\s-]*$/;
 
 export function SmartCreatable({
     options = [],
+    value,
+    placeholder,
     defaultValue = null,
     onChange,
     onFocus,
@@ -14,16 +16,15 @@ export function SmartCreatable({
 })
 
 {
-    const [selectedOption, setSelectedOption] = React.useState(defaultValue || options[0] || null);
-    
     const [inputValue, setInputValue] = useState("");
 
     return (
         <CreatableSelect
-            value={selectedOption}
+            value={value}
+            options={options}
+            placeholder={options.length > 0 ? options[0].label : "Виберіть опцію"}
             inputValue={inputValue}
             onChange={(val) => {
-                setSelectedOption(val);
                 setInputValue("");
                 onChange?.(val);
             }}
@@ -40,7 +41,6 @@ export function SmartCreatable({
             onBlur={onBlur}
             onMenuOpen={onMenuOpen}
             onMenuClose={onMenuClose}
-            options={options}
 
             menuPortalTarget={document.body}
             menuPosition="fixed"
