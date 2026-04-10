@@ -39,18 +39,18 @@ export const validations = {
     return null;
   },
   
-  country: (value) => {
-    if (!value || value === 0) return "Оберіть країну";
+  country: (realValue) => {
+    if (!realValue.value || realValue.value === 0) return "Оберіть країну";
     return null;
   },
 
-  city: (value) => {
-    if (!value || value === 0) return "Оберіть місто";
+  city: (realValue) => {
+    if (!realValue.value || realValue.value === 0) return "Оберіть місто";
     return null;
   },
 
-  gender: (value) => {
-    if (!value || value === 0) return "Оберіть стать";
+  gender: (realValue) => {
+    if (!realValue.value || realValue.value === 0) return "Оберіть стать";
     return null;
   },
   

@@ -3,7 +3,9 @@ import Select from 'react-select';
 
 export function SmartSelect({
     options = [],
+    value,
     defaultValue = null,
+    placeholder,
     onChange,
     onFocus,
     onBlur,
@@ -11,20 +13,19 @@ export function SmartSelect({
     onMenuClose,
     mywidth = "100%",
 }) {
-    const [selectedOption, setSelectedOption] = React.useState(defaultValue || options[0] || null);
 
     return (
         <Select
-            value={selectedOption}
+            value={value}
+            options={options}
+            placeholder={options.length > 0 ? options[0].label : "Виберіть опцію"}
             onChange={(val) => {
-                setSelectedOption(val);
                 onChange?.(val);
             }}
             onFocus={onFocus}
             onBlur={onBlur}
             onMenuOpen={onMenuOpen}
             onMenuClose={onMenuClose}
-            options={options}
 
             menuPortalTarget={document.body}
             menuPosition="fixed"

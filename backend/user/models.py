@@ -52,7 +52,7 @@ class User(AbstractUser):
 
     objects = UserManager()
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['phone_number']
 
     class Meta:
         managed = True
