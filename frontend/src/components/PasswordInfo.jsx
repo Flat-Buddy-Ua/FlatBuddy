@@ -23,7 +23,7 @@ export function PasswordInput ({ value, onChange, onFocus, onBlur, name }) {
                 placeholder="Пароль"
                 type={showPassword ? "text" : "password"}
                 name={name}
-                value={value}
+                value={typeof value === 'object' ? value?.realValue || '' : value || ''}
                 onChange={onChange}
                 onFocus={(e) => {
                     setIsActive(true);

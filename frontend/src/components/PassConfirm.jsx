@@ -20,7 +20,7 @@ export function PassConfirm({ value, onChange, disabled }) {
                 margintop="0px"
                 placeholder="Пароль"
                 type={showPassword ? "text" : "password"}
-                value={value}
+                value={typeof value === 'object' ? value?.realValue || '' : value || ''}
                 onChange={onChange}
             />  
             {/* кнопка show/hide password */}

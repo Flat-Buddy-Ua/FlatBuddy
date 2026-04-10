@@ -2,119 +2,162 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoginPopup } from "./LoginPopup.jsx";
 
+
+
 export function Header({
-  onHomeClick,
-  onFindRoommateClick,
-  onRentClick,
-  onLoginClick,
-  onFBClick,
+  	onSignUpClick,
+	onExitClick,
 }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const navigate = useNavigate();
+  	const [isMenuOpen, setIsMenuOpen] = useState(false);
+  	const [isLoginOpen, setIsLoginOpen] = useState(false);
+  	const navigate = useNavigate();
 
-  const closeMenu = () => setIsMenuOpen(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("access_token"));
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 768) closeMenu();
-    };
+	const onFBClick = () => navigate('/');
+	const onHomeClick = () => navigate('/');
+	const onLoginClick = () => navigate('/login');
+	const onProfileClick = () => navigate('/profile/details');
+	const onFindRoommateClick = () => navigate('/buddies');
 
-    const handleEscape = (event) => {
-      if (event.key === "Escape") closeMenu();
-    };
+	const handleLogout = () => {
+		localStorage.removeItem("token");
+		localStorage.removeItem("access_token");
+		localStorage.removeItem("refresh_token");
+		localStorage.removeItem("user");
+		setIsLoggedIn(false);
+		navigate("/");
+	}
 
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("keydown", handleEscape);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("keydown", handleEscape);
-    };
-  }, []);
+  	const closeMenu = () => setIsMenuOpen(false);
 
-  const handleMenuAction = (callback) => {
-    if (typeof callback === "function") callback();
-    closeMenu();
-  };
+  	useEffect(() => {
+    	const handleResize = () => {
+      		if (window.innerWidth > 768) closeMenu();
+    	};
 
-  const handleBrandClick = () => {
-    if (typeof onFBClick === "function") {
-      onFBClick();
-      closeMenu();
-      return;
-    }
-    window.location.href = "/";
-  };
+    	const handleEscape = (event) => {
+      		if (event.key === "Escape") closeMenu();
+    	};
 
-  const handleLoginOpen = () => {
-    setIsLoginOpen(true);
-    closeMenu();
-  };
+		const handleStorageChange = (event) => {
+			setIsLoggedIn(!!localStorage.getItem("access_token"));
+		};
 
-  const handleLoginSuccess = (data) => {
-    if (typeof onLoginClick === "function") {
-      onLoginClick(data);
-    }
-  };
+    	window.addEventListener("resize", handleResize);
+    	window.addEventListener("keydown", handleEscape);
+		window.addEventListener("storage", handleStorageChange);
+    	return () => {
+      		window.removeEventListener("resize", handleResize);
+      		window.removeEventListener("keydown", handleEscape);
+			window.removeEventListener("storage", handleStorageChange);
+    	};
+  	}, []);
 
-  const handleSignUpClick = () => {
-    closeMenu();
+  	const handleMenuAction = (callback) => {
+    	if (typeof callback === "function") callback();
+    	closeMenu();
+  	};
 
-    if (typeof onRentClick === "function") {
-      onRentClick();
-      return;
-    }
+  	const handleBrandClick = () => {
+    	if (typeof onFBClick === "function") {
+      		onFBClick();
+      		closeMenu();
+      		return;
+    	}
+    	window.location.href = "/";
+  	};
 
-    navigate("/register");
-  };
+  	const handleLoginOpen = () => {
+   		setIsLoginOpen(true);
+    	closeMenu();
+  	};
 
-  return (
-    <>
-      <header className="fb-header">
-        <div className="fb-header__inner">
-          <nav className={`fb-header__nav ${isMenuOpen ? "is-open" : ""}`} aria-label="Main navigation">
-            <div className="fb-header__left">
-              <button type="button" className="fb-header__link" onClick={() => handleMenuAction(onHomeClick)}>
-                Дім
-              </button>
-              <button type="button" className="fb-header__link" onClick={() => handleMenuAction(onFindRoommateClick)}>
-                Знайти buddy
-              </button>
-            </div>
+  	const handleLoginSuccess = (data) => {
+		setIsLoggedIn(true);
+    	if (typeof onProfileClick === "function") {
+      		onProfileClick(data);
+    	}
+  	};
 
-            <div className="fb-header__right">
-              <button type="button" className="fb-header__link fb-header__auth-link" onClick={handleLoginOpen}>
-                Log In
-              </button>
-              <button type="button" className="fb-header__link fb-header__auth-link" onClick={handleSignUpClick}>
-                Sign Up
-              </button>
-            </div>
-          </nav>
+  	const handleSignUpClick = () => {
+    	closeMenu();
 
-          <button type="button" className="fb-header__brand fb-header__brand-btn" onClick={handleBrandClick} aria-label="Go to home page">
-            FB
-          </button>
+    	if (typeof onRentClick === "function") {
+      		onRentClick();
+      		return;
+    	}
 
-          <button
-            type="button"
-            className={`fb-header__burger ${isMenuOpen ? "is-open" : ""}`}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={isMenuOpen}
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-        </div>
-      </header>
+    	navigate("/register");
+  	};
 
-      <LoginPopup
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onSuccess={handleLoginSuccess}
-      />
-    </>
-  );
+	const handleProfileClick = () => {
+		closeMenu();
+		if (typeof onProfileClick === "function") {
+			onProfileClick();
+			return;
+		}
+		navigate("/profile/details");
+	}
+
+  	return (
+    	<>
+      		<header className="fb-header">
+        		<div className="fb-header__inner">
+          			<nav className={`fb-header__nav ${isMenuOpen ? "is-open" : ""}`} aria-label="Main navigation">
+            			<div className="fb-header__left">
+              				<button type="button" className="fb-header__link" onClick={() => handleMenuAction(onHomeClick)}>
+                				Дім
+              				</button>
+              				<button type="button" className="fb-header__link" onClick={() => handleMenuAction(onFindRoommateClick)}>
+                				Знайти buddy
+              				</button>
+            			</div>
+
+					{!isLoggedIn ? (
+            			<div className="fb-header__right">
+              				<button type="button" className="fb-header__link fb-header__auth-link" onClick={handleLoginOpen}>
+                				Вхід
+              				</button>
+              				<button type="button" className="fb-header__link fb-header__auth-link" onClick={handleSignUpClick}>
+                				Зареєструватися
+              				</button>
+            			</div>
+					) : (
+						<div className="fb-header__right">
+			  				<button type="button" className="fb-header__link fb-header__auth-link" onClick={handleProfileClick}>
+								Профіль
+			  				</button>
+			  				<button type="button" className="fb-header__link fb-header__auth-link" onClick={handleLogout}>
+								Вийти
+			  				</button>
+						</div>
+					)}
+          			</nav>
+
+          			<button type="button" className="fb-header__brand fb-header__brand-btn" onClick={handleBrandClick} aria-label="Go to home page">
+            			FB
+          			</button>
+
+          			<button
+            			type="button"
+            			className={`fb-header__burger ${isMenuOpen ? "is-open" : ""}`}
+            			aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            			aria-expanded={isMenuOpen}
+            			onClick={() => setIsMenuOpen((prev) => !prev)}
+          			>
+            			<span />
+            			<span />
+            			<span />
+          			</button>
+        		</div>
+      		</header>
+
+      		<LoginPopup
+        		isOpen={isLoginOpen}
+        		onClose={() => setIsLoginOpen(false)}
+        		onSuccess={handleLoginSuccess}
+      		/>
+    	</>
+  	);
 }

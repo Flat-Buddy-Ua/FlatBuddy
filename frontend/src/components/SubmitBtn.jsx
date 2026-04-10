@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./../index.css";
 
-export function SubmitBtn({ onClick, disabled, btntext}) {
+export function SubmitBtn({ onClick, disabled, btntext, isLoading }) {
     const [isActive, setIsActive] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     
@@ -60,7 +60,7 @@ export function SubmitBtn({ onClick, disabled, btntext}) {
                 {btntext}
             </button>
 
-            {disabled && isHovered &&
+            {disabled && !isLoading && isHovered &&
                 <div style={{
                         position: "absolute",
                         bottom: "-22px",

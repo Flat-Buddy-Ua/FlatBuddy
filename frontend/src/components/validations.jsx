@@ -98,6 +98,8 @@ export const validations = {
     }
 
     if (value.includes("_")) return "Телефон має бути у форматі +38(0XX)-XXX-XX-XX";
+
+    return null;
   },
 
   password: (value) => {
