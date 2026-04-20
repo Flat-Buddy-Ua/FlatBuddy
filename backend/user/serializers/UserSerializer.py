@@ -2,44 +2,21 @@ from datetime import date
 
 import re
 from rest_framework import serializers
-from user.constants.choices import Country, City, Gender
 from user.models import User
 
-UKRAINIAN_PATTERN = r"^[А-ЩЬЮЯҐЄІЇ][а-щьюяґєії'\-]*$"
-
-VALID_UA_PHONE_CODES = [
-    # Київстар
-    '067', '068', '096', '097', '098',
-    # Vodafone
-    '050', '066', '095', '099',
-    # lifecell
-    '063', '073', '093',
-    # Інтертелеком
-    '089', '094',
-    # ТриМоб
-    '091',
-    # People.net
-    '092',
-    # Фінтелеком
-    '039'
-]
-
+from user.constants.choices import UKRAINIAN_PATTERN, VALID_UA_PHONE_CODES
 
 class UserSerializer(serializers.ModelSerializer):
 
-    country = serializers.IntegerField(required=True)
-    city = serializers.IntegerField(required=True)
-    gender = serializers.IntegerField(required=True)
-    birthdate = serializers.DateField(required=True)
-    password = serializers.CharField(write_only=True, required=True)
-    repeat_password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True)
+    repeat_password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
         fields = [
             "first_name", "last_name", "country", "city",
             "gender", "birthdate", "phone_number", "email",
-            "password", "repeat_password",
+            "password", "repeat_password"
         ]
 
     def validate_first_name(self, value):
@@ -65,11 +42,6 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def validate_birthdate(self, value):
-        # З фронта надсилається такий формат дати: 2006-10-19T21:00:00.000Z
-        # Переформатування у запис: рік-місяць-день
-        # value = datetime.fromisoformat(value)
-        # value = value.date()
-
         min_date = date(1950, 1, 1)
         max_date = date.today()
 
@@ -79,8 +51,6 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def validate_phone_number(self, value):
-        # З фронта надсилається такий формат: +38(0XX)-XXX-XX-XX
-        # 380XXXXXXXXX - чиститься все, що не цифра
         value = re.sub(r'\D', '', value)
 
         if len(value) != 12:
