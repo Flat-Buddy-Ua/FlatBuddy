@@ -1,6 +1,6 @@
 from .UserView import UserViewSet
-from .UserProfile import UserProfileViewSet
-from .UserHousing import UserHousingViewSet
+from .UserProfileView import UserProfileViewSet
+from .UserHousingView import UserHousingViewSet
 from .UserRegistrationView import UserRegistrationView
 __all__ = [
     "UserViewSet",

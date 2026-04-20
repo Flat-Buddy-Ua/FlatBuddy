@@ -8,7 +8,11 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from django.conf.urls.static import static
-from user.views import UserViewSet, UserProfileViewSet, UserHousingViewSet, UserRegistrationView
+
+from user.views.UserView import UserViewSet, MeUserView
+from user.views.UserProfileView import UserProfileViewSet, MeProfileView
+from user.views.UserHousingView import UserHousingViewSet, MeHousingView
+from user.views.UserRegistrationView import UserRegistrationView
 
 from django.views.generic import TemplateView
 
@@ -19,18 +23,13 @@ router.register('users', UserViewSet, basename='user-admin')
 router.register('profiles', UserProfileViewSet, basename='profile-admin')
 router.register('housing', UserHousingViewSet, basename='housing-admin')
 
-user_me_view = UserViewSet.as_view({'get': 'me', 'patch': 'me'})
-profile_me_view = UserProfileViewSet.as_view({'get': 'me', 'patch': 'me'})
-housing_me_view = UserHousingViewSet.as_view({'get': 'me', 'patch': 'me'})
-
-
 urlpatterns = [
     
     path('api/register/', UserRegistrationView.as_view(), name='register'),
     
-    path('api/profile/general/', user_me_view, name='profile-general'),
-    path('api/profile/personal/', profile_me_view, name='profile-personal'),
-    path('api/profile/housing/', housing_me_view, name='profile-housing'),
+    path('api/profile/general/', MeUserView.as_view(), name='profile-general'),
+    path('api/profile/personal/', MeProfileView.as_view(), name='profile-personal'),
+    path('api/profile/housing/', MeHousingView.as_view(), name='profile-housing'),
     
     path('', TemplateView.as_view(template_name='index.html')),
     path('admin/', admin.site.urls),

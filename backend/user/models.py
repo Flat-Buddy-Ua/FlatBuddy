@@ -1,28 +1,10 @@
 from django.db import models
-from django.db.models import JSONField
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
-from user.constants.choices import Country, City, Gender
+from django.contrib.postgres.fields import ArrayField
 
-# ROOM_SHARING_CHOICES = [
-#     ('Mені комфортно ділити кімнату з співмешканцем',
-#      'Mені комфортно ділити кімнату з співмешканцем'),
-#     ('Я хочу мати окрему кімнату', 'Я хочу мати окрему кімнату'),
-# ]
-
-# PREFERRED_GENDER_CHOICES = [
-#     ('Лише з хлопцями', 'Лише з хлопцями'),
-#     ('Лише з дівчатами', 'Лише з дівчатами'),
-#     ('Не має значення', 'Не має значення'),
-# ]
-
-# HOUSING_STATUS_CHOICES = [
-#     ('Я шукаю квартиру та співмешканця', 'Я шукаю квартиру та співмешканця'),
-#     ('Я шукаю лише співмешканця, маю свою/орендовану квартиру',
-#      'Я шукаю лише співмешканця, маю свою/орендовану квартиру'),
-# ]
-
+from user.constants.choices import *
 
 class UserManager(BaseUserManager):
 
@@ -42,15 +24,15 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     username = None
-    country = models.IntegerField(choices=Country.choices, null=True, blank=True)
-    city = models.IntegerField(choices=City.choices, null=True, blank=True)
-    gender = models.IntegerField(choices=Gender.choices, null=True, blank=True)
-    birthdate = models.DateField(null=True, blank=True)
-    phone_number = models.CharField(unique=True, blank=True)
-    email = models.EmailField(
-        unique=True, max_length=254, null=True, blank=True)
+    country = models.IntegerField(choices=Country.choices)
+    city = models.CharField(max_length=100)
+    gender = models.IntegerField(choices=Gender.choices)
+    birthdate = models.DateField()
+    phone_number = models.CharField(unique=True)
+    email = models.EmailField(unique=True, max_length=254)
 
     objects = UserManager()
+    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone_number']
 
@@ -63,37 +45,30 @@ class User(AbstractUser):
 
 
 class UserProfile(models.Model):
-    profile_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-
         related_name='profile'
     )
-
-    university = models.CharField(
-        max_length=100)
-    specialization = models.CharField(
-        max_length=50, validators=[MinLengthValidator(3)])
-    study_year = models.CharField(max_length=50)
-    languages = models.JSONField()
-    political_view = models.JSONField()
-    cleanliness = models.IntegerField()
-    lifestyle = models.TextField()
-    schedule = models.TextField(max_length=100, validators=[
-                                MinLengthValidator(3)])
-    sleep_schedule = models.TextField(
-        max_length=100, validators=[MinLengthValidator(3)])
-    bad_habits = models.TextField(
-        max_length=100, validators=[MinLengthValidator(3)])
-    mbti = models.JSONField()
-    extra_intro_version = models.CharField(
-        max_length=100)
-    hobbies = models.TextField(max_length=200, validators=[
-                               MinLengthValidator(3)])
-    bio = models.TextField(max_length=300, validators=[MinLengthValidator(3)])
-    looking_for = models.TextField(
-        max_length=200, validators=[MinLengthValidator(3)])
+    
+    status = models.IntegerField(choices=Status.choices, null=True, blank=True)
+    orbit = models.IntegerField(choices=Orbit.choices, null=True, blank=True)
+    languages = ArrayField(
+        models.CharField(max_length=2, validators=[MinLengthValidator(2)], choices=Language.choices, null=True, blank=True),
+        size=5,
+        default=list
+    )
+    political_coordinate_economic = models.IntegerField(null=True, blank=True)
+    political_coordinate_social = models.IntegerField(null=True, blank=True)
+    cleanliness = models.IntegerField(null=True, blank=True)
+    my_vibe = models.TextField(max_length=600, validators=[MinLengthValidator(200)], blank=True)
+    buddy_vibe = models.TextField(max_length=600, validators=[MinLengthValidator(200)], blank=True)
+    schedule = models.TextField(max_length=100, validators=[MinLengthValidator(3)], blank=True)
+    sleep_schedule = models.TextField(max_length=100, validators=[MinLengthValidator(3)], blank=True)
+    smoking = models.IntegerField(choices=Smoking.choices, null=True, blank=True)
+    extra_intro_version = models.IntegerField(choices=Personality.choices, null=True, blank=True)
+    hobbies = models.IntegerField(choices=Hobby.choices, null=True, blank=True)
+    partying = models.IntegerField(choices=Partying.choices, null=True, blank=True)
 
     class Meta:
         managed = True
@@ -102,21 +77,19 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"Профіль {self.user.email}"
 
+def user_directory_path(instance, filename):
+    return f'user_photos/user_{instance.user_profile.user.id}/{filename}'
 
 class UserPhoto(models.Model):
-    image_id = models.AutoField(primary_key=True)
     user_profile = models.ForeignKey(
         UserProfile,
         on_delete=models.CASCADE,
-        db_column='user_profile',
         related_name='photos'
     )
 
-    image = models.ImageField(
-        upload_to='user_photos/')
+    image = models.ImageField(upload_to=user_directory_path)
 
     class Meta:
-        managed = True
         db_table = 'user_photo'
 
     def __str__(self):
@@ -124,30 +97,27 @@ class UserPhoto(models.Model):
 
 
 class UserHousing(models.Model):
-    housing_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         related_name='housing'
     )
-    room_sharing_preference = models.CharField(
-        max_length=100
+    room_sharing_preference = models.IntegerField(choices=RoomSharing.choices, null=True, blank=True)
+    preferred_gender = models.IntegerField(choices=PreferredGender.choices, null=True, blank=True)
+    housing_status = models.IntegerField(choices=HousingStatus.choices, null=True, blank=True)
+    budget_min = models.IntegerField(null=True, blank=True)
+    budget_max = models.IntegerField(null=True, blank=True)
+    destination = models.IntegerField(choices=City.choices, null=True, blank=True)
+    preferred_districts = ArrayField(
+        models.IntegerField(choices=District.choices, null=True, blank=True),
+        blank=True,
+        size=10,
+        default=list
     )
-    preferred_gender = models.CharField(
-        max_length=30
-    )
-    housing_status = models.CharField(
-        max_length=100
-    )
-    budget = models.IntegerField()
-    preferred_districts = models.JSONField()
-    planned_duration = models.CharField(
-        max_length=50, validators=[MinLengthValidator(3)])
-    move_in_date = models.CharField(
-        max_length=50, validators=[MinLengthValidator(3)])
-    has_pet = models.BooleanField()
-    pet_description = models.TextField(
-        blank=True, null=True, max_length=100, validators=[MinLengthValidator(3)])
+    planned_duration = models.IntegerField(choices=PlannedDuration.choices, null=True, blank=True)
+    move_in_date = models.DateField(null=True, blank=True)
+    has_pet = models.BooleanField(default=False)
+    pet_description = models.TextField(max_length=100, validators=[MinLengthValidator(3)], null=True, blank=True)
 
     class Meta:
         managed = True
