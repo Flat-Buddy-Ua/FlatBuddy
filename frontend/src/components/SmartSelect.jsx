@@ -18,7 +18,7 @@ export function SmartSelect({
         <Select
             value={value}
             options={options}
-            placeholder={options.length > 0 ? options[0].label : "Виберіть опцію"}
+            placeholder={placeholder}
             onChange={(val) => {
                 onChange?.(val);
             }}

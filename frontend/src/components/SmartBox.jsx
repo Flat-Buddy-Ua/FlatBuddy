@@ -21,16 +21,16 @@ const detectValidationType = (children) => {
     if (name.includes("password")) return "password";
 
     if (name.includes("university")) return "university";
-    if (name.includes("faculty")) return "faculty";
-    if (name.includes("course")) return "course";
+    if (name.includes("specialization")) return "specialization";
+    if (name.includes("study_year")) return "study_year";
     if (name.includes("languages")) return "languages";
     if (name.includes("cleanliness")) return "cleanliness";
     if (name.includes("schedule")) return "schedule";
-    if (name.includes("style_of_life")) return "style_of_life";
+    if (name.includes("lifestyle")) return "lifestyle";
     if (name.includes("guests")) return "guests";
     if (name.includes("smoking")) return "smoking";
     if (name.includes("pets")) return "pets";
-    if (name.includes("hobby")) return "hobby";
+    if (name.includes("hobbies")) return "hobbies";
 
     return null;
 };
