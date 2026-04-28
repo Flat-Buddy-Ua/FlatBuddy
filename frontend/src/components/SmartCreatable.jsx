@@ -22,7 +22,7 @@ export function SmartCreatable({
         <CreatableSelect
             value={value}
             options={options}
-            placeholder={options.length > 0 ? options[0].label : "Виберіть опцію"}
+            placeholder={placeholder}
             inputValue={inputValue}
             onChange={(val) => {
                 setInputValue("");

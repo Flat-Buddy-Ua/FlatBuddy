@@ -138,14 +138,14 @@ export const validations = {
     return null;
   },
   
-  faculty: (value) => {
+  specialization: (value) => {
     if (!value) return "Вкажіть факультет";
     if (value.length < 2) return "Як мінімум 2 символи";
     if (value.length > 50) return "Максимум 50 символів";
     return null;
   },
 
-  course: (value) => {
+  study_year: (value) => {
     if (!value) return "Вкажіть курс";
     if (value.length < 2) return "Як мінімум 2 символи";
     if (value.length > 50) return "Максимум 50 символів";
@@ -175,14 +175,14 @@ export const validations = {
     return null;
   },
 
-  hobby: (value) => {
+  hobbies: (value) => {
     if (!value) return "Вкажіть захоплення/хобі";
     if (value.length < 2) return "Як мінімум 2 символи";
     if (value.length > 200) return "Максимум 200 символів";
     return null;
   },
 
-  biography: (value) => {
+  bio: (value) => {
     if (!value) return "Вкажіть біографію";
     if (value.length < 2) return "Як мінімум 2 символи";
     if (value.length > 300) return "Максимум 300 символів";

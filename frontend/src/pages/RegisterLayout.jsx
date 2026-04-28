@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MAIN from './MAIN.jsx';
 import Step1 from './Step1.jsx';
-// import Step2 from './Step2.jsx';
-// import Step3 from './Step3.jsx';
+import Step2 from './Step2.jsx';
+import Step3 from './Step3.jsx';
 import React, { useState } from 'react';
 import { Card } from './Card.jsx';
 
@@ -49,8 +49,8 @@ export function RegisterLayout() {
 
                 {/* Інші кроки редагування доступні тільки для профілю */}
 
-                {/* <Route path="/profile/step-2" element={<Step2 data={formData} />} />
-                <Route path="/profile/step-3" element={<Step3 data={formData} />} /> */}
+                <Route path="/profile/personal" element={<Step2 />} />
+                <Route path="/profile/housing" element={<Step3 />} />
 
 				{/* Решта сторінок */}
             </Routes>

@@ -1,5 +1,4 @@
 export const CityOptions = [
-    { value: 0, label: 'Виберіть місто' },
     { value: 1, label: 'Київ' },
     { value: 2, label: 'Львів' },
     { value: 3, label: 'Харків' },
