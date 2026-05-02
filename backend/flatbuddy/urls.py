@@ -13,6 +13,9 @@ from user.views.UserView import UserViewSet, MeUserView
 from user.views.UserProfileView import UserProfileViewSet, MeProfileView
 from user.views.UserHousingView import UserHousingViewSet, MeHousingView
 from user.views.UserRegistrationView import UserRegistrationView
+from user.views.VerifyMagicLinkView import VerifyMagicLinkView
+from user.views.ResendMagicLinkView import ResendMagicLinkView
+
 
 from django.views.generic import TemplateView
 
@@ -26,7 +29,10 @@ router.register('housing', UserHousingViewSet, basename='housing-admin')
 urlpatterns = [
     
     path('api/register/', UserRegistrationView.as_view(), name='register'),
-    
+    path('api/verify/<token>/', VerifyMagicLinkView.as_view(), name='verify'),
+    path('api/resend-link/', ResendMagicLinkView.as_view(), name='resend-link'),
+
+
     path('api/profile/general/', MeUserView.as_view(), name='profile-general'),
     path('api/profile/personal/', MeProfileView.as_view(), name='profile-personal'),
     path('api/profile/housing/', MeHousingView.as_view(), name='profile-housing'),
