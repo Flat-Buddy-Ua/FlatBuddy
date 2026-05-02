@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'user',
     'drf_spectacular',
+    'django.contrib.postgres',
+    # 'services',
 ]
 
 MIDDLEWARE = [
@@ -160,6 +162,7 @@ USE_TZ = True
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://127.0.0.1:3000')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -183,3 +186,23 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+USER_CONFIRMATION_TIMEOUT = 900
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'flatbuddyua.team@gmail.com'
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = 'flatbuddyua.team@gmail.com'
