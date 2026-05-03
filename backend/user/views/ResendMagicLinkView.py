@@ -4,7 +4,13 @@ from rest_framework.response import Response
 from django.core.cache import cache
 from user.models import User
 from user.serializers.ResendLinkSerializer import ResendLinkSerializer
-from user.constants.rate_limits import (MAGIC_LINK_ATTEMPTS_TTL, MAGIC_LINK_BACKOFF_TIMEOUTS,MAGIC_LINK_FREE_ATTEMPTS,MAGIC_LINK_TOKEN_TTL, MAGIC_LINK_MAX_BLOCK_TIMEOUT, MAX_ATTEMPTS)
+from user.constants.rate_limits import (
+    MAGIC_LINK_ATTEMPTS_TTL,
+    MAGIC_LINK_BACKOFF_TIMEOUTS,
+    MAGIC_LINK_TOKEN_TTL,
+    MAGIC_LINK_MAX_BLOCK_TIMEOUT,
+    MAX_ATTEMPTS,
+)
 from user.email_utils import send_magic_link
 import secrets
 import math
@@ -45,7 +51,7 @@ class ResendMagicLinkView(generics.GenericAPIView):
         if attempts in MAGIC_LINK_BACKOFF_TIMEOUTS:
             timeout = MAGIC_LINK_BACKOFF_TIMEOUTS[attempts]
             cache.set(block_key, True, timeout=timeout)
-            return Response({'detail':f'Try again in {math.ceil(timeout / 60)}'}, status=429)
+            return Response({'detail': f'Try again in {math.ceil(timeout / 60)} minutes'}, status=429)
 
         magic_token = secrets.token_urlsafe(32)
         cache.set(f"magic_token:{magic_token}", user.id, timeout=MAGIC_LINK_TOKEN_TTL)
