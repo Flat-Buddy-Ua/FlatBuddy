@@ -81,6 +81,9 @@ export default function Step1 ({ isEditing }) {
 	const [formState, setFormState] = React.useState({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState("");
+	const [pendingVerification, setPendingVerification] = useState(null); // null | { email }
+	const [resendStatus, setResendStatus] = useState({ kind: null, text: '' });
+	const [isResending, setIsResending] = useState(false);
 	const BASE_URL = import.meta.env.VITE_API_URL;
 	const MAPBOX = import.meta.env.VITE_MAPBOX_TOKEN;
 	const navigate = useNavigate();
@@ -177,13 +180,11 @@ export default function Step1 ({ isEditing }) {
 	        });
 
 	        if (response.ok) {
-				const tokenData = await response.json();
-				localStorage.setItem("access_token", tokenData.access);
-				if (tokenData?.refresh) localStorage.setItem("refresh_token", tokenData.refresh);
+				// Backend now sends a magic link to email and returns {detail}, no JWT.
+				// Switch the page to a "check your inbox" state.
+				const submittedEmail = payload.email || formState.email?.realValue || '';
+				setPendingVerification({ email: submittedEmail });
 
-				window.dispatchEvent(new Event("storage"));
-	            navigate('/buddies', { state: { justRegistered: true } });
-				
 	        } else {
 	            const errorData = await response.json();
 	            setSubmitError(errorData.detail || "Помилка реєстрації. Перевірте дані.");
@@ -279,14 +280,87 @@ export default function Step1 ({ isEditing }) {
 		overflowX: "hidden",
 	};
 
+	const handleResend = async () => {
+		const target = pendingVerification?.email;
+		if (!target) return;
+		setIsResending(true);
+		setResendStatus({ kind: null, text: '' });
+		try {
+			const res = await fetch(`${BASE_URL}/api/resend-link/`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email: target }),
+			});
+			const body = await res.json().catch(() => ({}));
+			if (res.ok) {
+				setResendStatus({ kind: 'ok', text: body.detail || `Лист повторно надіслано на ${target}` });
+			} else if (res.status === 429) {
+				setResendStatus({ kind: 'error', text: body.detail || 'Забагато спроб. Спробуй пізніше.' });
+			} else {
+				setResendStatus({ kind: 'error', text: body.detail || 'Не вдалося надіслати лист' });
+			}
+		} catch {
+			setResendStatus({ kind: 'error', text: 'Мережева помилка. Спробуй ще раз.' });
+		} finally {
+			setIsResending(false);
+		}
+	};
+
+	if (pendingVerification && !isEditing) {
+		return (
+			<div className="landing-page">
+				<Header />
+				<div style={{ padding: "60px 20px" }}>
+					<div style={{ ...formCardStyle, maxWidth: 560, gap: 16, textAlign: 'center' }}>
+						<div style={{ fontSize: 48 }}>📬</div>
+						<h2 style={{ fontFamily: 'Seenonim, Inter, sans-serif', fontSize: 28, margin: 0 }}>
+							Перевірте вашу пошту
+						</h2>
+						<p style={{ color: '#555', fontSize: 16, margin: 0, fontFamily: 'Inter' }}>
+							Ми надіслали лист з посиланням на адресу{' '}
+							<strong>{pendingVerification.email}</strong>.
+							Клацніть на лінк протягом 15 хвилин, щоб завершити реєстрацію.
+						</p>
+						{resendStatus.text && (
+							<p style={{
+								fontSize: 14, fontFamily: 'Inter', margin: 0,
+								color: resendStatus.kind === 'ok' ? '#2e7d32' : '#c62828',
+							}}>
+								{resendStatus.text}
+							</p>
+						)}
+						<div style={{ width: '100%' }}>
+							<SubmitBtn
+								onClick={handleResend}
+								disabled={isResending}
+								btntext={isResending ? 'Надсилання…' : 'Надіслати лист повторно'}
+							/>
+						</div>
+						<button
+							type="button"
+							onClick={() => navigate('/')}
+							style={{
+								background: 'none', border: 'none', padding: 0,
+								color: '#555', fontFamily: 'Inter', fontSize: 14,
+								cursor: 'pointer', textDecoration: 'underline',
+							}}
+						>
+							На головну
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
     return (
   		<div className="landing-page">
     		<Header	/>
-        
+
 			<div style={{ padding: "40px 20px 40px 20px" }}>
        			{/* CARD */}
         		<div style={formCardStyle}>
-					
+
 				{isEditing && (
 					<div style={{
             	        display: "flex",
