@@ -27,11 +27,11 @@ body {
   grid-template-columns: 1fr 1fr;
 }
 
-.step1-main-grid {
+.responsive-form-grid {
   width: 100%;
 }
 
-.step1-main-grid > div {
+.responsive-form-grid > div {
   width: 100%;
 }
 
@@ -46,7 +46,7 @@ body {
     grid-template-rows: auto auto;
   }
 
-  .step1-main-grid {
+  .responsive-form-grid {
     width: 80%;
     margin: 0 auto;
   }

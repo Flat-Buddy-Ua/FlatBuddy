@@ -30,5 +30,6 @@ export const CityOptions = [
     { value: 29, label: 'Кременчук' },
     { value: 30, label: 'Конотоп' },
     { value: 31, label: 'Умань' },
-    { value: 32, label: 'Кривий Ріг' }
+    { value: 32, label: 'Яремче' },
+    { value: 33, label: 'Кривий Ріг' }
 ];

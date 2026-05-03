@@ -1,11 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
-export function CitySelector({ onCitySelect }) {
+export function CitySelector({ onCitySelect, onChange, value }) {
     const [selectedValue, setSelectedValue] = useState(null);
     const debounceTimeout = useRef(null);
+
+    useEffect(() => {
+        if (value) setSelectedValue(value);
+    }, [value]);
 
     const loadOptions = (inputValue) => {
         return new Promise((resolve) => {
@@ -42,11 +46,9 @@ export function CitySelector({ onCitySelect }) {
 
     const handleChange = (selectedOption) => {
         setSelectedValue(selectedOption);
-        
-        if (selectedOption) {
-            onCitySelect(selectedOption.value);
-        } else {
-            onCitySelect('');
+        const callback = onCitySelect || onChange;
+        if (callback) {
+            callback(selectedOption || null);
         }
     };
 

@@ -13,6 +13,7 @@ import { PasswordInput } from '../components/PasswordInfo.jsx';
 import { PassConfirm } from '../components/PassConfirm.jsx';
 import { SubmitBtn } from '../components/SubmitBtn.jsx';
 import { CitySelector } from '../components/CitySelector.jsx';
+import { NavStep } from '../components/NavStep.jsx';
 
 import { fetchWithAuth } from '../utils/api.js';
 
@@ -236,7 +237,7 @@ export default function Step1 ({ isEditing }) {
 	        });
 
 	        if (response.ok) {
-	            alert("Дані успішно оновлено!"); 
+	            navigate('/profile/personal');
 	        } else {
 	            const errorData = await response.json().catch(() => ({}));
 	            setSubmitError(errorData.detail || "Не вдалося оновити профіль.");
@@ -264,21 +265,6 @@ export default function Step1 ({ isEditing }) {
 		const cityName = res.features?.[0]?.properties?.name;
 
 	};
-
-	const navStepStyle = (isActive, isDisabled = false) => ({
-        padding: "10px 20px",
-        border: isActive ? "2px solid #111" : "2px solid #F6DDD4",
-        backgroundColor: isActive ? "#FCD531" : isDisabled ? "#F7F1EE" : "transparent",
-        color: isDisabled ? "#8A817C" : "#111",
-        fontFamily: "'Seenonim', 'Inter', sans-serif",
-        fontSize: "16px",
-        cursor: isActive ? "default" : isDisabled ? "not-allowed" : "pointer",
-        transition: "all 0.2s ease",
-        transform: isActive ? "translate(-2px, -2px)" : "none",
-        boxShadow: isActive ? "4px 4px 0px #111" : "none",
-        opacity: isDisabled ? 0.7 : 1,
-        pointerEvents: isDisabled ? "none" : "auto",
-    });
 
 	const formCardStyle = {
 		width: "100%",
@@ -310,18 +296,14 @@ export default function Step1 ({ isEditing }) {
             	        justifyContent: "center",
             	        flexWrap: "wrap"
             	    }}>
-            	        <div style={navStepStyle(true)}>1. Базові дані</div>
-            	        <div style={navStepStyle(false)} onClick={() => navigate('/profile/personal')}>
-            	            2. Про мене
-            	        </div>
-            	        <div style={navStepStyle(false)} onClick={() => navigate('/profile/housing')}>
-            	            3. Проживання
-            	        </div>
+            	        <NavStep isActive>1. Базові дані</NavStep>
+            	        <NavStep onClick={() => navigate('/profile/personal')}>2. Про мене</NavStep>
+            	        <NavStep onClick={() => navigate('/profile/housing')}>3. Проживання</NavStep>
             	    </div>
             	)}
 
           			{/* FORM GRID */}
-          			<div className='main-grid step1-main-grid'>
+          			<div className='main-grid responsive-form-grid'>
 
             			<div>
             			  	<RequiredLabel>Ім’я</RequiredLabel>
@@ -485,7 +467,7 @@ export default function Step1 ({ isEditing }) {
 						<SubmitBtn
 							onClick={onSubmitClick}
 							disabled={!isFormValid(formState)}
-							btntext={isEditing ? "Оновити" : "Зареєструватися"}
+							btntext={isEditing ? "Далі" : "Зареєструватися"}
 						/>
 					</div>
         		</div>
