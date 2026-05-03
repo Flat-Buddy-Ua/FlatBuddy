@@ -57,3 +57,6 @@ dist/
 
 # Media
 media/
+
+# Claude
+.claude/

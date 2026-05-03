@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -18,6 +20,15 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
+        # createsuperuser CLI prompts only for USERNAME_FIELD + REQUIRED_FIELDS,
+        # but the model has more NOT NULL columns. Fill with placeholders so
+        # admin accounts can be created without populating profile data.
+        # Filter out is_staff=True from matching/listing queries to keep these
+        # placeholder rows out of user-facing flows.
+        extra_fields.setdefault('country', Country.UKRAINE)
+        extra_fields.setdefault('city', 'admin')
+        extra_fields.setdefault('gender', Gender.OTHER)
+        extra_fields.setdefault('birthdate', date(2000, 1, 1))
 
         return self.create_user(email, password, **extra_fields)
 
@@ -67,7 +78,18 @@ class UserProfile(models.Model):
     sleep_schedule = models.TextField(max_length=100, validators=[MinLengthValidator(3)], blank=True)
     smoking = models.IntegerField(choices=Smoking.choices, null=True, blank=True)
     extra_intro_version = models.IntegerField(choices=Personality.choices, null=True, blank=True)
-    hobbies = models.IntegerField(choices=Hobby.choices, null=True, blank=True)
+    hobbies = ArrayField(
+        models.IntegerField(choices=Hobby.choices),
+        size=10,
+        default=list,
+        blank=True
+    )
+    custom_hobbies = ArrayField(
+        models.CharField(max_length=50),
+        size=5,
+        default=list,
+        blank=True,
+    )
     partying = models.IntegerField(choices=Partying.choices, null=True, blank=True)
 
     class Meta:

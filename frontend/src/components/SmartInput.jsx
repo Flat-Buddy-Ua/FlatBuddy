@@ -67,9 +67,10 @@ export function SmartInput({
           <span
             style={{
               ...baseStyle,
-              width: "30px",
+              width: "auto",
               marginRight: "0px",
-              paddingRight: "0px",
+              paddingLeft: "20px",
+              paddingRight: "8px",
               color: "#999999",
             }}
           >
