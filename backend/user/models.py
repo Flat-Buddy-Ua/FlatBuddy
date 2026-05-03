@@ -3,10 +3,12 @@ from datetime import date
 from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.utils import timezone
 
 from django.contrib.postgres.fields import ArrayField
 
 from user.constants.choices import *
+
 
 class UserManager(BaseUserManager):
 
@@ -41,7 +43,7 @@ class User(AbstractUser):
     birthdate = models.DateField()
     phone_number = models.CharField(unique=True)
     email = models.EmailField(unique=True, max_length=254)
-
+    is_active = models.BooleanField(default=False)
     objects = UserManager()
     
     USERNAME_FIELD = 'email'
@@ -53,7 +55,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
-
 
 class UserProfile(models.Model):
     user = models.OneToOneField(
