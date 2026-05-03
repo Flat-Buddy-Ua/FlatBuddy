@@ -7,14 +7,14 @@ def send_magic_link(user, token):
         subject='Confirm your registration!',
         message=f"""Hi, {user.first_name}!
 
-        Follow this link to confirm your registration: {link}
+Follow this link to confirm your registration: {link}
 
-        The link is valid for 15 minutes and can be used only once.
+The link is valid for 15 minutes and can be used only once.
 
-        If you did not request this link, please ignore this email.
+If you did not request this link, please ignore this email.
 
-        Sincerely,
-        The FlatBuddy Team
+Sincerely,
+The FlatBuddy Team
         """,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email]
