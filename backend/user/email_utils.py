@@ -4,17 +4,17 @@ from django.conf import settings
 def send_magic_link(user, token):
     link = f"{settings.FRONTEND_URL}/verify/{token}"
     send_mail(
-        subject='Confirm your registration!',
-        message=f"""Hi, {user.first_name}!
+        subject='Підтвердження реєстрації у FlatBuddy',
+        message=f"""Привіт, {user.first_name}!
 
-Follow this link to confirm your registration: {link}
+Перейди за посиланням, щоб підтвердити реєстрацію: {link}
 
-The link is valid for 15 minutes and can be used only once.
+Посилання дійсне 15 хвилин і може бути використане лише один раз.
 
-If you did not request this link, please ignore this email.
+Якщо ти не реєструвався у FlatBuddy — просто проігноруй цей лист.
 
-Sincerely,
-The FlatBuddy Team
+З повагою,
+команда FlatBuddy
         """,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email]

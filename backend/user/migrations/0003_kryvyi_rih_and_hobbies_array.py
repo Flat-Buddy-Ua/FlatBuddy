@@ -69,7 +69,7 @@ HOBBY_CHOICES = [
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user', '0002_alter_user_birthdate_alter_user_city_and_more'),
+        ('user', '0001_initial'),
     ]
 
     operations = [
