@@ -2,23 +2,46 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SmartSelect } from '../components/SmartSelect.jsx';
-import { SmartInput } from '../components/SmartInput.jsx';
 import { SmartText } from '../components/SmartText.jsx';
 import { SmartBox } from '../components/SmartBox.jsx';
-import { SmartCreatable } from '../components/SmartCreatable.jsx';
 import { Header } from '../components/Header.jsx';
 import { SubmitBtn } from '../components/SubmitBtn.jsx';
 import { UploadPhoto } from '../components/UploadPhoto.jsx';
-import { UniversityOptions } from '../components/UniversityOptions.jsx';
 import { MultiSelect } from '../components/MultiSelect.jsx';
 import { languageOptions } from '../components/languageOptions.jsx';
-import { MBTI } from '../components/MBTI.jsx';
+import { statusOptions } from '../components/statusOptions.jsx';
+import { orbitOptions } from '../components/orbitOptions.jsx';
+import { smokingOptions } from '../components/smokingOptions.jsx';
+import { partyingOptions } from '../components/partyingOptions.jsx';
+import { hobbyOptions } from '../components/hobbyOptions.jsx';
+import { NavStep } from '../components/NavStep.jsx';
 
 import { fetchWithAuth } from '../utils/api.js';
 
 function buildRegistrationPayload(formState) {
 	const result = {};
 	Object.keys(formState).forEach((key) => {
+		// hobbies is a hybrid: split tags into preset ints + custom strings.
+		if (key === 'hobbies') {
+			const tags = Array.isArray(formState.hobbies?.realValue)
+				? formState.hobbies.realValue
+				: [];
+			const presetIds = [];
+			const customNames = [];
+			for (const tag of tags) {
+				if (!tag) continue;
+				const v = tag.value !== undefined ? tag.value : tag;
+				if (typeof v === 'number') {
+					presetIds.push(v);
+				} else if (typeof v === 'string') {
+					const name = v.trim();
+					if (name) customNames.push(name);
+				}
+			}
+			result.hobbies = presetIds;
+			result.custom_hobbies = customNames;
+			return;
+		}
 		let value = formState[key].realValue;
 		if (Array.isArray(value)) {
 			value = value.map(item => (item && item.value !== undefined ? item.value : item));
@@ -31,22 +54,34 @@ function buildRegistrationPayload(formState) {
 }
 
 const REQUIRED_FIELDS = [
-	"university", "specialization",
-	"study_year", "languages",
+	"status", "orbit",
+	"languages",
 	"political_coordinate_economic", "political_coordinate_social",
-	"cleanliness", "schedule",
-	"lifestyle", "sleep_schedule",
-	"bad_habits", "mbti",
+	"cleanliness",
+	"my_vibe", "buddy_vibe",
+	"schedule", "sleep_schedule",
+	"smoking", "partying",
 	"extra_intro_version",
-	"hobbies", "bio",
-	"looking_for",
-	"photo"
+	"hobbies",
 ];
 
+function CharCounter({ value, min, max }) {
+	const len = value ? value.length : 0;
+	const tooShort = len > 0 && len < min;
+	const tooLong = len > max;
+	const color = tooShort || tooLong ? '#ff3333' : '#666';
+	return (
+		<div style={{ fontSize: '12px', fontFamily: 'Inter', color, marginTop: '2px', textAlign: 'right' }}>
+			{len} / {max} (мін. {min})
+		</div>
+	);
+}
+
 export default function Step2() {
-	const [formState, setFormState] = React.useState({});
+	const [formState, setFormState] = useState({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState("");
+	const [photoCount, setPhotoCount] = useState(0);
 	const BASE_URL = import.meta.env.VITE_API_URL;
 	const navigate = useNavigate();
 
@@ -57,37 +92,39 @@ export default function Step2() {
 
 				if (response.ok) {
 					const data = await response.json();
-					console.log("Отримані дані профілю:", data);
 
-					const selectedMbti = MBTI.find(opt => opt.value === data.mbti) || null;
+					const selectedStatus = statusOptions.find(o => o.value === data.status) || null;
+					const selectedOrbit = orbitOptions.find(o => o.value === data.orbit) || null;
+					const selectedSmoking = smokingOptions.find(o => o.value === data.smoking) || null;
+					const selectedPartying = partyingOptions.find(o => o.value === data.partying) || null;
 					const selectedLanguages = data.languages
-						? languageOptions.filter(opt => data.languages.includes(opt.value))
+						? languageOptions.filter(o => data.languages.includes(o.value))
 						: [];
-					const selectedUniversity = data.university
-						? (UniversityOptions.find(opt => opt.value === data.university) || { value: data.university, label: data.university })
-						: null;
+					const presetTags = data.hobbies
+						? hobbyOptions.filter(o => data.hobbies.includes(o.value))
+						: [];
+					const customTags = Array.isArray(data.custom_hobbies)
+						? data.custom_hobbies.map(name => ({ value: name, label: name }))
+						: [];
+					const selectedHobbies = [...presetTags, ...customTags];
 
-					setFormState(prevState => ({
-						...prevState,
-						university: { value: selectedUniversity?.label || "", realValue: selectedUniversity, isValid: !!selectedUniversity },
-						specialization: { value: data.specialization || "", realValue: data.specialization, isValid: true },
-						study_year: { value: data.study_year || "", realValue: data.study_year, isValid: true },
+					setFormState(prev => ({
+						...prev,
+						status: { value: selectedStatus, realValue: selectedStatus, isValid: !!selectedStatus },
+						orbit: { value: selectedOrbit, realValue: selectedOrbit, isValid: !!selectedOrbit },
 						languages: { value: selectedLanguages, realValue: selectedLanguages, isValid: selectedLanguages.length > 0 },
-						political_coordinate_economic: { value: data.political_coordinate_economic, realValue: data.political_coordinate_economic, isValid: true },
-						political_coordinate_social: { value: data.political_coordinate_social, realValue: data.political_coordinate_social, isValid: true },
-						cleanliness: { value: data.cleanliness || "", realValue: data.cleanliness, isValid: true },
-						schedule: { value: data.schedule || "", realValue: data.schedule, isValid: true },
-						lifestyle: { value: data.lifestyle || "", realValue: data.lifestyle, isValid: true },
-						sleep_schedule: { value: data.sleep_schedule || "", realValue: data.sleep_schedule, isValid: true },
-						bad_habits: { value: data.bad_habits || "", realValue: data.bad_habits, isValid: true },
-						mbti: { value: selectedMbti?.label || "", realValue: selectedMbti, isValid: !!selectedMbti },
-						extra_intro_version: { value: data.extra_intro_version, realValue: data.extra_intro_version, isValid: true },
-						hobbies: { value: data.hobbies || "", realValue: data.hobbies, isValid: true },
-						bio: { value: data.bio || "", realValue: data.bio, isValid: true },
-						looking_for: { value: data.looking_for || "", realValue: data.looking_for, isValid: true },
+						political_coordinate_economic: { value: data.political_coordinate_economic, realValue: data.political_coordinate_economic, isValid: data.political_coordinate_economic !== null && data.political_coordinate_economic !== undefined },
+						political_coordinate_social: { value: data.political_coordinate_social, realValue: data.political_coordinate_social, isValid: data.political_coordinate_social !== null && data.political_coordinate_social !== undefined },
+						cleanliness: { value: data.cleanliness, realValue: data.cleanliness, isValid: !!data.cleanliness },
+						my_vibe: { value: data.my_vibe || "", realValue: data.my_vibe || "", isValid: !!data.my_vibe && data.my_vibe.length >= 200 && data.my_vibe.length <= 600 },
+						buddy_vibe: { value: data.buddy_vibe || "", realValue: data.buddy_vibe || "", isValid: !!data.buddy_vibe && data.buddy_vibe.length >= 200 && data.buddy_vibe.length <= 600 },
+						schedule: { value: data.schedule || "", realValue: data.schedule || "", isValid: !!data.schedule && data.schedule.length >= 3 && data.schedule.length <= 100 },
+						sleep_schedule: { value: data.sleep_schedule || "", realValue: data.sleep_schedule || "", isValid: !!data.sleep_schedule && data.sleep_schedule.length >= 3 && data.sleep_schedule.length <= 100 },
+						smoking: { value: selectedSmoking, realValue: selectedSmoking, isValid: !!selectedSmoking },
+						partying: { value: selectedPartying, realValue: selectedPartying, isValid: !!selectedPartying },
+						extra_intro_version: { value: data.extra_intro_version, realValue: data.extra_intro_version, isValid: data.extra_intro_version !== null && data.extra_intro_version !== undefined },
+						hobbies: { value: selectedHobbies, realValue: selectedHobbies, isValid: selectedHobbies.length > 0 },
 					}));
-
-					console.log("Профіль завантажено:", data);
 				}
 			} catch (error) {
 				console.error("Помилка завантаження профілю:", error);
@@ -98,9 +135,13 @@ export default function Step2() {
 	}, []);
 
 	const isFormValid = (formState) => {
+		if (photoCount < 1) return false;
 		for (const field of REQUIRED_FIELDS) {
-			if (!formState[field] || !formState[field].realValue) return false;
-			if (formState[field].isValid === false) return false;
+			const fd = formState[field];
+			if (!fd) return false;
+			if (fd.realValue === undefined || fd.realValue === null || fd.realValue === "") return false;
+			if (Array.isArray(fd.realValue) && fd.realValue.length === 0) return false;
+			if (fd.isValid === false) return false;
 		}
 		return true;
 	};
@@ -117,7 +158,7 @@ export default function Step2() {
 			});
 
 			if (response.ok) {
-				alert("Дані успішно оновлено!");
+				navigate('/profile/housing');
 			} else {
 				const errorData = await response.json().catch(() => ({}));
 				setSubmitError(errorData.detail || "Не вдалося зберегти дані.");
@@ -136,31 +177,12 @@ export default function Step2() {
 		handleSave(payload);
 	};
 
-	const handleLinkClick = (url) => {
-		window.open(url, '_blank');
-	};
-
 	const setSliderField = (fieldName, value) => {
 		setFormState(prev => ({
 			...prev,
 			[fieldName]: { realValue: value, value: value, isValid: true }
 		}));
 	};
-
-	const navStepStyle = (isActive, isDisabled = false) => ({
-		padding: "10px 20px",
-		border: isActive ? "2px solid #111" : "2px solid #F6DDD4",
-		backgroundColor: isActive ? "#FCD531" : isDisabled ? "#F7F1EE" : "transparent",
-		color: isDisabled ? "#8A817C" : "#111",
-		fontFamily: "'Seenonim', 'Inter', sans-serif",
-		fontSize: "16px",
-		cursor: isActive ? "default" : isDisabled ? "not-allowed" : "pointer",
-		transition: "all 0.2s ease",
-		transform: isActive ? "translate(-2px, -2px)" : "none",
-		boxShadow: isActive ? "4px 4px 0px #111" : "none",
-		opacity: isDisabled ? 0.7 : 1,
-		pointerEvents: isDisabled ? "none" : "auto",
-	});
 
 	const formCardStyle = {
 		width: "100%",
@@ -180,7 +202,6 @@ export default function Step2() {
 			<Header />
 
 			<div style={{ padding: "40px 20px 40px 20px" }}>
-				{/* CARD */}
 				<div style={formCardStyle}>
 
 					<div style={{
@@ -191,9 +212,9 @@ export default function Step2() {
 						justifyContent: "center",
 						flexWrap: "wrap"
 					}}>
-						<div style={navStepStyle(false)} onClick={() => navigate('/profile/details')}>1. Базові дані</div>
-						<div style={navStepStyle(true)}>2. Про мене</div>
-						<div style={navStepStyle(false)} onClick={() => navigate('/profile/housing')}>3. Проживання</div>
+						<NavStep onClick={() => navigate('/profile/details')}>1. Базові дані</NavStep>
+						<NavStep isActive>2. Про мене</NavStep>
+						<NavStep onClick={() => navigate('/profile/housing')}>3. Проживання</NavStep>
 					</div>
 
 					{/* PHOTO */}
@@ -206,52 +227,34 @@ export default function Step2() {
 						alignItems: "center",
 						marginBottom: "30px"
 					}}>
-						<UploadPhoto
-							onChange={(file) => setFormState(prev => ({
-								...prev,
-								photo: { realValue: file, value: file, isValid: !!file }
-							}))}
-						/>
+						<UploadPhoto onChange={(saved) => setPhotoCount(saved.length)} />
 					</div>
 
-					{/* FORM GRID */}
-					<div className='main-grid'>
+					<div className='main-grid responsive-form-grid'>
 
-						{/* UNIVER */}
+						{/* STATUS */}
 						<div>
-							<div style={labelStyle}>Заклад освіти</div>
-							<SmartBox fieldName="university" formState={formState} setFormState={setFormState}>
-								<SmartCreatable
-									name="university"
-									placeholder="Оберіть або введіть свій університет"
-									options={UniversityOptions}
-								/>
+							<div style={labelStyle}>Статус</div>
+							<SmartBox mywidth="100%" fieldName="status" formState={formState} setFormState={setFormState}>
+								<SmartSelect name="status" placeholder="Студент / працюю / обоє" options={statusOptions} />
 							</SmartBox>
 						</div>
 
-						{/* FACULTY */}
+						{/* ORBIT */}
 						<div>
-							<div style={labelStyle}>Спеціалізація</div>
-							<SmartBox fieldName="specialization" formState={formState} setFormState={setFormState}>
-								<SmartInput name="specialization" placeholder="Наприклад, Комп'ютерні науки" />
-							</SmartBox>
-						</div>
-
-						{/* COURSE */}
-						<div>
-							<div style={{ ...labelStyle, marginBottom: "8px", marginTop: "14px" }}>Курс</div>
-							<SmartBox fieldName="study_year" formState={formState} setFormState={setFormState}>
-								<SmartInput name="study_year" placeholder="Наприклад, 2-й курс" />
+							<div style={labelStyle}>Сфера діяльності</div>
+							<SmartBox mywidth="100%" fieldName="orbit" formState={formState} setFormState={setFormState}>
+								<SmartSelect name="orbit" placeholder="Оберіть сферу" options={orbitOptions} />
 							</SmartBox>
 						</div>
 
 						{/* LANGUAGES */}
-						<div>
+						<div style={{ gridColumn: "1 / -1" }}>
 							<div style={{ ...labelStyle, marginBottom: "0px" }}>Мови</div>
 							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
 								Допустимі мови спілкування
 							</div>
-							<SmartBox fieldName="languages" formState={formState} setFormState={setFormState}>
+							<SmartBox mywidth="100%" fieldName="languages" formState={formState} setFormState={setFormState}>
 								<MultiSelect name="languages" options={languageOptions} placeholder="Оберіть мови" />
 							</SmartBox>
 						</div>
@@ -273,7 +276,7 @@ export default function Step2() {
 							<input
 								className='slider'
 								type='range'
-								defaultValue={formState.political_coordinate_economic?.value ?? '0'}
+								value={String(formState.political_coordinate_economic?.realValue ?? '0')}
 								min='-100'
 								max='100'
 								onChange={(e) => setSliderField("political_coordinate_economic", e.target.value)}
@@ -290,7 +293,7 @@ export default function Step2() {
 							<input
 								className='slider'
 								type='range'
-								defaultValue={formState.political_coordinate_social?.value ?? '0'}
+								value={String(formState.political_coordinate_social?.realValue ?? '0')}
 								min='-100'
 								max='100'
 								onChange={(e) => setSliderField("political_coordinate_social", e.target.value)}
@@ -303,80 +306,82 @@ export default function Step2() {
 						</div>
 
 						{/* CLEANLINESS */}
-						<div>
+						<div style={{ gridColumn: "1 / -1" }}>
 							<div style={labelStyle}>Охайність</div>
-							<SmartBox fieldName="cleanliness" formState={formState} setFormState={setFormState}>
-								<SmartInput
-									name="cleanliness"
-									placeholder="Ваша охайність від 1 до 5"
-									inputGuard={(value) => {
-										if (value === "") return "";
-										if (/^[1-5]$/.test(value)) return value;
-										return undefined;
-									}}
-								/>
+							<input
+								className='slider'
+								type='range'
+								value={String(formState.cleanliness?.realValue ?? '3')}
+								min='1'
+								max='5'
+								step='1'
+								onChange={(e) => setSliderField("cleanliness", e.target.value)}
+							/>
+							<div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px" }}>
+								<span>Абсолютно неохайний</span>
+								<span>Чистюня</span>
+							</div>
+						</div>
+
+						{/* MY VIBE */}
+						<div style={{ gridColumn: "1 / -1" }}>
+							<div style={labelStyle}>Розкажіть про себе</div>
+							<SmartBox mywidth="100%" fieldName="my_vibe" formState={formState} setFormState={setFormState}>
+								<SmartText name="my_vibe" placeholder="Опишіть себе детально (200–600 символів)" />
 							</SmartBox>
+							<CharCounter value={formState.my_vibe?.realValue} min={200} max={600} />
+						</div>
+
+						{/* BUDDY VIBE */}
+						<div style={{ gridColumn: "1 / -1" }}>
+							<div style={labelStyle}>Якого співмешканця шукаєте</div>
+							<SmartBox mywidth="100%" fieldName="buddy_vibe" formState={formState} setFormState={setFormState}>
+								<SmartText name="buddy_vibe" placeholder="Опишіть бажаного співмешканця (200–600 символів)" />
+							</SmartBox>
+							<CharCounter value={formState.buddy_vibe?.realValue} min={200} max={600} />
 						</div>
 
 						{/* SCHEDULE */}
 						<div>
 							<div style={labelStyle}>Розклад</div>
-							<SmartBox fieldName="schedule" formState={formState} setFormState={setFormState}>
+							<SmartBox mywidth="100%" fieldName="schedule" formState={formState} setFormState={setFormState}>
 								<SmartText name="schedule" placeholder="Опишіть ваш розклад" />
 							</SmartBox>
-						</div>
-
-						{/* LIFESTYLE */}
-						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Стиль життя</div>
-							<SmartBox mywidth="650px" fieldName="lifestyle" formState={formState} setFormState={setFormState}>
-								<SmartText name="lifestyle" placeholder="Опишіть ваш стиль життя" />
-							</SmartBox>
+							<CharCounter value={formState.schedule?.realValue} min={3} max={100} />
 						</div>
 
 						{/* SLEEP SCHEDULE */}
 						<div>
 							<div style={labelStyle}>Графік сну</div>
-							<SmartBox fieldName="sleep_schedule" formState={formState} setFormState={setFormState}>
+							<SmartBox mywidth="100%" fieldName="sleep_schedule" formState={formState} setFormState={setFormState}>
 								<SmartText name="sleep_schedule" placeholder="Опишіть ваш графік сну" />
 							</SmartBox>
+							<CharCounter value={formState.sleep_schedule?.realValue} min={3} max={100} />
 						</div>
 
-						{/* BAD HABITS */}
+						{/* SMOKING */}
 						<div>
-							<div style={labelStyle}>Шкідливі звички</div>
-							<SmartBox fieldName="bad_habits" formState={formState} setFormState={setFormState}>
-								<SmartText name="bad_habits" placeholder="Опишіть ваші шкідливі звички" />
+							<div style={labelStyle}>Куріння</div>
+							<SmartBox mywidth="100%" fieldName="smoking" formState={formState} setFormState={setFormState}>
+								<SmartSelect name="smoking" placeholder="Ставлення до паління" options={smokingOptions} />
 							</SmartBox>
 						</div>
 
-						{/* MBTI */}
+						{/* PARTYING */}
 						<div>
-							<div style={labelStyle}>MBTI</div>
-							<SmartBox fieldName="mbti" formState={formState} setFormState={setFormState}>
-								<SmartSelect name="mbti" placeholder="Оберіть ваш MBTI тип" options={MBTI} />
+							<div style={labelStyle}>Вечірки/гості</div>
+							<SmartBox mywidth="100%" fieldName="partying" formState={formState} setFormState={setFormState}>
+								<SmartSelect name="partying" placeholder="Ставлення до вечірок" options={partyingOptions} />
 							</SmartBox>
-							<div style={{ ...labelStyle, marginTop: "4px" }}>
-								<span style={{ fontSize: "14px", fontFamily: "Inter", color: "#000", marginRight: "8px" }}>
-									Якщо не знаєш свій тип:
-								</span>
-								<button
-									className='mbti_btn'
-									type='button'
-									onClick={() => handleLinkClick('https://www.16personalities.com/uk/bezkoshtovnyy-test-na-vyznachennya-osobystosti')}
-								>
-									Тест MBTI
-								</button>
-							</div>
 						</div>
 
 						{/* INTRO-/EXTROVERT */}
-						<div>
+						<div style={{ gridColumn: "1 / -1" }}>
 							<div style={labelStyle}>Інтроверт/екстраверт</div>
 							<input
 								className='slider'
 								type='range'
-								defaultValue={formState.extra_intro_version?.value ?? '0'}
+								value={String(formState.extra_intro_version?.realValue ?? '0')}
 								min='-1'
 								max='1'
 								step='1'
@@ -389,27 +394,23 @@ export default function Step2() {
 							</div>
 						</div>
 
-						{/* HOBBY */}
+						{/* HOBBIES */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Захоплення/хобі</div>
-							<SmartBox mywidth="650px" fieldName="hobbies" formState={formState} setFormState={setFormState}>
-								<SmartText name="hobbies" placeholder="Розкажіть про свої захоплення та хобі" />
-							</SmartBox>
-						</div>
-
-						{/* BIOGRAPHY */}
-						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Біографія</div>
-							<SmartBox mywidth="650px" fieldName="bio" formState={formState} setFormState={setFormState}>
-								<SmartText name="bio" placeholder="Біографія" />
-							</SmartBox>
-						</div>
-
-						{/* LOOKING FOR */}
-						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Кого шукаєте</div>
-							<SmartBox mywidth="650px" fieldName="looking_for" formState={formState} setFormState={setFormState}>
-								<SmartText name="looking_for" placeholder="Опишіть вашого шуканого buddy" />
+							<div style={{ ...labelStyle, marginBottom: "0px" }}>Захоплення/хобі</div>
+							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
+								До 10 зі списку + до 5 власних (введіть і натисніть Enter)
+							</div>
+							<SmartBox mywidth="100%" fieldName="hobbies" formState={formState} setFormState={setFormState}>
+								<MultiSelect
+									name="hobbies"
+									options={hobbyOptions}
+									placeholder="Оберіть або введіть своє хобі"
+									formatCreateLabel={(input) => `Додати «${input}»`}
+									isValidNewOption={(input) => {
+										const trimmed = (input || '').trim();
+										return trimmed.length > 0 && trimmed.length <= 50;
+									}}
+								/>
 							</SmartBox>
 						</div>
 					</div>
@@ -418,12 +419,11 @@ export default function Step2() {
 						<div style={{ color: "red", marginTop: "16px", fontFamily: "Inter" }}>{submitError}</div>
 					)}
 
-					{/* SUBMIT BUTTON */}
 					<div style={{ width: "100%", display: "flex", justifyContent: "center", alignContent: "center", marginTop: "36px" }}>
 						<SubmitBtn
 							onClick={onSubmitClick}
 							disabled={!isFormValid(formState) || isSubmitting}
-							btntext="Оновити"
+							btntext="Далі"
 						/>
 					</div>
 				</div>

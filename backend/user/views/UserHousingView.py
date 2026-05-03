@@ -14,6 +14,7 @@ class MeHousingView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return self.request.user.housing
+        housing, _ = UserHousing.objects.get_or_create(user=self.request.user)
+        return housing
     
     

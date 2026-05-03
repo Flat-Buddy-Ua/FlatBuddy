@@ -12,6 +12,9 @@ export function SmartSelect({
     onMenuOpen,
     onMenuClose,
     mywidth = "100%",
+    isMulti = false,
+    isDisabled = false,
+    noOptionsMessage,
 }) {
 
     return (
@@ -19,6 +22,9 @@ export function SmartSelect({
             value={value}
             options={options}
             placeholder={placeholder}
+            isMulti={isMulti}
+            isDisabled={isDisabled}
+            noOptionsMessage={noOptionsMessage}
             onChange={(val) => {
                 onChange?.(val);
             }}
@@ -64,7 +70,28 @@ export function SmartSelect({
                         backgroundColor: '#F6DDD480',
                     },
                     fontSize: '16px',
-                    fontFamily: 'Inter',    
+                    fontFamily: 'Inter',
+                }),
+                multiValue: (base) => ({
+                    ...base,
+                    backgroundColor: '#F6DDD4',
+                    borderRadius: '4px',
+                    padding: '2px 4px',
+                    margin: '2px',
+                }),
+                multiValueLabel: (base) => ({
+                    ...base,
+                    color: 'black',
+                    fontWeight: 'normal',
+                    fontFamily: 'Inter',
+                }),
+                multiValueRemove: (base) => ({
+                    ...base,
+                    color: '#666',
+                    ':hover': {
+                        backgroundColor: '#E8C9BC',
+                        color: 'black',
+                    },
                 }),
             }}
         />
