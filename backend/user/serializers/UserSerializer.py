@@ -66,15 +66,21 @@ class UserSerializer(serializers.ModelSerializer):
         # нормалізований вигляд: +380XXXXXXXXX
         value = f"+{value}"
 
-        if User.objects.filter(phone_number=value).exists():
+        qs = User.objects.filter(phone_number=value)
+        if self.instance is not None:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
             raise serializers.ValidationError(
                 "This phone number is already registered")
 
         return value
 
     def validate(self, data):
-        if data['password'] != data['repeat_password']:
-            raise serializers.ValidationError("The passwords don't match")
+        password = data.get('password')
+        repeat_password = data.get('repeat_password')
+        if password or repeat_password:
+            if password != repeat_password:
+                raise serializers.ValidationError("The passwords don't match")
         return data
 
     def create(self, validated_data):

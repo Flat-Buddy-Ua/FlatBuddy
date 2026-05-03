@@ -27,11 +27,11 @@ body {
   grid-template-columns: 1fr 1fr;
 }
 
-.step1-main-grid {
+.responsive-form-grid {
   width: 100%;
 }
 
-.step1-main-grid > div {
+.responsive-form-grid > div {
   width: 100%;
 }
 
@@ -46,7 +46,7 @@ body {
     grid-template-rows: auto auto;
   }
 
-  .step1-main-grid {
+  .responsive-form-grid {
     width: 80%;
     margin: 0 auto;
   }
@@ -166,6 +166,21 @@ textarea::placeholder {
   opacity: 0.95;
   transition: all 0.3s ease;
   pointer-events: none; /* хінт “літає” і не заважає hover */
+}
+
+.mbti_btn {
+	font-size: 12px;
+	font-family: Inter;
+	color: #000;
+	padding: 6px 8px 8px 6px;
+	margin-top: 6px;
+	background-color: #FFFFFF;
+	border: 2px solid #F6DDD4;
+}
+
+.mbti_btn:hover {
+  background-color: #FFF8F5;
+  border: 2px solid transparent;
 }
 
 .slider {

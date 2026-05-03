@@ -12,6 +12,8 @@ import { SmartCalendar } from '../components/SmartCalendar.jsx';
 import { PasswordInput } from '../components/PasswordInfo.jsx';
 import { PassConfirm } from '../components/PassConfirm.jsx';
 import { SubmitBtn } from '../components/SubmitBtn.jsx';
+import { CitySelector } from '../components/CitySelector.jsx';
+import { NavStep } from '../components/NavStep.jsx';
 
 import { fetchWithAuth } from '../utils/api.js';
 
@@ -66,12 +68,10 @@ const REQUIRED_FIELDS = [
 ];
 
 const COUNTRY_OPTIONS = [
-	{ value: 0, label: "Виберіть країну" },
 	{ value: 1, label: "Україна" }
 ];
 	
 const GENDER_OPTIONS = [
-	{ value: 0, label: "Виберіть вашу стать" },
     { value: 1, label: "Чоловіча" },
     { value: 2, label: "Жіноча" },
     { value: 3, label: "Інша" },
@@ -82,18 +82,14 @@ export default function Step1 ({ isEditing }) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState("");
 	const BASE_URL = import.meta.env.VITE_API_URL;
+	const MAPBOX = import.meta.env.VITE_MAPBOX_TOKEN;
 	const navigate = useNavigate();
-
-	const getObjValue = (optArray, value) => {
-		return optArray.find(opt => opt.value === value) || null;
-	}
 
 	useEffect(() => {
         if (!isEditing) return;
 
         const fetchProfile = async () => {
             try {
-                const BASE_URL = import.meta.env.VITE_API_URL;
                 const response = await fetchWithAuth(`${BASE_URL}/api/profile/general/`);
                 
                 if (response.ok) {
@@ -109,8 +105,6 @@ export default function Step1 ({ isEditing }) {
                         }
                     }
 
-                    // 1. Знаходимо повні об'єкти для селектів за їхніми ID, які прийшли з бекенду
-                    // Зверни увагу: використовуємо просто data.country, а не data.country.value
                     const selectedCity = CityOptions.find(opt => opt.value === data.city) || 
     					(data.city ? { value: data.city, label: data.city } : null);
                     const selectedCountry = COUNTRY_OPTIONS.find(opt => opt.value === data.country) || null;
@@ -123,10 +117,9 @@ export default function Step1 ({ isEditing }) {
                         first_name: { value: data.first_name, realValue: data.first_name, isValid: true },
                         last_name: { value: data.last_name, realValue: data.last_name, isValid: true },
                         
-                        // Для селектів передаємо знайдений об'єкт повністю у realValue
                         country: { 
-                            value: selectedCountry?.label || "", // Текстова назва для відображення
-                            realValue: selectedCountry,          // Об'єкт для SmartSelect та відправки на бек
+                            value: selectedCountry?.label || "",
+                            realValue: selectedCountry,
                             isValid: !!selectedCountry 
                         },
                         city: { 
@@ -200,14 +193,11 @@ export default function Step1 ({ isEditing }) {
 					// Робимо копію поточного стейту
 					const newState = { ...prevState };
 
-					// Пробігаємось по всіх полях, які прислали помилку (напр. "email", "phone_number")
 					Object.keys(errorData).forEach(fieldName => {
-						// Перевіряємо, чи є таке поле у нашій формі
 						if (newState[fieldName]) {
 							newState[fieldName] = {
-								...newState[fieldName], // зберігаємо введене value/realValue
-								isValid: false,         // робимо поле невалідним (щоб SmartBox став червоним)
-								// DRF зазвичай віддає масив рядків, тому беремо перший елемент [0]
+								...newState[fieldName],
+								isValid: false,
 								errorText: Array.isArray(errorData[fieldName]) 
 									? errorData[fieldName][0] 
 									: errorData[fieldName]
@@ -215,9 +205,8 @@ export default function Step1 ({ isEditing }) {
 						}
 					});
 
-					// Якщо бекенд прислав помилку, не прив'язану до конкретного поля
 					if (errorData.non_field_errors) {
-						alert(errorData.non_field_errors[0]); // Можеш потім замінити на гарний Toast
+						alert(errorData.non_field_errors[0]);
 					}
 
 					console.log(formState.email);
@@ -248,7 +237,7 @@ export default function Step1 ({ isEditing }) {
 	        });
 
 	        if (response.ok) {
-	            alert("Дані успішно оновлено!"); 
+	            navigate('/profile/personal');
 	        } else {
 	            const errorData = await response.json().catch(() => ({}));
 	            setSubmitError(errorData.detail || "Не вдалося оновити профіль.");
@@ -272,20 +261,10 @@ export default function Step1 ({ isEditing }) {
 	    }
 	};
 
-	const navStepStyle = (isActive, isDisabled = false) => ({
-        padding: "10px 20px",
-        border: isActive ? "2px solid #111" : "2px solid #F6DDD4",
-        backgroundColor: isActive ? "#FCD531" : isDisabled ? "#F7F1EE" : "transparent",
-        color: isDisabled ? "#8A817C" : "#111",
-        fontFamily: "'Seenonim', 'Inter', sans-serif",
-        fontSize: "16px",
-        cursor: isActive ? "default" : isDisabled ? "not-allowed" : "pointer",
-        transition: "all 0.2s ease",
-        transform: isActive ? "translate(-2px, -2px)" : "none",
-        boxShadow: isActive ? "4px 4px 0px #111" : "none",
-        opacity: isDisabled ? 0.7 : 1,
-        pointerEvents: isDisabled ? "none" : "auto",
-    });
+	const handleRetrieve = (res) => {
+		const cityName = res.features?.[0]?.properties?.name;
+
+	};
 
 	const formCardStyle = {
 		width: "100%",
@@ -317,27 +296,17 @@ export default function Step1 ({ isEditing }) {
             	        justifyContent: "center",
             	        flexWrap: "wrap"
             	    }}>
-            	        <div style={navStepStyle(true)}>1. Базові дані</div>
-            	        <div 
-            	            style={navStepStyle(false, true)} 
-            	            aria-disabled="true"
-            	        >
-            	            2. Проживання
-            	        </div>
-            	        <div 
-            	            style={navStepStyle(false, true)} 
-            	            aria-disabled="true"
-            	        >
-            	            3. Про мене
-            	        </div>
+            	        <NavStep isActive>1. Базові дані</NavStep>
+            	        <NavStep onClick={() => navigate('/profile/personal')}>2. Про мене</NavStep>
+            	        <NavStep onClick={() => navigate('/profile/housing')}>3. Проживання</NavStep>
             	    </div>
             	)}
 
           			{/* FORM GRID */}
-          			<div className='main-grid step1-main-grid'>
+          			<div className='main-grid responsive-form-grid'>
 
             			<div>
-            			  	<div style={labelStyle}>Ім’я</div>
+            			  	<RequiredLabel>Ім’я</RequiredLabel>
             			  	<SmartBox
 								fieldName="first_name"
 								formState={formState}
@@ -349,7 +318,7 @@ export default function Step1 ({ isEditing }) {
             			</div>
 
             			<div>
-            			  	<div style={labelStyle}>Прізвище</div>
+            			  	<RequiredLabel>Прізвище</RequiredLabel>
             			  	<SmartBox
 								fieldName="last_name"
 								formState={formState}
@@ -361,7 +330,7 @@ export default function Step1 ({ isEditing }) {
             			</div>
 
             			<div>
-            			  	<div style={labelStyle}>Країна</div>
+            			  	<RequiredLabel>Країна</RequiredLabel>
             			  	<SmartBox
 								fieldName="country"
 								formState={formState}
@@ -370,7 +339,6 @@ export default function Step1 ({ isEditing }) {
 							>
             			    	<SmartSelect
             			      		options={COUNTRY_OPTIONS}
-									defaultValue={COUNTRY_OPTIONS[0]}
 									placeholder="Країна"
 									name="country"
             			    	/>
@@ -378,24 +346,19 @@ export default function Step1 ({ isEditing }) {
             			</div>
 
             			<div>
-            			  	<div style={labelStyle}>Місто</div>
+            			  	<RequiredLabel>Населений пункт</RequiredLabel>
             			  	<SmartBox
 								fieldName="city"
 								formState={formState}
 								setFormState={setFormState}
 								mywidth="100%"
 							>
-            			    	<SmartCreatable
-            			      		options={CityOptions}
-									defaultValue={CityOptions[0]}
-									placeholder="Місто"
-									name="city"
-            			    	/>
+            			    	<CitySelector />
             			  	</SmartBox>
             			</div>
 
             			<div>
-            			  	<div style={labelStyle}>Стать</div>
+            			  	<RequiredLabel>Стать</RequiredLabel>
             			  	<SmartBox
 								fieldName="gender"
 								formState={formState}
@@ -411,7 +374,7 @@ export default function Step1 ({ isEditing }) {
             			</div>
 
 						<div style={{ position: "relative", zIndex: 1001 }}>
-							<div style={labelStyle}>День Народження</div>
+							<RequiredLabel>День Народження</RequiredLabel>
 							<SmartBox
 								fieldName="birthdate"
 								formState={formState}
@@ -423,7 +386,7 @@ export default function Step1 ({ isEditing }) {
 						</div>
 
 						<div>
-							<div style={labelStyle}>Номер телефону</div>
+							<RequiredLabel>Номер телефону</RequiredLabel>
 							<SmartBox
 								fieldName="phone_number"
 								formState={formState}
@@ -442,7 +405,7 @@ export default function Step1 ({ isEditing }) {
 						</div>
 
 						<div>
-							<div style={labelStyle}>Електронна пошта</div>
+							<RequiredLabel>Електронна пошта</RequiredLabel>
 							<SmartBox
 								fieldName="email"
 								formState={formState}
@@ -458,7 +421,7 @@ export default function Step1 ({ isEditing }) {
 
 					{!isEditing && (
 						<div>
-							<div style={labelStyle}>Пароль</div>
+							<RequiredLabel>Пароль</RequiredLabel>
 							<SmartBox
 								fieldName="password"
 								formState={formState}
@@ -473,7 +436,7 @@ export default function Step1 ({ isEditing }) {
 
 					{!isEditing && (
 						<div>
-							<div style={labelStyle}>Підтвердження пароля</div>
+							<RequiredLabel>Підтвердження пароля</RequiredLabel>
 							<SmartBox
 								fieldName="repeat_password"
 								formState={formState}
@@ -504,7 +467,7 @@ export default function Step1 ({ isEditing }) {
 						<SubmitBtn
 							onClick={onSubmitClick}
 							disabled={!isFormValid(formState)}
-							btntext={isEditing ? "Оновити" : "Зареєструватися"}
+							btntext={isEditing ? "Далі" : "Зареєструватися"}
 						/>
 					</div>
         		</div>
@@ -518,5 +481,18 @@ const labelStyle = {
   fontSize: 18,
   fontFamily: "Seenonim",
   color: "#000",
+};
+
+function RequiredLabel({ children }) {
+	return (
+		<div style={labelStyle}>
+			{children}
+			<span style={requiredAsteriskStyle}> *</span>
+		</div>
+	);
+}
+
+const requiredAsteriskStyle = {
+	color: "#ff3333",
 };
 
