@@ -4,11 +4,21 @@ from django.conf import settings
 from user.models import User
 
 class Command(BaseCommand):
+    link = f"{settings.FRONTEND_URL}"
     help='Sending email announcement'
 
     def handle(self, *args, **options):
-        subject='Update announcement!'
-        message="""bla-bla-bla"""
+        subject='Готові до знайомства з ідеальним співмешканцем?'
+        message=f"""Привіт, на зв’язку Flat Buddy!
+
+Раді повідомити, що тепер ви можете заповнити профіль для пошуку свого ✨ідеального сусіда✨
+08.05 ми вже запускаємо Matching, тому опишіть себе якнайкраще!!
+🤫 Перші 100 профілів = необмежена кількість потенційних співмешканців БЕЗКОШТОВНО!
+
+Переходь за посиланням та встигни заповнити профіль: {self.link}
+Твій,
+Flat Buddy
+"""
         
         users = User.objects.filter(is_active=True).values_list('email', flat=True)
         total = len(users)
@@ -17,7 +27,6 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING('No verified users found'))
             return
 
-        failed = 0
         self.stdout.write(f'Sending to {total} users...')
 
         for email in users:
