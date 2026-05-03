@@ -1,6 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { validations } from "./validations";
 
+const VALIDATION_BY_NAME = {
+    // Step 1
+    first_name: "name",
+    last_name: "surname",
+    country: "country",
+    city: "city",
+    gender: "gender",
+    phone_number: "phone",
+    email: "email",
+    password: "password",
+    repeat_password: "repeat_password",
+    // Step 2
+    status: "status",
+    orbit: "orbit",
+    languages: "languages",
+    cleanliness: "cleanliness",
+    my_vibe: "my_vibe",
+    buddy_vibe: "buddy_vibe",
+    schedule: "schedule",
+    sleep_schedule: "sleep_schedule",
+    smoking: "smoking",
+    partying: "partying",
+    hobbies: "hobbies",
+    // Step 3
+    room_sharing_preference: "room_sharing_preference",
+    preferred_gender: "preferred_gender",
+    housing_status: "housing_status",
+    budget_min: "budget_min",
+    budget_max: "budget_max",
+    destination: "destination",
+    preferred_districts: "preferred_districts",
+    planned_duration: "planned_duration",
+    move_in_date: "move_in_date",
+    has_pet: "has_pet",
+    pet_description: "pet_description",
+};
+
 const detectValidationType = (children) => {
     if (!children || !children.props) return null;
 
@@ -9,35 +46,13 @@ const detectValidationType = (children) => {
     }
 
     const name = children.props.name || "";
-
-    if (name.includes("first_name")) return "name";
-    if (name.includes("last_name")) return "surname";
-    if (name.includes("country")) return "country";
-    if (name.includes("city")) return "city";
-    if (name.includes("gender")) return "gender";
-    if (name.includes("phone_number")) return "phone";
-    if (name.includes("email")) return "email";
-    if (name.includes("repeat_password")) return "repeat_password";
-    if (name.includes("password")) return "password";
-
-    if (name.includes("university")) return "university";
-    if (name.includes("faculty")) return "faculty";
-    if (name.includes("course")) return "course";
-    if (name.includes("languages")) return "languages";
-    if (name.includes("cleanliness")) return "cleanliness";
-    if (name.includes("schedule")) return "schedule";
-    if (name.includes("style_of_life")) return "style_of_life";
-    if (name.includes("guests")) return "guests";
-    if (name.includes("smoking")) return "smoking";
-    if (name.includes("pets")) return "pets";
-    if (name.includes("hobby")) return "hobby";
-
-    return null;
+    return VALIDATION_BY_NAME[name] || null;
 };
 
 export function SmartBox({ fieldName, formState, setFormState, children, disabled, mywidth="300px" }) {
     const [isHovered, setIsHovered] = useState(false);
     const [isActive, setIsActive] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
     const [accentColor] = useState(() => {
         const colors = ["#F58A3D", "#FCD531"];
@@ -110,6 +125,8 @@ export function SmartBox({ fieldName, formState, setFormState, children, disable
             return React.cloneElement(child, {
                 value,
                 onChange: handleChange,
+                onFocus: () => setIsFocused(true),
+                onBlur: () => setIsFocused(false),
                 disabled,
                 hasError: error ? "true" : undefined,
             });
@@ -136,7 +153,13 @@ export function SmartBox({ fieldName, formState, setFormState, children, disable
                                 : `4px 4px 0px ${accentColor}`
                             : "none",
           
-                    border: disabled ? "2px solid #99999966" : error ? "2px solid #ff3333" : "2px solid transparent", 
+                    border: disabled
+                        ? "2px solid #99999966"
+                        : error
+                            ? "2px solid #ff3333"
+                            : isFocused
+                                ? "2px solid #111"
+                                : "2px solid transparent",
                     background: disabled ? "transparent" : "#F6DDD4", 
                     cursor: disabled ? "not-allowed" : "text",
                     transform: (isHovered || isActive) && !disabled ? "translate(-2px, -2px)" : "translate(0, 0)",

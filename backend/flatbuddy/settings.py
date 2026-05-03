@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-FRONTEND_DIR = BASE_DIR.parent / 'front'
+FRONTEND_DIR = BASE_DIR.parent / 'frontend'
 
 
 load_dotenv(BASE_DIR / '.env')
@@ -34,6 +34,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'flatbuddyua.com']
+
+CSRF_TRUSTED_ORIGINS = ['https://flatbuddyua.com', 'http://flatbuddyua.com']
 
 STATIC_URL = 'static/'
 
@@ -69,11 +71,18 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    "https://flat-buddy.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'flatbuddy.urls'
 
