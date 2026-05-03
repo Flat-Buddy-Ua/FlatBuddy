@@ -3,8 +3,12 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 export async function fetchWithAuth(url, options = {}) {
     let accessToken = localStorage.getItem('access_token');
 
+    // FormData must be sent without an explicit Content-Type so the browser
+    // can set `multipart/form-data; boundary=...` itself.
+    const isFormData = options.body instanceof FormData;
+
     const headers = {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...options.headers,
     };
 

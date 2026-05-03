@@ -5,8 +5,8 @@ from datetime import date
 
 class UserHousingSerializer(serializers.ModelSerializer):
 
-    budget_min = serializers.IntegerField(min_value=500)
-    budget_max = serializers.IntegerField(max_value=100000)
+    budget_min = serializers.IntegerField(min_value=500, allow_null=True, required=False)
+    budget_max = serializers.IntegerField(max_value=100000, allow_null=True, required=False)
 
     class Meta:
         model = UserHousing

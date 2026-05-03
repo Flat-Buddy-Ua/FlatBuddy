@@ -1,12 +1,13 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import MAIN from './MAIN.jsx';
 import Step1 from './Step1.jsx';
-// import Step2 from './Step2.jsx';
-// import Step3 from './Step3.jsx';
+import Step2 from './Step2.jsx';
+import Step3 from './Step3.jsx';
 import React, { useState } from 'react';
 import { Card } from './Card.jsx';
 
-export function RegisterLayout() {
+function AppRoutes() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({});
 
     const updateForm = (newData) => {
@@ -14,46 +15,49 @@ export function RegisterLayout() {
     };
 
     return (
+        <Routes>
+            <Route path="/" element={<MAIN />} />
+
+            {/* 🔴 РЕЖИМ РЕЄСТРАЦІЇ */}
+            <Route
+                path="/register"
+                element={
+                    <Step1
+                        data={formData}
+                        onChange={updateForm}
+                        isEditing={false}
+                    />
+                }
+            />
+
+            {/* 🟢 РЕЖИМ РЕДАГУВАННЯ ПРОФІЛЮ (для залогінених) */}
+            <Route
+                path="/profile/details"
+                element={
+                    <Step1
+                        data={formData}
+                        onChange={updateForm}
+                        isEditing={true}
+                    />
+                }
+            />
+
+            <Route
+                path="/buddies"
+                element={<Card onGoHome={() => navigate('/')} />}
+            />
+
+            {/* Інші кроки редагування доступні тільки для профілю */}
+            <Route path="/profile/personal" element={<Step2 />} />
+            <Route path="/profile/housing" element={<Step3 />} />
+        </Routes>
+    );
+}
+
+export function RegisterLayout() {
+    return (
         <BrowserRouter>
-            <Routes>
-				<Route path="/" element={<MAIN />} />
-
-                {/* 🔴 РЕЖИМ РЕЄСТРАЦІЇ */}
-                <Route 
-                    path="/register" 
-                    element={
-                        <Step1 
-                            data={formData} 
-                            onChange={updateForm} 
-                            isEditing={false} /* Прапорець: це перша реєстрація */
-                        />
-                    } 
-                />
-
-                {/* 🟢 РЕЖИМ РЕДАГУВАННЯ ПРОФІЛЮ (для залогінених) */}
-                <Route 
-                    path="/profile/details" 
-                    element={
-                        <Step1 
-                            data={formData} 
-                            onChange={updateForm} 
-                            isEditing={true} /* Прапорець: це режим редагування */
-                        />
-                    } 
-                />
-
-                <Route
-                    path="/buddies"
-                    element={<Card onGoHome={() => {navigate('/')}} />}
-                />
-
-                {/* Інші кроки редагування доступні тільки для профілю */}
-
-                {/* <Route path="/profile/step-2" element={<Step2 data={formData} />} />
-                <Route path="/profile/step-3" element={<Step3 data={formData} />} /> */}
-
-				{/* Решта сторінок */}
-            </Routes>
+            <AppRoutes />
         </BrowserRouter>
     );
 }
