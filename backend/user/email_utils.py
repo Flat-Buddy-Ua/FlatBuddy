@@ -1,11 +1,15 @@
-from django.core.mail import send_mail
+import resend
 from django.conf import settings
 
 def send_magic_link(user, token):
+    resend.api_key = settings.RESEND_API_KEY
     link = f"{settings.FRONTEND_URL}/verify/{token}"
-    send_mail(
-        subject='Підтвердження реєстрації у FlatBuddy',
-        message=f"""Привіт, {user.first_name}!
+
+    resend.Emails.send({
+        "from": settings.DEFAULT_FROM_EMAIL,
+        "to": [user.email],
+        "subject": "Підтвердження реєстрації у FlatBuddy",
+        "text": f"""Привіт, {user.first_name}!
 
 Перейди за посиланням, щоб підтвердити реєстрацію: {link}
 
@@ -14,8 +18,5 @@ def send_magic_link(user, token):
 Якщо ти не реєструвався у FlatBuddy — просто проігноруй цей лист.
 
 З повагою,
-команда FlatBuddy
-        """,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email]
-    )
+команда FlatBuddy""",
+    })
