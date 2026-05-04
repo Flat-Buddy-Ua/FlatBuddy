@@ -5,7 +5,7 @@ import Step2 from './Step2.jsx';
 import Step3 from './Step3.jsx';
 import VerifyEmail from './VerifyEmail.jsx';
 import React, { useState } from 'react';
-import { Card } from './Card.jsx';
+import { BuddiesPage } from './BuddiesPage.jsx';
 
 function AppRoutes() {
     const navigate = useNavigate();
@@ -45,7 +45,7 @@ function AppRoutes() {
 
             <Route
                 path="/buddies"
-                element={<Card onGoHome={() => navigate('/')} />}
+                element={<BuddiesPage />}
             />
 
             {/* Інші кроки редагування доступні тільки для профілю */}
