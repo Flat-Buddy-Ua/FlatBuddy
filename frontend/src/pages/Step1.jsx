@@ -267,18 +267,6 @@ export default function Step1 ({ isEditing }) {
 
 	};
 
-	const formCardStyle = {
-		width: "100%",
-		maxWidth: 800,
-		border: "3px solid #F6DDD4",
-		padding: "clamp(24px, 6vw, 80px)",
-		margin: "auto",
-		display: "flex",
-		flexDirection: "column",
-		alignItems: "center",
-		boxSizing: "border-box",
-		overflowX: "hidden",
-	};
 
 	const handleResend = async () => {
 		const target = pendingVerification?.email;
@@ -311,7 +299,7 @@ export default function Step1 ({ isEditing }) {
 			<div className="landing-page">
 				<Header />
 				<div style={{ padding: "60px 20px" }}>
-					<div style={{ ...formCardStyle, maxWidth: 560, gap: 16, textAlign: 'center' }}>
+					<div className="form-card" style={{ maxWidth: 560, gap: 16, textAlign: 'center' }}>
 						<div style={{ fontSize: 48 }}>📬</div>
 						<h2 style={{ fontFamily: 'Seenonim, Inter, sans-serif', fontSize: 28, margin: 0 }}>
 							Перевірте вашу пошту
@@ -359,7 +347,7 @@ export default function Step1 ({ isEditing }) {
 
 			<div style={{ padding: "40px 20px 40px 20px" }}>
        			{/* CARD */}
-        		<div style={formCardStyle}>
+        		<div className="form-card">
 
 				{isEditing && (
 					<div style={{
@@ -550,16 +538,10 @@ export default function Step1 ({ isEditing }) {
     );
 }
 
-const labelStyle = {
-  marginBottom: 8,
-  fontSize: 18,
-  fontFamily: "Seenonim",
-  color: "#000",
-};
 
 function RequiredLabel({ children }) {
 	return (
-		<div style={labelStyle}>
+		<div className="form-label">
 			{children}
 			<span style={requiredAsteriskStyle}> *</span>
 		</div>

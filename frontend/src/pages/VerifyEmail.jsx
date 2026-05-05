@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { Header } from '../components/Header.jsx';
 import { SubmitBtn } from '../components/SubmitBtn.jsx';
+import './VerifyEmail.css';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -12,50 +13,7 @@ const STATE = {
 	ERROR: 'error',
 };
 
-const cardStyle = {
-	width: '100%',
-	maxWidth: 560,
-	border: '3px solid #F6DDD4',
-	padding: 'clamp(24px, 6vw, 80px)',
-	margin: 'auto',
-	display: 'flex',
-	flexDirection: 'column',
-	alignItems: 'center',
-	gap: '16px',
-	boxSizing: 'border-box',
-	textAlign: 'center',
-	fontFamily: 'Inter, sans-serif',
-};
-
-const headingStyle = {
-	fontFamily: 'Seenonim, Inter, sans-serif',
-	fontSize: 28,
-	margin: 0,
-};
-
-const noteStyle = {
-	color: '#555',
-	fontSize: 16,
-	margin: 0,
-};
-
-const inputStyle = {
-	width: '100%',
-	padding: '12px 16px',
-	border: '2px solid #F6DDD4',
-	background: '#F6DDD4',
-	fontFamily: 'Inter, sans-serif',
-	fontSize: 16,
-	boxSizing: 'border-box',
-};
-
-const Spinner = () => (
-	<div style={{
-		width: 36, height: 36, borderRadius: '50%',
-		border: '4px solid #F6DDD4', borderTopColor: '#FCD531',
-		animation: 'spin 0.9s linear infinite',
-	}} />
-);
+const Spinner = () => <div className="verify-spinner" />;
 
 export default function VerifyEmail() {
 	const { token } = useParams();
@@ -68,7 +26,6 @@ export default function VerifyEmail() {
 	const triggered = useRef(false);
 
 	useEffect(() => {
-		// Guard against double-fire in React 18 StrictMode (dev) — token is one-shot
 		if (triggered.current) return;
 		triggered.current = true;
 
@@ -127,31 +84,30 @@ export default function VerifyEmail() {
 	return (
 		<div className="landing-page">
 			<Header />
-			<style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-			<div style={{ padding: '60px 20px' }}>
-				<div style={cardStyle}>
+			<div className="verify-page">
+				<div className="verify-card">
 					{state === STATE.LOADING && (
 						<>
 							<Spinner />
-							<h2 style={headingStyle}>Підтверджуємо вашу пошту…</h2>
-							<p style={noteStyle}>Зачекайте секунду.</p>
+							<h2 className="verify-heading">Підтверджуємо вашу пошту…</h2>
+							<p className="verify-note">Зачекайте секунду.</p>
 						</>
 					)}
 
 					{state === STATE.SUCCESS && (
 						<>
-							<div style={{ fontSize: 48 }}>✅</div>
-							<h2 style={headingStyle}>Пошта підтверджена</h2>
-							<p style={noteStyle}>Зараз перенаправимо на заповнення профілю…</p>
+							<div className="verify-icon">✅</div>
+							<h2 className="verify-heading">Пошта підтверджена</h2>
+							<p className="verify-note">Зараз перенаправимо на заповнення профілю…</p>
 						</>
 					)}
 
 					{state === STATE.ERROR && (
 						<>
-							<div style={{ fontSize: 48 }}>⚠️</div>
-							<h2 style={headingStyle}>{errorDetail}</h2>
-							<p style={noteStyle}>
+							<div className="verify-icon">⚠️</div>
+							<h2 className="verify-heading">{errorDetail}</h2>
+							<p className="verify-note">
 								Введіть email і ми надішлемо новий лист підтвердження.
 							</p>
 							<input
@@ -160,17 +116,14 @@ export default function VerifyEmail() {
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="your@email.com"
 								disabled={isResending}
-								style={inputStyle}
+								className="verify-input"
 							/>
 							{resendStatus.text && (
-								<p style={{
-									...noteStyle,
-									color: resendStatus.kind === 'ok' ? '#2e7d32' : '#c62828',
-								}}>
+								<p className={`verify-note ${resendStatus.kind === 'ok' ? 'verify-note--ok' : 'verify-note--error'}`}>
 									{resendStatus.text}
 								</p>
 							)}
-							<div style={{ width: '100%' }}>
+							<div className="verify-submit-row">
 								<SubmitBtn
 									onClick={handleResend}
 									disabled={isResending || !email.trim()}
@@ -180,11 +133,7 @@ export default function VerifyEmail() {
 							<button
 								type="button"
 								onClick={() => navigate('/')}
-								style={{
-									background: 'none', border: 'none', padding: 0,
-									color: '#555', fontFamily: 'Inter', fontSize: 14,
-									cursor: 'pointer', textDecoration: 'underline',
-								}}
+								className="verify-link-btn"
 							>
 								На головну
 							</button>

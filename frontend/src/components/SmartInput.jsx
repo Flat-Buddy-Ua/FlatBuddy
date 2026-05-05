@@ -1,7 +1,7 @@
 // SmartInput.jsx
 import React from "react";
 import InputMask from "react-input-mask";
-import "./../index.css";
+import "./SmartInput.css";
 
 export function SmartInput({
   value,
@@ -20,7 +20,7 @@ export function SmartInput({
   hasError,
   ...rest
 }) {
-  
+
   const displayValue = value !== undefined ? value : defaultValue;
 
   const handleChange = (event) => {
@@ -44,38 +44,19 @@ export function SmartInput({
     if (typeof onBlur === "function") onBlur(event);
   };
 
-  const baseStyle = {
-    boxSizing: "border-box",
-    width: "100%",
-    height: "100%",
-    marginTop: margintop,
-    paddingLeft: prefix ? "0px" : "20px",
-    paddingRight: "20px",
-    border: "none",
-    background: "transparent",
-    outline: "none",
-    fontSize: "16px",
-    fontFamily: "Inter",
-    color: disabled ? "#99999966" : "#000",
-    cursor: disabled ? "not-allowed" : "text",
-  };
+  const inputClass = [
+    "smart-input",
+    prefix && "smart-input--with-prefix",
+    disabled && "smart-input--disabled",
+  ].filter(Boolean).join(" ");
+
+  const wrapStyle = { "--smart-input-margin-top": margintop };
 
   if (!mask) {
     return (
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div className="smart-input-wrap" style={wrapStyle}>
         {prefix && (
-          <span
-            style={{
-              ...baseStyle,
-              width: "auto",
-              marginRight: "0px",
-              paddingLeft: "20px",
-              paddingRight: "8px",
-              color: "#999999",
-            }}
-          >
-            {prefix}
-          </span>
+          <span className="smart-input-prefix">{prefix}</span>
         )}
         <input
           {...rest}
@@ -86,10 +67,8 @@ export function SmartInput({
           onBlur={handleBlur}
           inputMode={inputMode}
           pattern={pattern}
-          style={{
-            ...baseStyle,
-            "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA",
-          }}
+          className={inputClass}
+          style={{ "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA" }}
         />
       </div>
     );
@@ -106,29 +85,17 @@ export function SmartInput({
       onBlur={handleBlur}
     >
       {(inputProps) => (
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div className="smart-input-wrap" style={wrapStyle}>
           {prefix && (
-            <span
-              style={{
-                ...baseStyle,
-                width: "30px",
-                marginRight: "0px",
-                paddingRight: "0px",
-                color: "#999999",
-              }}
-            >
-              {prefix}
-            </span>
+            <span className="smart-input-prefix">{prefix}</span>
           )}
           <input
             {...inputProps}
             {...rest}
-            style={{
-              ...baseStyle,
-              "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA",
-            }}
             inputMode={inputMode}
             pattern={pattern}
+            className={inputClass}
+            style={{ "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA" }}
           />
         </div>
       )}

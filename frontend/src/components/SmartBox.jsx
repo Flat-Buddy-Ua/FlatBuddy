@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { validations } from "./validations";
+import "./SmartBox.css";
 
 const VALIDATION_BY_NAME = {
     // Step 1
@@ -49,9 +50,7 @@ const detectValidationType = (children) => {
     return VALIDATION_BY_NAME[name] || null;
 };
 
-export function SmartBox({ fieldName, formState, setFormState, children, disabled, mywidth="300px" }) {
-    const [isHovered, setIsHovered] = useState(false);
-    const [isActive, setIsActive] = useState(false);
+export function SmartBox({ fieldName, formState, setFormState, children, disabled, mywidth = "300px" }) {
     const [isFocused, setIsFocused] = useState(false);
 
     const [accentColor] = useState(() => {
@@ -67,7 +66,6 @@ export function SmartBox({ fieldName, formState, setFormState, children, disable
     const localError = fieldData.localError;
     const backendError = fieldData.backendError || fieldData.errorText;
 
-    
     const errorText = backendError || (value && !isValid ? localError : null);
     const error = !!errorText;
 
@@ -108,7 +106,7 @@ export function SmartBox({ fieldName, formState, setFormState, children, disable
 
     const handleChange = (e) => {
         const newValue = e && e.target ? e.target.value : e;
-    
+
         setFormState((prev) => ({
             ...prev,
             [fieldName]: {
@@ -119,7 +117,7 @@ export function SmartBox({ fieldName, formState, setFormState, children, disable
             },
         }));
     };
-    
+
     const childWithProps = React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
             return React.cloneElement(child, {
@@ -133,60 +131,28 @@ export function SmartBox({ fieldName, formState, setFormState, children, disable
         }
         return child;
     });
-    
+
+    const innerClass = [
+        'smart-box-inner',
+        disabled && 'smart-box-inner--disabled',
+        error && 'smart-box-inner--error',
+        isFocused && !error && !disabled && 'smart-box-inner--focused',
+    ].filter(Boolean).join(' ');
+
     return (
-        <div style={{ position: "relative", width: "100%" }}>
+        <div className="smart-box-root">
             <div
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+                className={innerClass}
                 style={{
-                    width: mywidth,
-                    minHeight: "50px",
-                    height: "auto",
-                    alignItems: "center",
-                    transition: "all 0.2s ease", 
-                    boxShadow: error
-                        ? "4px 4px 0px #ff3333"
-                        : isHovered || isActive
-                            ? disabled
-                                ? "none" 
-                                : `4px 4px 0px ${accentColor}`
-                            : "none",
-          
-                    border: disabled
-                        ? "2px solid #99999966"
-                        : error
-                            ? "2px solid #ff3333"
-                            : isFocused
-                                ? "2px solid #111"
-                                : "2px solid transparent",
-                    background: disabled ? "transparent" : "#F6DDD4", 
-                    cursor: disabled ? "not-allowed" : "text",
-                    transform: (isHovered || isActive) && !disabled ? "translate(-2px, -2px)" : "translate(0, 0)",
+                    '--smart-box-width': mywidth,
+                    '--smart-box-accent': accentColor,
                 }}
             >
                 {childWithProps}
             </div>
 
             {errorText && (
-                <div
-                    style={{
-                        position: "absolute",
-                        bottom: "-22px",
-                        left: "16px",
-                        color: "red",
-                        fontSize: "12px",
-                        fontFamily: "'Inter', sans-serif",
-                        fontWeight: "500",
-                        backgroundColor: "rgba(255, 255, 255, 0.9)",
-                        padding: "3px 8px",
-                        zIndex: 10,
-                        whiteSpace: "nowrap",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                    }}
-                >
-                    {errorText}
-                </div>
+                <div className="smart-box-error-popover">{errorText}</div>
             )}
         </div>
     );

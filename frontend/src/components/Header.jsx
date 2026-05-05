@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoginPopup } from "./LoginPopup.jsx";
+import "./Header.css";
 
 
 

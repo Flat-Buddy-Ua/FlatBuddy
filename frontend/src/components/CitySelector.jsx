@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
+import './CitySelector.css';
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 

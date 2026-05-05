@@ -1,0 +1,125 @@
+.upload-photo-root {
+    position: relative;
+    width: 100%;
+    display: flex;
+}
+
+.upload-photo-grid {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.upload-photo-tile {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    border: 2px solid rgba(204, 221, 187, 0.5);
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+}
+
+.upload-photo-tile--uploading {
+    opacity: 0.7;
+}
+
+.upload-photo-tile--failed {
+    border-color: #ff3333;
+}
+
+.upload-photo-remove {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #F6DDD4;
+    color: black;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    text-align: center;
+    padding: 4px;
+}
+
+.upload-photo-overlay--error {
+    background: rgba(255, 51, 51, 0.6);
+}
+
+.upload-photo-add {
+    height: 150px;
+    border: 2px dashed #CCCCCC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: rgba(204, 221, 187, 0.1);
+    transition: border-color 0.2s ease;
+    width: 150px;
+}
+
+.upload-photo-add--first {
+    width: 80%;
+}
+
+.upload-photo-add:hover {
+    border-color: rgba(204, 221, 187, 1);
+}
+
+.upload-photo-add-inner {
+    text-align: center;
+}
+
+.upload-photo-add-plus {
+    font-size: 36px;
+    color: rgba(204, 221, 187, 1);
+    margin-bottom: 8px;
+}
+
+.upload-photo-add-label {
+    color: #666666;
+    font-size: 14px;
+}
+
+.upload-photo-add-counter {
+    font-size: 12px;
+    color: #999999;
+    margin-top: 4px;
+}
+
+.upload-photo-error {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    color: #ff3333;
+    font-size: 12px;
+    font-family: Inter, sans-serif;
+    text-align: center;
+}
+
+.upload-photo-input {
+    display: none;
+}

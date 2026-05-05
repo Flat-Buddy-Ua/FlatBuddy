@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import './SmartCalendar.css';
 
 const parseSafeDate = (val) => {
   if (!val) return null;
@@ -33,7 +34,6 @@ const SmartCalendar = ({
   const calendarRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Defaults — birthdate range (used when no min/max explicitly passed)
   const calculateMaxBirthDate = () => {
     const today = new Date();
     const maxDate = new Date(
@@ -72,16 +72,10 @@ const SmartCalendar = ({
     setView('month');
   };
 
-  const formatDate = (date) => {
-    if (!date) return '';
-    return date.toISOString().split("T")[0];
-  };
-
   useEffect(() => {
     setDate(parseSafeDate(value));
   }, [value]);
 
-  // Mirror calendar-open state to onFocus/onBlur so the parent (SmartBox) can highlight.
   const wasOpenRef = useRef(false);
   useEffect(() => {
     if (showCalendar && !wasOpenRef.current) onFocus?.();
@@ -90,27 +84,8 @@ const SmartCalendar = ({
   }, [showCalendar, onFocus, onBlur]);
 
   return (
-    <div style={{ position: 'relative', width: '100%', zIndex: 1000 }}>
-      {/* Поле вводу */}
-      <div
-        ref={inputRef}
-        onClick={toggleCalendar}
-        style={{
-          padding: '12px 15px',
-          background: 'transparent',
-          cursor: 'pointer',
-          fontFamily: "'Inter', sans-serif",
-          fontSize: '16px',
-          color: date ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,1)',
-          transition: 'all 0.3s ease',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          zIndex: 1001,
-        }}
-        onMouseEnter={(e) => e.target.style.borderColor = '#F6DDD4CC'}
-        onMouseLeave={(e) => e.target.style.borderColor = '#F6DDD4'}
-      >
+    <div className="smart-calendar-root">
+      <div ref={inputRef} onClick={toggleCalendar} className="smart-calendar-input">
         <span>{date ? date.toLocaleDateString('uk-UA', {
           day: '2-digit',
           month: '2-digit',
@@ -118,23 +93,9 @@ const SmartCalendar = ({
         }) : placeholder}</span>
       </div>
 
-      {/* Календар */}
       {showCalendar && (
-        <div
-          ref={calendarRef}
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 10px)',
-            left: 0,
-            width: '300px',
-            backgroundColor: '#ffffff',
-            border: '2px solid #111',
-            boxShadow: '6px 6px 0px #111',
-            padding: '16px',
-            zIndex: 9999,
-          }}
-        >
-          <FlatBuddyCalendar 
+        <div ref={calendarRef} className="smart-calendar-popover">
+          <FlatBuddyCalendar
             onChange={handleDateSelect}
             value={date || new Date()}
             currentView={view}
@@ -148,158 +109,22 @@ const SmartCalendar = ({
   );
 };
 
-const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChange, maxDate, minDate}) => {
+const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChange, maxDate, minDate }) => {
   const [date, setDate] = useState(value || new Date());
   const [yearViewStart, setYearViewStart] = useState(new Date().getFullYear() - 6);
 
-  const isDisabled = (day) => {
-    if (!day) return false;
-
-    const cellDate = new Date(date.getFullYear(), date.getMonth(), day);
-    cellDate.setHours(0, 0, 0, 0);
-
-    if (maxDate) {
-      const maxDateCopy = new Date(maxDate);
-      maxDateCopy.setHours(0, 0, 0, 0);
-      if (cellDate > maxDateCopy) return true;
-    }
-
-    if (minDate) {
-      const minDateCopy = new Date(minDate);
-      minDateCopy.setHours(0, 0, 0, 0);
-      if (cellDate < minDateCopy) return true;
-    }
-
-    return false;
-  };
-
-  const styles = {
-    container: {
-      fontFamily: "'Inter', sans-serif",
-      maxWidth: '300px',
-      background: 'white',
-    },
-    navigation: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '15px',
-      background: '#F6DDD433',
-      padding: '8px 12px',
-      position: 'relative'
-    },
-    navButton: {
-      background: '#F6DDD44D',
-      border: 'none',
-      fontSize: '16px',
-      cursor: 'pointer',
-      color: 'rgba(0,0,0,0.7)',
-      fontFamily: "'Seenonim', sans-serif",
-      padding: '6px 12px',
-      minWidth: '40px',
-      transition: 'all 0.2s ease'
-    },
-    viewButton: {
-      background: 'none',
-      border: 'none',
-      fontSize: '14px',
-      cursor: 'pointer',
-      color: 'rgba(0,0,0,1)',
-      fontFamily: "'Seenonim', sans-serif",
-      fontWeight: '500',
-      padding: '4px 12px',
-      transition: 'all 0.2s ease'
-    },
-    monthYear: {
-      fontFamily: "'Seenonim', sans-serif",
-      fontSize: '16px',
-      fontWeight: '500',
-      color: 'rgba(0,0,0,1)',
-      cursor: 'pointer',
-      padding: '4px 10px',
-      transition: 'background 0.2s ease'
-    },
-    weekdays: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(7, 1fr)',
-      marginBottom: '8px',
-      textAlign: 'center'
-    },
-    weekday: {
-      padding: '6px 0',
-      fontWeight: '500',
-      fontSize: '13px',
-      color: 'rgba(0,0,0,0.7)'
-    },
-    daysGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(7, 1fr)',
-      gap: '4px',
-      marginBottom: '10px'
-    },
-    monthsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '8px'
-    },
-    yearsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(4, 1fr)',
-      gap: '8px',
-      maxHeight: '250px',
-      overflowY: 'auto',
-      padding: '5px'
-    },
-    gridButton: {
-      padding: '12px 8px',
-      border: 'none',
-      background: 'transparent',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontFamily: "'Inter', sans-serif",
-      transition: 'all 0.2s ease',
-      textAlign: 'center'
-    }
-  };
-
-  const monthNames = [
-    'Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень',
-    'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'
-  ];
-
-  const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
-
-  // Перемикання між видами
-  const switchToYearView = () => {
-    onViewChange('year');
-    
-    // 👇 Встановлюємо початок так, щоб максимальний рік був у проміжку
-    const currentYear = date.getFullYear();
-    const maxYear = maxDate ? maxDate.getFullYear() : currentYear;
-    
-    // Якщо поточний рік більший за максимальний, коригуємо
-    if (currentYear > maxYear) {
-      setDate(new Date(maxYear, date.getMonth(), 1));
-    }
-    
-    // Встановлюємо початок виду років
-    const startYear = maxYear - 11; // Показуємо 12 років назад від максимального
-    setYearViewStart(startYear > maxYear - 11 ? maxYear - 11 : startYear);
-  };
-
-  const switchToMonthView = () => {
-    onViewChange('month');
-  };
-
-  const switchToMonthSelection = () => {
-    onViewChange('months');
-  };
-
-  // Min/max bounds helpers
   const stripTime = (d) => {
     const copy = new Date(d);
     copy.setHours(0, 0, 0, 0);
     return copy;
+  };
+
+  const isDisabled = (day) => {
+    if (!day) return false;
+    const cellDate = stripTime(new Date(date.getFullYear(), date.getMonth(), day));
+    if (maxDate && cellDate > stripTime(maxDate)) return true;
+    if (minDate && cellDate < stripTime(minDate)) return true;
+    return false;
   };
 
   const isMonthDisabled = (year, monthIndex) => {
@@ -324,7 +149,6 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
     }
     if (currentView === 'year') {
       if (!minDate) return false;
-      // Whole previous 12-year block would be [yearViewStart-12, yearViewStart-1]
       return yearViewStart - 1 < minDate.getFullYear();
     }
     return false;
@@ -343,7 +167,27 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
     return false;
   };
 
-  // Навігація
+  const monthNames = [
+    'Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень',
+    'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'
+  ];
+
+  const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
+
+  const switchToYearView = () => {
+    onViewChange('year');
+    const currentYear = date.getFullYear();
+    const maxYear = maxDate ? maxDate.getFullYear() : currentYear;
+    if (currentYear > maxYear) {
+      setDate(new Date(maxYear, date.getMonth(), 1));
+    }
+    const startYear = maxYear - 11;
+    setYearViewStart(startYear > maxYear - 11 ? maxYear - 11 : startYear);
+  };
+
+  const switchToMonthView = () => onViewChange('month');
+  const switchToMonthSelection = () => onViewChange('months');
+
   const goToPrevious = () => {
     if (isPrevDisabled()) return;
     if (currentView === 'month') {
@@ -362,39 +206,31 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
     }
   };
 
-  // Обрання місяця
   const selectMonth = (monthIndex) => {
     if (isMonthDisabled(date.getFullYear(), monthIndex)) return;
-    const newDate = new Date(date.getFullYear(), monthIndex, 1);
-    setDate(newDate);
+    setDate(new Date(date.getFullYear(), monthIndex, 1));
     onViewChange('month');
   };
 
-  // Обрання року
   const selectYear = (year) => {
     if (isYearDisabled(year)) return;
-    const newDate = new Date(year, date.getMonth(), 1);
-    setDate(newDate);
+    setDate(new Date(year, date.getMonth(), 1));
     onViewChange('months');
   };
 
-  // Обрання дня
   const selectDay = (day) => {
     const newDate = new Date(date.getFullYear(), date.getMonth(), day);
-
     if (maxDate && newDate > maxDate) return;
     if (minDate && newDate < minDate) return;
-
     setDate(newDate);
     if (onChange) onChange(newDate);
   };
 
   const getDayOfWeek = (jsDate) => {
-    const day = jsDate.getDay(); // 0=Нд, 1=Пн, 2=Вт...
-    return day === 0 ? 6 : day - 1; // Перетворюємо: 0=Пн, 1=Вт...
+    const day = jsDate.getDay();
+    return day === 0 ? 6 : day - 1;
   };
 
-  // Генерація днів місяця
   const getDaysInMonth = () => {
     const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     const daysInMonth = lastDay.getDate();
@@ -411,16 +247,13 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
 
   const isToday = (day) => {
     const today = new Date();
-    return day === today.getDate() && 
-           date.getMonth() === today.getMonth() && 
+    return day === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
            date.getFullYear() === today.getFullYear();
   };
 
-  const isSelected = (day) => {
-    return day === date.getDate();
-  };
+  const isSelected = (day) => day === date.getDate();
 
-  // Генерація списку років (показуємо всі 12, навіть disabled — щоб видно межі)
   const generateYears = () => {
     const years = [];
     for (let i = yearViewStart; i < yearViewStart + 12; i++) {
@@ -431,135 +264,93 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
 
   const years = generateYears();
 
+  const dayBtnClass = (day) => {
+    if (!day) return '';
+    return [
+      'fb-cal-grid-btn',
+      'fb-cal-day-btn',
+      isDisabled(day) && 'fb-cal-grid-btn--disabled',
+      !isDisabled(day) && isSelected(day) && 'fb-cal-grid-btn--selected',
+      !isDisabled(day) && !isSelected(day) && isToday(day) && 'fb-cal-grid-btn--today',
+    ].filter(Boolean).join(' ');
+  };
+
+  const monthBtnClass = (idx) => {
+    const disabled = isMonthDisabled(date.getFullYear(), idx);
+    const current = date.getMonth() === idx;
+    return [
+      'fb-cal-grid-btn',
+      disabled && 'fb-cal-grid-btn--disabled',
+      !disabled && current && 'fb-cal-grid-btn--current',
+    ].filter(Boolean).join(' ');
+  };
+
+  const yearBtnClass = (year) => {
+    const disabled = isYearDisabled(year);
+    const current = date.getFullYear() === year;
+    return [
+      'fb-cal-grid-btn',
+      disabled && 'fb-cal-grid-btn--disabled',
+      !disabled && current && 'fb-cal-grid-btn--current',
+    ].filter(Boolean).join(' ');
+  };
+
   return (
-    <div style={styles.container}>
-      {/* Навігаційна панель */}
-      <div style={styles.navigation}>
+    <div className="fb-cal">
+      <div className="fb-cal-nav">
         <button
           onClick={goToPrevious}
-          style={{
-            ...styles.navButton,
-            opacity: isPrevDisabled() ? 0.3 : 1,
-            cursor: isPrevDisabled() ? 'not-allowed' : 'pointer'
-          }}
+          className="fb-cal-nav-btn"
           disabled={isPrevDisabled()}
-        >
-          ‹
-        </button>
-        
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        >‹</button>
+
+        <div className="fb-cal-month-year-row">
           {currentView === 'month' && (
             <>
-              <div 
-                onClick={switchToMonthSelection}
-                style={styles.monthYear}
-                onMouseEnter={(e) => e.target.style.background = '#F6DDD44D'}
-                onMouseLeave={(e) => e.target.style.background = 'transparent'}
-              >
+              <div onClick={switchToMonthSelection} className="fb-cal-month-year">
                 {monthNames[date.getMonth()]}
               </div>
-              <div 
-                onClick={switchToYearView}
-                style={styles.monthYear}
-                onMouseEnter={(e) => e.target.style.background = '#F6DDD44D'}
-                onMouseLeave={(e) => e.target.style.background = 'transparent'}
-              >
+              <div onClick={switchToYearView} className="fb-cal-month-year">
                 {date.getFullYear()}
               </div>
             </>
           )}
-          
+
           {currentView === 'months' && (
-            <div style={styles.monthYear}>
-              {date.getFullYear()}
-            </div>
+            <div className="fb-cal-month-year">{date.getFullYear()}</div>
           )}
-          
+
           {currentView === 'year' && (
-            <div style={styles.monthYear}>
+            <div className="fb-cal-month-year">
               {yearViewStart} - {yearViewStart + 11}
             </div>
           )}
         </div>
-        
+
         <button
           onClick={goToNext}
-          style={{
-            ...styles.navButton,
-            opacity: isNextDisabled() ? 0.3 : 1,
-            cursor: isNextDisabled() ? 'not-allowed' : 'pointer'
-          }}
+          className="fb-cal-nav-btn"
           disabled={isNextDisabled()}
-        >
-          ›
-        </button>
+        >›</button>
       </div>
 
-      {/* Відображення місяця */}
       {currentView === 'month' && (
         <>
-          <div style={styles.weekdays}>
-            {weekdays.map(day => (
-              <div key={day} style={styles.weekday}>{day}</div>
-            ))}
+          <div className="fb-cal-weekdays">
+            {weekdays.map(d => <div key={d} className="fb-cal-weekday">{d}</div>)}
           </div>
 
-          <div style={styles.daysGrid}>
+          <div className="fb-cal-days-grid">
             {days.map((day, index) => (
-              <div key={index} style={{ textAlign: 'center' }}>
+              <div key={index} className="fb-cal-day-cell">
                 {day && (
                   <button
                     onClick={() => !isDisabled(day) && selectDay(day)}
-                    style={{
-                      ...styles.gridButton,
-                      width: '36px',
-                      height: '36px',
-                      background: isDisabled(day)
-                        ? 'rgba(0,0,0,0.05)'
-                        : (isSelected(day) 
-                          ? '#F6DDD4' 
-                          : isToday(day)
-                            ? '#F6DDD466'
-                            : 'transparent'),
-                      color: isDisabled(day)
-                        ? 'rgba(0,0,0,0.3)'
-                        : (isSelected(day) || isToday(day))
-                          ? 'rgba(0,0,0,1)'
-                          : 'rgba(0,0,0,0.7)',
-                      fontWeight: isSelected(day) ? '600' : '400',
-                      cursor: isDisabled(day) ? 'not-allowed' : 'pointer',
-                      opacity: isDisabled(day) ? 0.5 : 1,
-                      textDecoration: isDisabled(day) ? 'line-through' : 'none',
-                      position: 'relative'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSelected(day) && !isToday(day) && !isDisabled(day)) {
-                        e.target.style.background = '#F6DDD44D';
-                        e.target.style.transform = 'scale(1.05)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isSelected(day) && !isToday(day) && !isDisabled(day)) {
-                        e.target.style.background = 'transparent';
-                        e.target.style.transform = 'scale(1)';
-                      }
-                    }}
+                    className={dayBtnClass(day)}
                     disabled={isDisabled(day)}
                     title={isDisabled(day) ? "Недоступна дата" : ""}
                   >
                     {day}
-                    {/* {isDisabled(day) && (
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '2px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: '4px',
-                        height: '4px',
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(255,0,0,0.3)'
-                      }} />
-                    )} */}
                   </button>
                 )}
               </div>
@@ -568,41 +359,17 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
         </>
       )}
 
-      {/* Відображення місяців */}
       {currentView === 'months' && (
-        <div style={styles.monthsGrid}>
+        <div className="fb-cal-months-grid">
           {monthNames.map((month, index) => {
-            const monthDisabled = isMonthDisabled(date.getFullYear(), index);
-            const isCurrent = date.getMonth() === index;
+            const disabled = isMonthDisabled(date.getFullYear(), index);
             return (
               <button
                 key={month}
-                onClick={() => !monthDisabled && selectMonth(index)}
-                disabled={monthDisabled}
-                title={monthDisabled ? "Недоступний місяць" : ""}
-                style={{
-                  ...styles.gridButton,
-                  background: monthDisabled
-                    ? 'rgba(0,0,0,0.05)'
-                    : (isCurrent ? '#F6DDD4' : 'transparent'),
-                  color: monthDisabled
-                    ? 'rgba(0,0,0,0.3)'
-                    : (isCurrent ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,0.7)'),
-                  fontWeight: isCurrent ? '600' : '400',
-                  cursor: monthDisabled ? 'not-allowed' : 'pointer',
-                  textDecoration: monthDisabled ? 'line-through' : 'none',
-                  opacity: monthDisabled ? 0.5 : 1,
-                }}
-                onMouseEnter={(e) => {
-                  if (!isCurrent && !monthDisabled) {
-                    e.target.style.background = '#F6DDD44D';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isCurrent && !monthDisabled) {
-                    e.target.style.background = 'transparent';
-                  }
-                }}
+                onClick={() => !disabled && selectMonth(index)}
+                disabled={disabled}
+                title={disabled ? "Недоступний місяць" : ""}
+                className={monthBtnClass(index)}
               >
                 {month}
               </button>
@@ -611,41 +378,17 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
         </div>
       )}
 
-      {/* Відображення років */}
       {currentView === 'year' && (
-        <div style={styles.yearsGrid}>
+        <div className="fb-cal-years-grid">
           {years.map(year => {
-            const yearDisabled = isYearDisabled(year);
-            const isCurrent = date.getFullYear() === year;
+            const disabled = isYearDisabled(year);
             return (
               <button
                 key={year}
-                onClick={() => !yearDisabled && selectYear(year)}
-                disabled={yearDisabled}
-                title={yearDisabled ? "Недоступний рік" : ""}
-                style={{
-                  ...styles.gridButton,
-                  background: yearDisabled
-                    ? 'rgba(0,0,0,0.05)'
-                    : (isCurrent ? '#F6DDD4' : 'transparent'),
-                  color: yearDisabled
-                    ? 'rgba(0,0,0,0.3)'
-                    : (isCurrent ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,0.7)'),
-                  fontWeight: isCurrent ? '600' : '400',
-                  cursor: yearDisabled ? 'not-allowed' : 'pointer',
-                  textDecoration: yearDisabled ? 'line-through' : 'none',
-                  opacity: yearDisabled ? 0.5 : 1,
-                }}
-                onMouseEnter={(e) => {
-                  if (!isCurrent && !yearDisabled) {
-                    e.target.style.background = '#F6DDD44D';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isCurrent && !yearDisabled) {
-                    e.target.style.background = 'transparent';
-                  }
-                }}
+                onClick={() => !disabled && selectYear(year)}
+                disabled={disabled}
+                title={disabled ? "Недоступний рік" : ""}
+                className={yearBtnClass(year)}
               >
                 {year}
               </button>
@@ -654,27 +397,14 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
         </div>
       )}
 
-      {/* Кнопки перемикання */}
       {currentView !== 'month' && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px' }}>
+        <div className="fb-cal-view-buttons">
           {currentView === 'months' && (
-            <button 
-              onClick={switchToYearView}
-              style={{
-                ...styles.viewButton,
-                background: '#F6DDD466'
-              }}
-            >
+            <button onClick={switchToYearView} className="fb-cal-view-btn">
               Обрати рік
             </button>
           )}
-          <button 
-            onClick={switchToMonthView}
-            style={{
-              ...styles.viewButton,
-              background: '#F6DDD466'
-            }}
-          >
+          <button onClick={switchToMonthView} className="fb-cal-view-btn">
             Повернутися до днів
           </button>
         </div>

@@ -184,25 +184,12 @@ export default function Step2() {
 		}));
 	};
 
-	const formCardStyle = {
-		width: "100%",
-		maxWidth: 800,
-		border: "3px solid #F6DDD4",
-		padding: "clamp(24px, 6vw, 80px)",
-		margin: "auto",
-		display: "flex",
-		flexDirection: "column",
-		alignItems: "center",
-		boxSizing: "border-box",
-		overflowX: "hidden",
-	};
-
 	return (
 		<div className="landing-page">
 			<Header />
 
 			<div style={{ padding: "40px 20px 40px 20px" }}>
-				<div style={formCardStyle}>
+				<div className="form-card">
 
 					<div style={{
 						display: "flex",
@@ -218,7 +205,7 @@ export default function Step2() {
 					</div>
 
 					{/* PHOTO */}
-					<div style={{ ...labelStyle, alignSelf: "flex-start" }}>Фотографія профілю</div>
+					<div className="form-label" style={{ alignSelf: "flex-start" }}>Фотографія профілю</div>
 					<div style={{
 						position: "relative",
 						width: "100%",
@@ -234,7 +221,7 @@ export default function Step2() {
 
 						{/* STATUS */}
 						<div>
-							<div style={labelStyle}>Статус</div>
+							<div className="form-label">Статус</div>
 							<SmartBox mywidth="100%" fieldName="status" formState={formState} setFormState={setFormState}>
 								<SmartSelect name="status" placeholder="Студент / працюю / обоє" options={statusOptions} />
 							</SmartBox>
@@ -242,7 +229,7 @@ export default function Step2() {
 
 						{/* ORBIT */}
 						<div>
-							<div style={labelStyle}>Сфера діяльності</div>
+							<div className="form-label">Сфера діяльності</div>
 							<SmartBox mywidth="100%" fieldName="orbit" formState={formState} setFormState={setFormState}>
 								<SmartSelect name="orbit" placeholder="Оберіть сферу" options={orbitOptions} />
 							</SmartBox>
@@ -250,7 +237,7 @@ export default function Step2() {
 
 						{/* LANGUAGES */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={{ ...labelStyle, marginBottom: "0px" }}>Мови</div>
+							<div className="form-label" style={{ marginBottom: "0px" }}>Мови</div>
 							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
 								Допустимі мови спілкування
 							</div>
@@ -261,7 +248,7 @@ export default function Step2() {
 
 						{/* POLITICAL COORDINATES */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Політична координата</div>
+							<div className="form-label">Політична координата</div>
 							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
 								<p>Якщо ви не знаєте своєї політичної координати, пройдіть тест за посиланням
 									<br />
@@ -307,7 +294,7 @@ export default function Step2() {
 
 						{/* CLEANLINESS */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Охайність</div>
+							<div className="form-label">Охайність</div>
 							<input
 								className='slider'
 								type='range'
@@ -325,7 +312,7 @@ export default function Step2() {
 
 						{/* MY VIBE */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Розкажіть про себе</div>
+							<div className="form-label">Розкажіть про себе</div>
 							<SmartBox mywidth="100%" fieldName="my_vibe" formState={formState} setFormState={setFormState}>
 								<SmartText name="my_vibe" placeholder="Опишіть себе детально (200–600 символів)" />
 							</SmartBox>
@@ -334,7 +321,7 @@ export default function Step2() {
 
 						{/* BUDDY VIBE */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Якого співмешканця шукаєте</div>
+							<div className="form-label">Якого співмешканця шукаєте</div>
 							<SmartBox mywidth="100%" fieldName="buddy_vibe" formState={formState} setFormState={setFormState}>
 								<SmartText name="buddy_vibe" placeholder="Опишіть бажаного співмешканця (200–600 символів)" />
 							</SmartBox>
@@ -343,7 +330,7 @@ export default function Step2() {
 
 						{/* SCHEDULE */}
 						<div>
-							<div style={labelStyle}>Розклад</div>
+							<div className="form-label">Розклад</div>
 							<SmartBox mywidth="100%" fieldName="schedule" formState={formState} setFormState={setFormState}>
 								<SmartText name="schedule" placeholder="Опишіть ваш розклад" />
 							</SmartBox>
@@ -352,7 +339,7 @@ export default function Step2() {
 
 						{/* SLEEP SCHEDULE */}
 						<div>
-							<div style={labelStyle}>Графік сну</div>
+							<div className="form-label">Графік сну</div>
 							<SmartBox mywidth="100%" fieldName="sleep_schedule" formState={formState} setFormState={setFormState}>
 								<SmartText name="sleep_schedule" placeholder="Опишіть ваш графік сну" />
 							</SmartBox>
@@ -361,7 +348,7 @@ export default function Step2() {
 
 						{/* SMOKING */}
 						<div>
-							<div style={labelStyle}>Куріння</div>
+							<div className="form-label">Куріння</div>
 							<SmartBox mywidth="100%" fieldName="smoking" formState={formState} setFormState={setFormState}>
 								<SmartSelect name="smoking" placeholder="Ставлення до паління" options={smokingOptions} />
 							</SmartBox>
@@ -369,7 +356,7 @@ export default function Step2() {
 
 						{/* PARTYING */}
 						<div>
-							<div style={labelStyle}>Вечірки/гості</div>
+							<div className="form-label">Вечірки/гості</div>
 							<SmartBox mywidth="100%" fieldName="partying" formState={formState} setFormState={setFormState}>
 								<SmartSelect name="partying" placeholder="Ставлення до вечірок" options={partyingOptions} />
 							</SmartBox>
@@ -377,7 +364,7 @@ export default function Step2() {
 
 						{/* INTRO-/EXTROVERT */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Інтроверт/екстраверт</div>
+							<div className="form-label">Інтроверт/екстраверт</div>
 							<input
 								className='slider'
 								type='range'
@@ -396,7 +383,7 @@ export default function Step2() {
 
 						{/* HOBBIES */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={{ ...labelStyle, marginBottom: "0px" }}>Захоплення/хобі</div>
+							<div className="form-label" style={{ marginBottom: "0px" }}>Захоплення/хобі</div>
 							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
 								До 10 зі списку + до 5 власних (введіть і натисніть Enter)
 							</div>
@@ -432,9 +419,3 @@ export default function Step2() {
 	);
 }
 
-const labelStyle = {
-	marginBottom: 8,
-	fontSize: 18,
-	fontFamily: "Seenonim",
-	color: "#000",
-};

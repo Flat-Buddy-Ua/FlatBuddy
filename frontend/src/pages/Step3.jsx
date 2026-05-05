@@ -219,25 +219,12 @@ export default function Step3() {
 		handleSave(payload);
 	};
 
-	const formCardStyle = {
-		width: "100%",
-		maxWidth: 800,
-		border: "3px solid #F6DDD4",
-		padding: "clamp(24px, 6vw, 80px)",
-		margin: "auto",
-		display: "flex",
-		flexDirection: "column",
-		alignItems: "center",
-		boxSizing: "border-box",
-		overflowX: "hidden",
-	};
-
 	return (
 		<div className="landing-page">
 			<Header />
 
 			<div style={{ padding: "40px 20px 40px 20px" }}>
-				<div style={formCardStyle}>
+				<div className="form-card">
 
 					<div style={{
 						display: "flex",
@@ -256,7 +243,7 @@ export default function Step3() {
 
 						{/* PREFERENCES */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Оберіть свою преференцію</div>
+							<div className="form-label">Оберіть свою преференцію</div>
 							<SmartBox mywidth="100%" fieldName="room_sharing_preference" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={ROOM_SHARING_OPTIONS}
@@ -268,7 +255,7 @@ export default function Step3() {
 
 						{/* WHO TO LIVE WITH */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Із ким ви б хотіли проживати?</div>
+							<div className="form-label">Із ким ви б хотіли проживати?</div>
 							<SmartBox mywidth="100%" fieldName="preferred_gender" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={PREFERRED_GENDER_OPTIONS}
@@ -280,7 +267,7 @@ export default function Step3() {
 
 						{/* HOUSING STATUS */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Що найкраще описує вашу ситуацію?</div>
+							<div className="form-label">Що найкраще описує вашу ситуацію?</div>
 							<SmartBox mywidth="100%" fieldName="housing_status" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={HOUSING_STATUS_OPTIONS}
@@ -292,14 +279,14 @@ export default function Step3() {
 
 						{/* BUDGET */}
 						<div>
-							<div style={{ ...labelStyle, marginBottom: "8px", marginTop: "14px" }}>Бюджет від (грн)</div>
+							<div className="form-label" style={{ marginBottom: "8px", marginTop: "14px" }}>Бюджет від (грн)</div>
 							<SmartBox mywidth="100%" fieldName="budget_min" formState={formState} setFormState={setFormState}>
 								<SmartInput name="budget_min" placeholder="Мінімум 500" type="number" step="100" prefix="₴" />
 							</SmartBox>
 						</div>
 
 						<div>
-							<div style={{ ...labelStyle, marginBottom: "8px", marginTop: "14px" }}>Бюджет до (грн)</div>
+							<div className="form-label" style={{ marginBottom: "8px", marginTop: "14px" }}>Бюджет до (грн)</div>
 							<SmartBox mywidth="100%" fieldName="budget_max" formState={formState} setFormState={setFormState}>
 								<SmartInput name="budget_max" placeholder="Максимум 100000" type="number" step="100" prefix="₴" />
 							</SmartBox>
@@ -307,7 +294,7 @@ export default function Step3() {
 
 						{/* DESTINATION CITY */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Місто проживання</div>
+							<div className="form-label">Місто проживання</div>
 							<SmartBox mywidth="100%" fieldName="destination" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={CityOptions}
@@ -319,7 +306,7 @@ export default function Step3() {
 
 						{/* DISTRICTS */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={{ ...labelStyle, marginBottom: "0px" }}>Район/-и проживання</div>
+							<div className="form-label" style={{ marginBottom: "0px" }}>Район/-и проживання</div>
 							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
 								{destinationId
 									? `Доступні райони для обраного міста (макс. 10)`
@@ -339,7 +326,7 @@ export default function Step3() {
 
 						{/* PLANNED DURATION */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>На який термін плануєте проживання?</div>
+							<div className="form-label">На який термін плануєте проживання?</div>
 							<SmartBox mywidth="100%" fieldName="planned_duration" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={plannedDurationOptions}
@@ -351,7 +338,7 @@ export default function Step3() {
 
 						{/* MOVE IN DATE */}
 						<div style={{ gridColumn: "1 / -1", position: "relative", zIndex: 1001 }}>
-							<div style={labelStyle}>Коли плануєте почати проживання?</div>
+							<div className="form-label">Коли плануєте почати проживання?</div>
 							<SmartBox mywidth="100%" fieldName="move_in_date" formState={formState} setFormState={setFormState}>
 								<SmartCalendar
 									name="move_in_date"
@@ -364,7 +351,7 @@ export default function Step3() {
 
 						{/* PET */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div style={labelStyle}>Чи є у вас домашній улюбленець?</div>
+							<div className="form-label">Чи є у вас домашній улюбленець?</div>
 							<SmartBox mywidth="100%" fieldName="has_pet" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={HAS_PET_OPTIONS}
@@ -377,7 +364,7 @@ export default function Step3() {
 						{/* PET DESCRIPTION */}
 						{formState.has_pet?.realValue?.value === true && (
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div style={labelStyle}>Розкажіть про своїх улюбленців</div>
+								<div className="form-label">Розкажіть про своїх улюбленців</div>
 								<SmartBox mywidth="100%" fieldName="pet_description" formState={formState} setFormState={setFormState}>
 									<SmartText name="pet_description" placeholder="Ваші улюбленці" />
 								</SmartBox>
@@ -403,9 +390,3 @@ export default function Step3() {
 	);
 }
 
-const labelStyle = {
-	marginBottom: 8,
-	fontSize: 18,
-	fontFamily: "Seenonim",
-	color: "#000",
-};

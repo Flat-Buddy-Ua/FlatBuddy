@@ -1,6 +1,7 @@
 import React, { use, useEffect, useState } from "react";
 import { Header } from "../components/Header.jsx";
 import { useLocation } from "react-router-dom";
+import "./_Card.css";
 
 export function Card({ onGoHome, onLoginClick, onFindRoommate }) {
     const [cardData, setCardData] = useState(null);

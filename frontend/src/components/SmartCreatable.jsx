@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import CreatableSelect from 'react-select/creatable';
+import './SmartCreatable.css';
 
 const CYRILLIC_REGEX = /^[\u0400-\u04FF\s-]*$/;
 

@@ -3,6 +3,7 @@ import { SmartBox } from "./SmartBox.jsx";
 import { SmartInput } from "./SmartInput.jsx";
 import { SubmitBtn } from "./SubmitBtn.jsx";
 import { PasswordInput } from "./PasswordInfo.jsx";
+import "./LoginPopup.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -114,7 +115,7 @@ export function LoginPopup({ isOpen, onClose, onSuccess }) {
 
         		<div className="login-popup__form">
           			<div>
-            			<div style={labelStyle}>Email</div>
+            			<div className="login-popup__field-label">Email</div>
             			<SmartBox
               				fieldName="email"
               				formState={formState}
@@ -130,7 +131,7 @@ export function LoginPopup({ isOpen, onClose, onSuccess }) {
           			</div>
 
           			<div>
-            			<div style={labelStyle}>Пароль</div>
+            			<div className="login-popup__field-label">Пароль</div>
             			<SmartBox
               				fieldName="password"
               				formState={formState}
@@ -157,9 +158,3 @@ export function LoginPopup({ isOpen, onClose, onSuccess }) {
   	);
 }
 
-const labelStyle = {
-  	marginBottom: 8,
-  	fontSize: 18,
-  	fontFamily: "Seenonim",
-  	color: "#000",
-};

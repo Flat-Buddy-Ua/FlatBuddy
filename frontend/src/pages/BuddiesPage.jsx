@@ -1,17 +1,13 @@
 import React from "react";
 import { Header } from "../components/Header.jsx";
+import "./BuddiesPage.css";
 
 export function BuddiesPage() {
     return (
         <div className="landing-page">
             <Header />
-            <main style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: 'calc(100vh - 80px)',
-            }}>
-                <h1 className="landing-title" style={{ textAlign: 'center', lineHeight: 1.1, fontSize: 'clamp(36px, 7vw, 100px)' }}>
+            <main className="buddies-coming-soon-main">
+                <h1 className="landing-title buddies-coming-soon-title">
                     <span style={{ color: 'black' }}>Т</span>
                     <span style={{ color: '#F58A3D' }}>У</span>
                     <span style={{ color: 'black' }}>Т</span>

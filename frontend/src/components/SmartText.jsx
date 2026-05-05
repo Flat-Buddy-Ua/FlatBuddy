@@ -1,6 +1,6 @@
-// SmartText.js
+// SmartText.jsx
 import React from "react";
-import "./../index.css";
+import "./SmartText.css";
 
 export function SmartText({
 	value,
@@ -15,7 +15,6 @@ export function SmartText({
 	const displayValue = value !== undefined ? value : defaultValue;
 
 	const handleChange = (event) => {
-		// Auto-grow textarea height
 		event.target.style.height = "24px";
 		event.target.style.height = event.target.scrollHeight + "px";
 
@@ -31,32 +30,11 @@ export function SmartText({
 		if (typeof onBlur === "function") onBlur(event);
 	};
 
-	const baseStyle = {
-		boxSizing: "border-box",
-		lineHeight: "20px",
-		resize: "none",
-		overflow: "hidden",
-		width: "100%",
-		margin: "8px 0 8px",
-		padding: "6px 20px",
-		border: "none",
-		background: "transparent",
-		outline: "none",
-		fontSize: "16px",
-		fontFamily: "Inter",
-		color: disabled ? "#99999966" : "#000",
-		cursor: disabled ? "not-allowed" : "text",
-		height: "24px",
-		minHeight: "24px",
-	};
-
 	return (
 		<textarea
 			{...rest}
-			style={{
-				...baseStyle,
-				"--placeholder-color-text": disabled ? "#99999980" : "#AAAAAA",
-			}}
+			className="smart-text"
+			style={{ "--placeholder-color-text": disabled ? "#99999980" : "#AAAAAA" }}
 			value={displayValue || ""}
 			disabled={disabled}
 			onChange={handleChange}
