@@ -1,9 +1,7 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-
 from django.contrib.postgres.fields import ArrayField
-
 from user.constants.choices import *
 
 class UserManager(BaseUserManager):
@@ -86,7 +84,7 @@ class UserProfile(models.Model):
     )
     parsed_wake_hour  = models.FloatField(null=True, blank=True)
     parsed_sleep_hour = models.FloatField(null=True, blank=True)
-    
+
     class Meta:
         managed = True
         db_table = 'user_profile'
@@ -165,7 +163,6 @@ class UserPriority(models.Model):
 
 
 class MatchResult(models.Model):
-
     class Status(models.TextChoices):
         PENDING  = 'pending',  'Очікує обрахунку'
         DONE     = 'done',     'Розраховано'
