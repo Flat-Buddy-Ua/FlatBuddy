@@ -41,6 +41,7 @@ class City(models.IntegerChoices):
     KONOTOP = 30, 'Конотоп'
     UMAN = 31, 'Умань'
     YAREMCHE = 32, 'Яремче'
+    KRYVYI_RIH = 33, 'Кривий Ріг'
 
 class District(models.IntegerChoices):
     # Київ
@@ -177,6 +178,14 @@ class District(models.IntegerChoices):
     # Хмельницький (ID 18 - аналогічно)
     KHMEL_TSENTRALNYI = 106, 'Центральний'
     KHMEL_PIVDENNO_ZAKHIDNYI = 107, 'Південно-Західний'
+    # Кривий Ріг
+    KRYVYI_RIH_POKROVSKYI = 108, 'Покровський'
+    KRYVYI_RIH_TERNIVSKYI = 109, 'Тернівський'
+    KRYVYI_RIH_SAKSAGANSKYI = 110, 'Саксаганський'
+    KRYVYI_RIH_DOVHYNTSIVSKYI = 111, 'Довгинцівський'
+    KRYVYI_RIH_METALURHIINYI = 112, 'Металургійний'
+    KRYVYI_RIH_TSENTRALNO_MISKYI = 113, 'Центрально-Міський'
+    KRYVYI_RIH_INHULETSKYI = 114, 'Інгулецький'
 
 # Мапінг: Якому місту які райони належать. 
 # Ключ - ID міста, Значення - список ID районів (або об'єктів District)
@@ -273,6 +282,11 @@ CITY_DISTRICTS_MAPPING = {
     ],
     City.KHMELNYTSKYI: [
         District.KHMEL_TSENTRALNYI, District.KHMEL_PIVDENNO_ZAKHIDNYI
+    ],
+    City.KRYVYI_RIH: [
+        District.KRYVYI_RIH_POKROVSKYI, District.KRYVYI_RIH_TERNIVSKYI, District.KRYVYI_RIH_SAKSAGANSKYI,
+        District.KRYVYI_RIH_DOVHYNTSIVSKYI, District.KRYVYI_RIH_METALURHIINYI, District.KRYVYI_RIH_TSENTRALNO_MISKYI,
+        District.KRYVYI_RIH_INHULETSKYI
     ]
 }
 
@@ -447,7 +461,42 @@ class Hobby(models.IntegerChoices):
     TECHNOLOGY = 23, 'Технології / Програмування'
     LANGUAGES = 24, 'Вивчення мов'
     FASHION = 25, 'Мода / Стиль'
-    
+
+    # --- Спорт і активність (розширення) ---
+    SWIMMING = 26, 'Плавання / Аквапарки'
+    DANCING = 27, 'Танці'
+    SKATEBOARDING = 28, 'Скейтбординг / Лонгбординг'
+    SKIING = 29, 'Лижі / Сноубординг'
+    CLIMBING = 30, 'Скелелазіння / Боулдеринг'
+    ARCHERY = 31, 'Стрільба з лука'
+    KAYAKING = 32, 'Каякінг / Парусний спорт'
+    SURFING = 33, 'Серфінг / Кайт'
+
+    # --- Творчість та мистецтво (розширення) ---
+    POTTERY = 34, 'Кераміка / Гончарство'
+    DIGITAL_ART = 35, '3D / Цифрове мистецтво'
+    THEATER = 36, 'Театр / Акторська майстерність'
+    SINGING = 37, 'Вокал / Спів'
+    DJING = 38, 'DJ / Продюсування музики'
+    TATTOO = 39, 'Татуювання / Боді-арт'
+    CALLIGRAPHY = 40, 'Каліграфія'
+
+    # --- Розваги та гік-культура (розширення) ---
+    DND = 41, 'D&D / Рольові ігри'
+    COSPLAY = 42, 'Косплей'
+    PODCASTS = 43, 'Подкасти'
+    STREAMING = 44, 'Стримінг / Контент-кріейтинг'
+    COLLECTING = 45, 'Колекціонування (марки, монети, фігурки)'
+    KARAOKE = 46, 'Караоке'
+
+    # --- Стиль життя та інше (розширення) ---
+    COFFEE = 47, 'Кава / Кавова культура'
+    TEA = 48, 'Чай / Чайна культура'
+    WINE = 49, 'Вино / Енологія'
+    GARDENING = 50, 'Городництво / Сад'
+    PSYCHOLOGY = 51, 'Психологія / Саморозвиток'
+    INVESTING = 52, 'Інвестиції / Фінанси'
+
 class PlannedDuration(models.IntegerChoices):
     LESS_THAN_6_MONTHS = 1, 'Менше 6 місяців'
     FROM_6_TO_12_MONTHS = 2, 'Від 6 до 12 місяців'

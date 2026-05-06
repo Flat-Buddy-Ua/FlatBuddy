@@ -1,6 +1,7 @@
-import { lang } from "moment";
-
 // validations.js
+// Helper to read scalar id out of either a raw id or a {value,label} option object.
+const getId = (v) => (v && typeof v === 'object' && 'value' in v) ? v.value : v;
+
 export const validations = {
 
   name: (value) => {
@@ -13,7 +14,6 @@ export const validations = {
     if (firstLetter !== firstLetter.toUpperCase()) {
       return "Перша літера має бути великою";
     }
-    
     const restOfName = value.trim().substring(1);
     if (/[А-ЯЄІЇҐ]/.test(restOfName)) {
       return "Решта літер мають бути маленькими";
@@ -21,7 +21,6 @@ export const validations = {
 
     return null;
   },
-  
   surname: (value) => {
     if (!value.trim()) return "Прізвище обов'язкове";
     if (!/^[А-Яа-яЄєІіЇїҐґ\s-]{2,50}$/.test(value)) {
@@ -32,7 +31,6 @@ export const validations = {
     if (firstLetter !== firstLetter.toUpperCase()) {
       return "Перша літера має бути великою";
     }
-    
     const restOfName = value.trim().substring(1);
     if (/[А-ЯЄІЇҐ]/.test(restOfName)) {
       return "Решта літер мають бути маленькими";
@@ -40,22 +38,22 @@ export const validations = {
 
     return null;
   },
-  
-  country: (value) => {
-    if (!value || value === 0) return "Оберіть країну";
+
+  country: (realValue) => {
+    if (!realValue.value || realValue.value === 0) return "Оберіть країну";
     return null;
   },
 
-  city: (value) => {
-    if (!value || value === 0) return "Оберіть місто";
+  city: (realValue) => {
+    if (!realValue.value || realValue.value === 0) return "Оберіть місто";
     return null;
   },
 
-  gender: (value) => {
-    if (!value || value === 0) return "Оберіть стать";
+  gender: (realValue) => {
+    if (!realValue.value || realValue.value === 0) return "Оберіть стать";
     return null;
   },
-  
+
   birthDate: (value) => {
     if (!value) return "Дата обов'язкова";
     const birthDate = new Date(value);
@@ -64,7 +62,6 @@ export const validations = {
     if (age > 120) return "Некоректна дата";
     return null;
   },
-  
   email: (value) => {
     if (!value.trim()) return "Email обов'язковий";
     if (!/\S+@\S+\.\S+/.test(value)) {
@@ -75,9 +72,9 @@ export const validations = {
 
   phone: (value) => {
     if (!value.trim()) return "Телефон обов'зковий";
-    
+
     const operatorCode = value.trim().substring(4, 7);
-    
+
     const validCodes = [
       // Київстар
       '067', '068', '096', '097', '098',
@@ -94,12 +91,13 @@ export const validations = {
       // Фінтелеком
       '039'
     ];
-    
     if (!validCodes.includes(operatorCode)) {
       return `Невірний код оператора. Дозволені: ${validCodes.slice(0, 5).join(', ')}...`;
     }
 
     if (value.includes("_")) return "Телефон має бути у форматі +38(0XX)-XXX-XX-XX";
+
+    return null;
   },
 
   password: (value) => {
@@ -118,37 +116,24 @@ export const validations = {
   },
 
   repeat_password: (value, allValues) => {
-    console.log("Validating passwordConfirm with value:", value, "and allValues:", allValues);
-
     if (!value?.trim()) return "Підтвердження пароля обов'язкове";
-
-    // 🔑 якщо password ще нема — не валідимо confirm
     if (!allValues?.password?.realValue) return null;
-
-    // 🔑 якщо password невалідний — confirm мовчить
     if (!allValues.password.isValid) return null;
-
     if (value !== allValues.password.realValue) return "Паролі не співпадають";
-
     return null;
   },
 
-  university: (value) => {
-    if (!value || value === 0) return "Вкажіть університет";
-    return null;
-  },
-  
-  faculty: (value) => {
-    if (!value) return "Вкажіть факультет";
-    if (value.length < 2) return "Як мінімум 2 символи";
-    if (value.length > 50) return "Максимум 50 символів";
+  // ---------------- Step 2: Про мене ----------------
+
+  status: (value) => {
+    const id = getId(value);
+    if (id === undefined || id === null || id === "") return "Оберіть статус";
     return null;
   },
 
-  course: (value) => {
-    if (!value) return "Вкажіть курс";
-    if (value.length < 2) return "Як мінімум 2 символи";
-    if (value.length > 50) return "Максимум 50 символів";
+  orbit: (value) => {
+    const id = getId(value);
+    if (id === undefined || id === null || id === "") return "Оберіть сферу";
     return null;
   },
 
@@ -158,90 +143,141 @@ export const validations = {
   },
 
   cleanliness: (value) => {
-    if (!value) return "Оберіть рівень охайності";
+    const n = Number(value);
+    if (!n || n < 1 || n > 5) return "Оберіть рівень охайності";
     return null;
   },
 
-  bad_habits: (value) => {
-    if (!value) return "Опишіть ваші шкідливі звички";
-    if (value.length < 2) return "Як мінімум 2 символи";
+  my_vibe: (value) => {
+    if (!value) return "Опишіть себе";
+    if (value.length < 200) return `Мінімум 200 символів (зараз ${value.length})`;
+    if (value.length > 600) return "Максимум 600 символів";
+    return null;
+  },
+
+  buddy_vibe: (value) => {
+    if (!value) return "Опишіть бажаного співмешканця";
+    if (value.length < 200) return `Мінімум 200 символів (зараз ${value.length})`;
+    if (value.length > 600) return "Максимум 600 символів";
+    return null;
+  },
+
+  schedule: (value) => {
+    if (!value) return "Опишіть розклад";
+    if (value.length < 3) return "Мінімум 3 символи";
     if (value.length > 100) return "Максимум 100 символів";
     return null;
   },
 
-  mbti: (value) => {
-    if (!value) return "Оберіть ваш MBTI тип";
-    if (value === 0) return "Вкажіть ваш MBTI тип";
+  sleep_schedule: (value) => {
+    if (!value) return "Опишіть графік сну";
+    if (value.length < 3) return "Мінімум 3 символи";
+    if (value.length > 100) return "Максимум 100 символів";
     return null;
   },
 
-  hobby: (value) => {
-    if (!value) return "Вкажіть захоплення/хобі";
-    if (value.length < 2) return "Як мінімум 2 символи";
-    if (value.length > 200) return "Максимум 200 символів";
+  smoking: (value) => {
+    const id = getId(value);
+    if (id === undefined || id === null || id === "") return "Оберіть варіант";
     return null;
   },
 
-  biography: (value) => {
-    if (!value) return "Вкажіть біографію";
-    if (value.length < 2) return "Як мінімум 2 символи";
-    if (value.length > 300) return "Максимум 300 символів";
+  partying: (value) => {
+    const id = getId(value);
+    if (id === undefined || id === null || id === "") return "Оберіть варіант";
     return null;
   },
 
-  looking_for: (value) => {
-    if (!value) return "Вкажіть, кого шукаєте";
-    if (value.length < 2) return "Як мінімум 2 символи";
-    if (value.length > 200) return "Максимум 200 символів";
+  hobbies: (value) => {
+    if (!Array.isArray(value) || value.length === 0) return "Оберіть хоча б одне хобі";
+    let presetCount = 0;
+    let customCount = 0;
+    for (const tag of value) {
+      const v = tag?.value !== undefined ? tag.value : tag;
+      if (typeof v === 'number') {
+        presetCount += 1;
+      } else if (typeof v === 'string') {
+        customCount += 1;
+        if (v.length > 50) return "Кастомне хобі: макс. 50 символів";
+      }
+    }
+    if (presetCount > 10) return "Максимум 10 хобі зі списку";
+    if (customCount > 5) return "Максимум 5 кастомних хобі";
     return null;
   },
+
+  // ---------------- Step 3: Проживання ----------------
 
   room_sharing_preference: (value) => {
-    if (value === undefined || value === null || value === 0) return "Оберіть свою преференцію";
+    const id = getId(value);
+    if (id === undefined || id === null || id === 0) return "Оберіть свою преференцію";
     return null;
   },
 
   preferred_gender: (value) => {
-    if (value === undefined || value === null || value === 0) return "Оберіть із ким ви б хотіли проживати";
+    const id = getId(value);
+    if (id === undefined || id === null || id === 0) return "Оберіть із ким ви б хотіли проживати";
     return null;
   },
 
   housing_status: (value) => {
-    if (value === undefined || value === null || value === 0) return "Оберіть ваш статус";
+    const id = getId(value);
+    if (id === undefined || id === null || id === 0) return "Оберіть ваш статус";
     return null;
   },
 
-  budget: (value) => {
-    if (!value) return "Вкажіть ваш бюджет";
-    // if (value < 1000) return "Мінімальний бюджет 1000 грн";
+  budget_min: (value) => {
+    const n = Number(value);
+    if (!n) return "Вкажіть мінімальний бюджет";
+    if (n < 500) return "Мінімум 500 грн";
     return null;
   },
 
-  // Тут будуть валідації для districts
+  budget_max: (value) => {
+    const n = Number(value);
+    if (!n) return "Вкажіть максимальний бюджет";
+    if (n > 100000) return "Максимум 100000 грн";
+    return null;
+  },
+
+  destination: (value) => {
+    const id = getId(value);
+    if (id === undefined || id === null || id === 0) return "Оберіть місто";
+    return null;
+  },
+
+  preferred_districts: (value) => {
+    if (!Array.isArray(value) || value.length === 0) return "Оберіть хоча б один район";
+    if (value.length > 10) return "Максимум 10 районів";
+    return null;
+  },
 
   planned_duration: (value) => {
-    if (!value) return "Вкажіть відповідь";
-    if (value.length < 2) return "Як мінімум 2 символи";
-    if (value.length > 50) return "Максимум 50 символів";
+    const id = getId(value);
+    if (id === undefined || id === null || id === 0) return "Оберіть термін";
     return null;
   },
 
   move_in_date: (value) => {
-    if (!value) return "Вкажіть відповідь";
-    if (value.length < 2) return "Як мінімум 2 символи";
-    if (value.length > 50) return "Максимум 50 символів";
+    if (!value) return "Вкажіть дату";
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return "Невірна дата";
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (d < today) return "Дата не може бути в минулому";
     return null;
   },
 
-  pet: (value) => {
-    if (value === undefined || value === null || value === 0) return "Оберіть відповідь";
+  has_pet: (value) => {
+    if (value === undefined || value === null) return "Оберіть варіант";
+    if (typeof value === 'object' && value.value === undefined) return "Оберіть варіант";
     return null;
   },
 
-  pets_description: (value) => {
-    if (!value) return "Опишіть ваших улюбленців";
-    if (value.length < 2) return "Як мінімум 2 символи";
+  pet_description: (value) => {
+    if (!value) return "Опишіть улюбленця";
+    if (value.length < 3) return "Мінімум 3 символи";
     if (value.length > 100) return "Максимум 100 символів";
     return null;
-  }
+  },
 };

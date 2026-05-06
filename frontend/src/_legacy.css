@@ -1,0 +1,285 @@
+/*
+ * LEGACY CSS — старі правила, що не використовуються в активному коді.
+ * Цей файл НЕ імпортується (тримаємо як архів).
+ * Якщо знайдеться, що щось з нього все ж потрібно — переноси в нормальний компонентний файл.
+ */
+
+.smartbox {
+  filter: blur(5px);
+}
+
+.smart-box-base {
+  border: none !important;
+  background-color: rgba(204, 221, 187, 1) !important;
+  width: 60% !important;
+  margin-left: 0 !important;
+  height: 45% !important;
+  position: relative !important;
+  top: 31% !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.smart-box-active {
+  border: 2px solid rgba(204, 221, 187, 1) !important;
+  background-color: transparent !important;
+}
+
+.master {
+  position: absolute;
+  overflow: hidden;
+  width: 100%;
+  min-height: 100%;
+}
+
+.outerDiv {
+  position: relative;
+  display: flex;
+  width: 100%;
+  pointer-events: auto;
+}
+
+.innerDiv {
+  position: relative;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.centerer {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.maxer {
+  align-items: flex-end;
+  position: absolute;
+  bottom: 0;
+}
+
+.vector svg {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+}
+
+.paragraph {
+  margin: 0;
+  margin-bottom: 16px;
+}
+
+.react-hint {
+  background-color: #F6DDD4;
+  color: #000;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  opacity: 0.95;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.mbti_btn {
+  font-size: 12px;
+  font-family: Inter;
+  color: #000;
+  padding: 6px 8px 8px 6px;
+  margin-top: 6px;
+  background-color: #FFFFFF;
+  border: 2px solid #F6DDD4;
+}
+
+.mbti_btn:hover {
+  background-color: #FFF8F5;
+  border: 2px solid transparent;
+}
+
+/* Legacy Tinder-card layout — replaced by buddy-card-* in _Card.css */
+.tinder-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f2f2f2;
+}
+
+.tinder-card-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 16px 32px;
+}
+
+.tinder-card {
+  position: relative;
+  width: min(92vw, 360px);
+  aspect-ratio: 3 / 4.2;
+  border-radius: 4px;
+  background: #f2f2f2;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+  display: flex;
+  perspective: 1100px;
+}
+
+.tinder-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.65s ease;
+}
+
+.tinder-card.is-flipped .tinder-card-inner {
+  transform: rotateY(180deg);
+}
+
+.tinder-card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.tinder-card-face-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #fce8de 0%, #f6ddd4 100%);
+}
+
+.tinder-card-content-back {
+  width: 100%;
+  min-height: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.tinder-card-flip-button {
+  position: absolute;
+  z-index: 5;
+  right: 12px;
+  bottom: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 8px 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tinder-card-loading {
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #8e8e8e;
+  font-family: 'Inter', sans-serif;
+}
+
+.tinder-card-gradient {
+  position: absolute;
+  inset: 0;
+  background: #F6DDD4;
+}
+
+.tinder-card-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 20px;
+  color: #000;
+  font-family: 'Inter', sans-serif;
+}
+
+.tinder-card-content h2 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.tinder-card-content p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .tinder-card {
+    width: min(94vw, 340px);
+  }
+
+  .tinder-card-content h2 {
+    font-size: 24px;
+  }
+}
+
+.profile-image-square {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(86%, 320px);
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  z-index: 2;
+}
+
+.tinder-card-image {
+  position: absolute;
+}
+
+.tinder-card-photo-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tinder-card-photo-nav-left {
+  left: 10px;
+}
+
+.tinder-card-photo-nav-right {
+  right: 10px;
+}
+
+.tinder-card-photo-dots {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+}
+
+.tinder-card-photo-dot {
+  margin-top: 4px;
+  width: 10px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+}
+
+.tinder-card-photo-dot.is-active {
+  background: rgba(255, 255, 255, 0.95);
+}

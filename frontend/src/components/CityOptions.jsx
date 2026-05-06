@@ -1,5 +1,4 @@
 export const CityOptions = [
-    { value: 0, label: 'Виберіть місто' },
     { value: 1, label: 'Київ' },
     { value: 2, label: 'Львів' },
     { value: 3, label: 'Харків' },
@@ -31,5 +30,6 @@ export const CityOptions = [
     { value: 29, label: 'Кременчук' },
     { value: 30, label: 'Конотоп' },
     { value: 31, label: 'Умань' },
-    { value: 32, label: 'Кривий Ріг' }
+    { value: 32, label: 'Яремче' },
+    { value: 33, label: 'Кривий Ріг' }
 ];

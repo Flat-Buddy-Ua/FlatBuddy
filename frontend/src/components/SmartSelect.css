@@ -1,0 +1,5 @@
+/* SmartSelect renders <Select> from react-select. */
+/* react-select uses CSS-in-JS via its `styles` prop API — */
+/* selectors are computed per state inside the component itself, */
+/* and cannot be expressed as plain CSS classes here. */
+/* This file is a placeholder for any future wrapper styles. */

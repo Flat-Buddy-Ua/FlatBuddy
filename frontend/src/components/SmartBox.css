@@ -1,0 +1,51 @@
+.smart-box-root {
+    position: relative;
+    width: 100%;
+}
+
+.smart-box-inner {
+    width: var(--smart-box-width, 100%);
+    min-height: 50px;
+    height: auto;
+    border: 2px solid transparent;
+    background: #F6DDD4;
+    cursor: text;
+    transform: translate(0, 0);
+    box-shadow: none;
+    transition: all 0.2s ease;
+}
+
+.smart-box-inner:hover:not(.smart-box-inner--disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0px var(--smart-box-accent, #FCD531);
+}
+
+.smart-box-inner--focused {
+    border-color: #111;
+}
+
+.smart-box-inner--disabled {
+    border-color: #99999966;
+    background: transparent;
+    cursor: not-allowed;
+}
+
+.smart-box-inner.smart-box-inner--error {
+    border-color: #ff3333;
+    box-shadow: 4px 4px 0px #ff3333;
+}
+
+.smart-box-error-popover {
+    position: absolute;
+    bottom: -22px;
+    left: 16px;
+    color: red;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 3px 8px;
+    z-index: 10;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

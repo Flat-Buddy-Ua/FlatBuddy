@@ -13,6 +13,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 class MeProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_object(self):
-        return self.request.user.profile
+        profile, _ = UserProfile.objects.get_or_create(user=self.request.user)
+        return profile

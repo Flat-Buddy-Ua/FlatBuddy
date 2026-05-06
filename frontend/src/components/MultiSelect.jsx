@@ -1,9 +1,10 @@
-import { max } from 'moment';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import CreatableSelect from 'react-select/creatable';
+import './MultiSelect.css';
 
 export function MultiSelect({
     options = [],
+    value,
     defaultValue = null,
     onChange,
     onFocus,
@@ -11,24 +12,23 @@ export function MultiSelect({
     onMenuOpen,
     onMenuClose,
     placeholder,
-    isMulti = true
+    isMulti = true,
+    formatCreateLabel,
+    isValidNewOption,
 }) {
-
-    const [selectedOptions, setSelectedOptions] = React.useState(
-        isMulti 
-            ? (Array.isArray(defaultValue) ? defaultValue : []) 
-            : defaultValue || null
-    );
+    const fallback = isMulti
+        ? (Array.isArray(defaultValue) ? defaultValue : [])
+        : (defaultValue || null);
+    const displayValue = value !== undefined ? value : fallback;
 
     return (
         <CreatableSelect
             placeholder={placeholder}
             isMulti={isMulti}
-            value={selectedOptions}
-            onChange={(selected) => {
-                setSelectedOptions(selected);
-                onChange?.(selected);
-            }}
+            value={displayValue}
+            onChange={(selected) => onChange?.(selected)}
+            formatCreateLabel={formatCreateLabel}
+            isValidNewOption={isValidNewOption}
             onFocus={onFocus}
             onBlur={onBlur}
             onMenuOpen={onMenuOpen}

@@ -1,8 +1,14 @@
+from datetime import date
+
 from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.utils import timezone
+
 from django.contrib.postgres.fields import ArrayField
+
 from user.constants.choices import *
+
 
 class UserManager(BaseUserManager):
 
@@ -16,6 +22,15 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
+        # createsuperuser CLI prompts only for USERNAME_FIELD + REQUIRED_FIELDS,
+        # but the model has more NOT NULL columns. Fill with placeholders so
+        # admin accounts can be created without populating profile data.
+        # Filter out is_staff=True from matching/listing queries to keep these
+        # placeholder rows out of user-facing flows.
+        extra_fields.setdefault('country', Country.UKRAINE)
+        extra_fields.setdefault('city', 'admin')
+        extra_fields.setdefault('gender', Gender.OTHER)
+        extra_fields.setdefault('birthdate', date(2000, 1, 1))
 
         return self.create_user(email, password, **extra_fields)
 
@@ -28,7 +43,7 @@ class User(AbstractUser):
     birthdate = models.DateField()
     phone_number = models.CharField(unique=True)
     email = models.EmailField(unique=True, max_length=254)
-
+    is_active = models.BooleanField(default=False)
     objects = UserManager()
     
     USERNAME_FIELD = 'email'
@@ -40,7 +55,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
-
 
 class UserProfile(models.Model):
     user = models.OneToOneField(
@@ -84,6 +98,20 @@ class UserProfile(models.Model):
     )
     parsed_wake_hour  = models.FloatField(null=True, blank=True)
     parsed_sleep_hour = models.FloatField(null=True, blank=True)
+
+    hobbies = ArrayField(
+        models.IntegerField(choices=Hobby.choices),
+        size=10,
+        default=list,
+        blank=True
+    )
+    custom_hobbies = ArrayField(
+        models.CharField(max_length=50),
+        size=5,
+        default=list,
+        blank=True,
+    )
+    partying = models.IntegerField(choices=Partying.choices, null=True, blank=True)
 
     class Meta:
         managed = True

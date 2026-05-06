@@ -1,9 +1,10 @@
-// SmartInput.js
-import React, { useState, useEffect } from "react";
+// SmartInput.jsx
+import React from "react";
 import InputMask from "react-input-mask";
-import "./../index.css";
+import "./SmartInput.css";
 
 export function SmartInput({
+  value,
   defaultValue = "",
   mask,
   maskChar = "_",
@@ -12,34 +13,28 @@ export function SmartInput({
   onBlur,
   disabled,
   inputGuard,
-  margintop="12px",
+  margintop = "14px",
   inputMode = "text",
   pattern = null,
   prefix = null,
+  hasError,
   ...rest
 }) {
 
-  const [value, setValue] = useState(defaultValue);
-
-  useEffect(() => {
-    setValue(defaultValue);
-  }, [defaultValue]);
+  const displayValue = value !== undefined ? value : defaultValue;
 
   const handleChange = (event) => {
-  const rawValue = event?.target?.value ?? event;
+    const rawValue = event?.target?.value ?? event;
 
-  if (typeof inputGuard === "function") {
-    const guardedValue = inputGuard(rawValue);
-    if (guardedValue === undefined) return;
-    setValue(guardedValue);
-    onChange?.(guardedValue);
-    return;
-  }
+    if (typeof inputGuard === "function") {
+      const guardedValue = inputGuard(rawValue);
+      if (guardedValue === undefined) return;
+      onChange?.(guardedValue);
+      return;
+    }
 
-  setValue(rawValue);
-  onChange?.(rawValue);
-};
-
+    onChange?.(event);
+  };
 
   const handleFocus = (event) => {
     if (typeof onFocus === "function") onFocus(event);
@@ -49,46 +44,31 @@ export function SmartInput({
     if (typeof onBlur === "function") onBlur(event);
   };
 
-  const baseStyle = {
-    boxSizing: "border-box",
-    width: "100%",
-    height: "100%",
-    marginTop: margintop,
-    paddingLeft: "20px",
-    paddingRight: "20px",
-    border: "none",
-    background: "transparent",
-    outline: "none",
-    fontSize: "16px",
-    fontFamily: "Inter",
-    color: disabled ? "#99999966" : "#000",
-    cursor: disabled ? "not-allowed" : "text",
-  };
+  const inputClass = [
+    "smart-input",
+    prefix && "smart-input--with-prefix",
+    disabled && "smart-input--disabled",
+  ].filter(Boolean).join(" ");
+
+  const wrapStyle = { "--smart-input-margin-top": margintop };
 
   if (!mask) {
     return (
-      <div style={{ display: "flex", alignItems: "center" }}>
-        {prefix && <span style={{
-          ...baseStyle,
-          width: "30px",
-          // marginTop: parseInt(margintop, 10) + 2 + "px",
-          marginRight: "0px",
-          paddingRight: "0px",
-          color: "#999999",
-        }}>{prefix}</span>}
+      <div className="smart-input-wrap" style={wrapStyle}>
+        {prefix && (
+          <span className="smart-input-prefix">{prefix}</span>
+        )}
         <input
           {...rest}
-          style={{
-            ...baseStyle,
-            "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA"
-          }}
-          value={value}
+          value={displayValue || ""}
           disabled={disabled}
-          onChange={(e) => handleChange(e)}
+          onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
           inputMode={inputMode}
           pattern={pattern}
+          className={inputClass}
+          style={{ "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA" }}
         />
       </div>
     );
@@ -98,22 +78,26 @@ export function SmartInput({
     <InputMask
       mask={mask}
       maskChar={maskChar}
-      value={value}
+      value={displayValue}
       disabled={disabled}
       onChange={handleChange}
       onFocus={handleFocus}
       onBlur={handleBlur}
     >
       {(inputProps) => (
-        <input
-          {...inputProps}
-          {...rest}
-          disabled={disabled}
-          style={{
-            ...baseStyle,
-            "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA",
-          }}
-        />
+        <div className="smart-input-wrap" style={wrapStyle}>
+          {prefix && (
+            <span className="smart-input-prefix">{prefix}</span>
+          )}
+          <input
+            {...inputProps}
+            {...rest}
+            inputMode={inputMode}
+            pattern={pattern}
+            className={inputClass}
+            style={{ "--placeholder-color-input": disabled ? "#99999980" : "#AAAAAA" }}
+          />
+        </div>
       )}
     </InputMask>
   );
