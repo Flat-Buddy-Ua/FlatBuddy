@@ -93,6 +93,21 @@ class UserProfile(models.Model):
     )
     partying = models.IntegerField(choices=Partying.choices, null=True, blank=True)
 
+    embedding_vibe = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_hobbies = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_schedule = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_updated_at = models.DateTimeField(
+        null=True, blank=True
+    )
+    parsed_wake_hour  = models.FloatField(null=True, blank=True)
+    parsed_sleep_hour = models.FloatField(null=True, blank=True)
+
     class Meta:
         managed = True
         db_table = 'user_profile'
@@ -148,3 +163,63 @@ class UserHousing(models.Model):
 
     def __str__(self):
         return f"Житлові уподобання {self.user.email}"
+
+class UserPriority(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='priority'
+    )
+    fields = ArrayField(
+        models.CharField(max_length=30, choices=PriorityField.choices),
+        size=3,
+        default=list,
+        blank=True
+    )
+
+    class Meta:
+        db_table = 'user_priority'
+
+    def str(self):
+        return f"Пріоритети {self.user.email}: {self.fields}"
+
+
+class MatchResult(models.Model):
+
+    class Status(models.TextChoices):
+        PENDING  = 'pending',  'Очікує обрахунку'
+        DONE     = 'done',     'Розраховано'
+        SKIPPED  = 'skipped',  'Пропущено (hard filter / неповна анкета)'
+        ERROR    = 'error',    'Помилка'
+
+    user_1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_1')
+    user_2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_2')
+    total_score = models.FloatField(null=True, blank=True)
+    status      = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    hard_filter_passed = models.BooleanField(default=False)
+    skip_reason        = models.CharField(max_length=50, blank=True)
+
+    score_vibe        = models.FloatField(null=True, blank=True)   
+    score_hobbies     = models.FloatField(null=True, blank=True)  
+    score_cleanliness = models.FloatField(null=True, blank=True)   
+    score_smoking     = models.FloatField(null=True, blank=True)  
+    score_partying    = models.FloatField(null=True, blank=True)  
+    score_political   = models.FloatField(null=True, blank=True)  
+    score_personality = models.FloatField(null=True, blank=True)   
+    score_schedule    = models.FloatField(null=True, blank=True)   
+
+    is_stale   = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'match_result'
+        unique_together = ('user_1', 'user_2')
+        indexes = [
+            models.Index(fields=['user_1', 'total_score']),
+            models.Index(fields=['user_2', 'total_score']),
+            models.Index(fields=['is_stale']),
+        ]
+
+    def str(self):
+        return f"Match {self.user_1_id} ↔️ {self.user_2_id}: {self.total_score}"
