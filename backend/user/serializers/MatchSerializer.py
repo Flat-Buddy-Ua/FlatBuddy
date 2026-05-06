@@ -4,29 +4,10 @@ from rest_framework import serializers
 
 from user.models import MatchResult, User, UserProfile, UserHousing
 from user.serializers.UserPhotoSerializer import UserPhotoSerializer
-from user.constants.choices import Language, Hobby, District
-
-_LANGUAGE_LABELS  = dict(Language.choices)
-_HOBBY_LABELS     = dict(Hobby.choices)
-_DISTRICT_LABELS  = dict(District.choices)
 
 
 class _ProfileSerializer(serializers.ModelSerializer):
     photos = UserPhotoSerializer(many=True, read_only=True)
-
-    status             = serializers.CharField(source='get_status_display',           read_only=True)
-    orbit              = serializers.CharField(source='get_orbit_display',            read_only=True)
-    smoking            = serializers.CharField(source='get_smoking_display',          read_only=True)
-    partying           = serializers.CharField(source='get_partying_display',         read_only=True)
-    extra_intro_version = serializers.CharField(source='get_extra_intro_version_display', read_only=True)
-    languages = serializers.SerializerMethodField()
-    hobbies   = serializers.SerializerMethodField()
-
-    def get_languages(self, obj):
-        return [_LANGUAGE_LABELS.get(v, v) for v in (obj.languages or [])]
-
-    def get_hobbies(self, obj):
-        return [_HOBBY_LABELS.get(v, v) for v in (obj.hobbies or [])]
 
     class Meta:
         model = UserProfile
@@ -51,16 +32,6 @@ class _ProfileSerializer(serializers.ModelSerializer):
 
 
 class _HousingSerializer(serializers.ModelSerializer):
-    room_sharing_preference = serializers.CharField(source='get_room_sharing_preference_display', read_only=True)
-    preferred_gender        = serializers.CharField(source='get_preferred_gender_display',        read_only=True)
-    housing_status          = serializers.CharField(source='get_housing_status_display',          read_only=True)
-    destination             = serializers.CharField(source='get_destination_display',             read_only=True)
-    planned_duration        = serializers.CharField(source='get_planned_duration_display',        read_only=True)
-    preferred_districts = serializers.SerializerMethodField()
-
-    def get_preferred_districts(self, obj):
-        return [_DISTRICT_LABELS.get(v, v) for v in (obj.preferred_districts or [])]
-
     class Meta:
         model = UserHousing
         fields = [
@@ -79,7 +50,7 @@ class _HousingSerializer(serializers.ModelSerializer):
 
 
 class _MatchedUserSerializer(serializers.ModelSerializer):
-    age     = serializers.SerializerMethodField()
+    age    = serializers.SerializerMethodField()
     profile = _ProfileSerializer(read_only=True)
     housing = _HousingSerializer(read_only=True)
 
@@ -94,7 +65,6 @@ class _MatchedUserSerializer(serializers.ModelSerializer):
         return today.year - obj.birthdate.year - (
             (today.month, today.day) < (obj.birthdate.month, obj.birthdate.day)
         )
-
 
 class MatchResultSerializer(serializers.ModelSerializer):
     matched_user = serializers.SerializerMethodField()
