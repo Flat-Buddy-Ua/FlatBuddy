@@ -1,176 +1,205 @@
 from django.db import models
-from django.db.models import JSONField
-import bcrypt
+from django.core.validators import MinLengthValidator
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+
+from django.contrib.postgres.fields import ArrayField
+
+from user.constants.choices import *
+
+class UserManager(BaseUserManager):
+
+    def create_user(self, email, password=None, **extra_fields):
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        return self.create_user(email, password, **extra_fields)
 
 
-ROOM_SHARING_CHOICES = [
-    ('Mені комфортно ділити кімнату з співмешканцем',
-     'Mені комфортно ділити кімнату з співмешканцем'),
-    ('Я хочу мати окрему кімнату', 'Я хочу мати окрему кімнату'),
-]
+class User(AbstractUser):
+    username = None
+    country = models.IntegerField(choices=Country.choices)
+    city = models.CharField(max_length=100)
+    gender = models.IntegerField(choices=Gender.choices)
+    birthdate = models.DateField()
+    phone_number = models.CharField(unique=True)
+    email = models.EmailField(unique=True, max_length=254)
 
-PREFERRED_GENDER_CHOICES = [
-    ('Лише з хлопцями', 'Лише з хлопцями'),
-    ('Лише з дівчатами', 'Лише з дівчатами'),
-    ('Не має значення', 'Не має значення'),
-]
-
-HOUSING_STATUS_CHOICES = [
-    ('Я шукаю квартиру та співмешканця', 'Я шукаю квартиру та співмешканця'),
-    ('Я шукаю лише співмешканця, маю свою/орендовану квартиру',
-     'Я шукаю лише співмешканця, маю свою/орендовану квартиру'),
-]
-
-
-class User(models.Model):
-    user_id = models.AutoField(primary_key=True)
-    first_name = models.CharField(verbose_name="Ім'я")
-    last_name = models.CharField(verbose_name="Прізвище")
-    country = models.CharField(verbose_name="Країна")
-    city = models.CharField(verbose_name="Місто")
-    gender = models.CharField(verbose_name="Стать")
-    birthdate = models.CharField(verbose_name="Дата народження")
-    phone_number = models.CharField(unique=True, verbose_name="Номер телефону")
-    email = models.EmailField(unique=True, verbose_name="Email")
-# ПАРОЛЬ, ПОВТОР ПАРОЛЮ, ХЕШУВАННЯ ПАРОЛЮ
-    password_hash = models.CharField(max_length=255, verbose_name="Хеш пароля")
-    created_at = models.DateTimeField(
-        auto_now_add=True, verbose_name="Створено")
+    objects = UserManager()
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['phone_number']
 
     class Meta:
-        managed = False
-        db_table = 'flat_buddy"."user'
-        verbose_name = 'Користувач'
-        verbose_name_plural = 'Користувачі'
-
-    @staticmethod
-    def hash_password(password: str) -> str:
-        salt = bcrypt.gensalt()
-        hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
-        return hashed.decode("utf-8")
-
-    @staticmethod
-    def verify_password(password: str, password_hash: str) -> bool:
-        return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
-
-    def check_password(self, password: str) -> bool:
-        return self.verify_password(password, self.password_hash)
-
-    @classmethod
-    def create_user_with_password(cls, user_data: dict, password: str, repeat_password: str):
-        if password != repeat_password:
-            raise ValueError("Паролі не співпадають")
-        password_hash = cls.hash_password(password)
-        user = cls(
-            **user_data,
-            password_hash=password_hash
-        )
-        return user
+        managed = True
+        db_table = 'user'
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
 
 
 class UserProfile(models.Model):
-    profile_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        related_name='profile',
-        verbose_name="Користувач"
+        related_name='profile'
     )
+    
+    status = models.IntegerField(choices=Status.choices, null=True, blank=True)
+    orbit = models.IntegerField(choices=Orbit.choices, null=True, blank=True)
+    languages = ArrayField(
+        models.CharField(max_length=2, validators=[MinLengthValidator(2)], choices=Language.choices, null=True, blank=True),
+        size=5,
+        default=list
+    )
+    political_coordinate_economic = models.IntegerField(null=True, blank=True)
+    political_coordinate_social = models.IntegerField(null=True, blank=True)
+    cleanliness = models.IntegerField(null=True, blank=True)
+    my_vibe = models.TextField(max_length=600, validators=[MinLengthValidator(200)], blank=True)
+    buddy_vibe = models.TextField(max_length=600, validators=[MinLengthValidator(200)], blank=True)
+    schedule = models.TextField(max_length=100, validators=[MinLengthValidator(3)], blank=True)
+    sleep_schedule = models.TextField(max_length=100, validators=[MinLengthValidator(3)], blank=True)
+    smoking = models.IntegerField(choices=Smoking.choices, null=True, blank=True)
+    extra_intro_version = models.IntegerField(choices=Personality.choices, null=True, blank=True)
+    hobbies = models.IntegerField(choices=Hobby.choices, null=True, blank=True)
+    partying = models.IntegerField(choices=Partying.choices, null=True, blank=True)
 
-    university = models.CharField(max_length=100, verbose_name="Заклад освіти")
-    specialization = models.CharField(
-        max_length=50, verbose_name="Спеціалізація")
-    study_year = models.CharField(max_length=50, verbose_name="Курс")
-    languages = models.JSONField(verbose_name="Допустимі мови спілкування")
-    political_view = models.JSONField(
-        verbose_name="Політичні погляди")
-    cleanliness = models.IntegerField(verbose_name="Охайність (1-5)")
-    lifestyle = models.TextField(verbose_name="Опишіть свій стиль життя")
-    schedule = models.TextField(verbose_name="Розклад")
-    sleep_schedule = models.TextField(verbose_name="Графік сну")
-    bad_habits = models.TextField(verbose_name="Шкідливі звички")
-    mbti = models.JSONField(verbose_name="MBTI")
-    extra_intro_version = models.CharField(
-        max_length=50, verbose_name="Екстравертність/інтровертність")
-    hobbies = models.TextField(
-        verbose_name="Розкажіть про ваші захоплення/хобі")
-    bio = models.TextField(verbose_name="Біо")
-    looking_for = models.TextField(verbose_name="Кого шукаєте")
 
+    # Cached sentence-transformer embeddings (MiniLM-L12, dim=384)
+    embedding_vibe = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_hobbies = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_schedule = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_updated_at = models.DateTimeField(
+        null=True, blank=True
+    )
+    parsed_wake_hour  = models.FloatField(null=True, blank=True)
+    parsed_sleep_hour = models.FloatField(null=True, blank=True)
+    
     class Meta:
-        managed = False
-        db_table = 'flat_buddy"."user_profile'
-        verbose_name = 'Профіль користувача'
-        verbose_name_plural = 'Профілі користувачів'
+        managed = True
+        db_table = 'user_profile'
 
     def __str__(self):
         return f"Профіль {self.user.email}"
 
+def user_directory_path(instance, filename):
+    return f'user_photos/user_{instance.user_profile.user.id}/{filename}'
 
 class UserPhoto(models.Model):
-    image_id = models.AutoField(primary_key=True)
     user_profile = models.ForeignKey(
         UserProfile,
         on_delete=models.CASCADE,
-        db_column='user_profile',
         related_name='photos'
     )
 
-    image = models.ImageField(
-        upload_to='user_photos/', verbose_name="Фото профілю")
+    image = models.ImageField(upload_to=user_directory_path)
 
     class Meta:
-        managed = False
-        db_table = 'flat_buddy"."user_photo'
-        verbose_name = 'Фото профілю'
+        db_table = 'user_photo'
 
     def __str__(self):
-        return f"Фото профілю {self.user.email}"
+        return f"Фото профілю {self.user_profile.user.email}"
 
 
 class UserHousing(models.Model):
-    housing_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        related_name='housing',
-        verbose_name="Користувач"
+        related_name='housing'
     )
-    room_sharing_preference = models.CharField(
-        max_length=100,
-        choices=ROOM_SHARING_CHOICES,
-        verbose_name="Чому надаєте перевагу?"
+    room_sharing_preference = models.IntegerField(choices=RoomSharing.choices, null=True, blank=True)
+    preferred_gender = models.IntegerField(choices=PreferredGender.choices, null=True, blank=True)
+    housing_status = models.IntegerField(choices=HousingStatus.choices, null=True, blank=True)
+    budget_min = models.IntegerField(null=True, blank=True)
+    budget_max = models.IntegerField(null=True, blank=True)
+    destination = models.IntegerField(choices=City.choices, null=True, blank=True)
+    preferred_districts = ArrayField(
+        models.IntegerField(choices=District.choices, null=True, blank=True),
+        blank=True,
+        size=10,
+        default=list
     )
-    preferred_gender = models.CharField(
-        max_length=30,
-        choices=PREFERRED_GENDER_CHOICES,
-        verbose_name="Із ким ви б хотіли проживати?"
-    )
-    housing_status = models.CharField(
-        max_length=100,
-        choices=HOUSING_STATUS_CHOICES,
-        verbose_name="Що найкраще описує вашу ситуацію?"
-    )
-    budget = models.IntegerField(verbose_name="Який ваш бюджет?")
-    preferred_districts = models.JSONField(
-        verbose_name="Оберіть бажаний район/райони проживання")
-    planned_duration = models.CharField(
-        max_length=50, verbose_name="Як довго ви плануєте проживати у орендованій квартирі?")
-    move_in_date = models.CharField(
-        max_length=100, verbose_name="Коли б ви хотіли заїхати у квартиру?")
-    has_pet = models.BooleanField(
-        verbose_name="Чи є у вас домашній улюбленець?")
-    pet_description = models.TextField(
-        blank=True, null=True, verbose_name="Розкажіть про своїх домашніх улюбленців")
+    planned_duration = models.IntegerField(choices=PlannedDuration.choices, null=True, blank=True)
+    move_in_date = models.DateField(null=True, blank=True)
+    has_pet = models.BooleanField(default=False)
+    pet_description = models.TextField(max_length=100, validators=[MinLengthValidator(3)], null=True, blank=True)
 
     class Meta:
-        managed = False
-        db_table = 'flat_buddy"."user_housing'
-        verbose_name = 'Житлові уподобання'
-        verbose_name_plural = 'Житлові уподобання'
+        managed = True
+        db_table = 'user_housing'
 
     def __str__(self):
         return f"Житлові уподобання {self.user.email}"
+    
+
+class UserPriority(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='priority'
+    )
+    fields = ArrayField(
+        models.CharField(max_length=30, choices=PriorityField.choices),
+        size=3,
+        default=list,
+        blank=True
+    )
+
+    class Meta:
+        db_table = 'user_priority'
+
+    def __str__(self):
+        return f"Пріоритети {self.user.email}: {self.fields}"
+
+
+class MatchResult(models.Model):
+
+    class Status(models.TextChoices):
+        PENDING  = 'pending',  'Очікує обрахунку'
+        DONE     = 'done',     'Розраховано'
+        SKIPPED  = 'skipped',  'Пропущено (hard filter / неповна анкета)'
+        ERROR    = 'error',    'Помилка'
+
+    user_1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_1')
+    user_2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_2')
+    total_score = models.FloatField(null=True, blank=True)
+    status      = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    hard_filter_passed = models.BooleanField(default=False)
+    skip_reason        = models.CharField(max_length=50, blank=True)
+
+    score_vibe        = models.FloatField(null=True, blank=True)   
+    score_hobbies     = models.FloatField(null=True, blank=True)  
+    score_cleanliness = models.FloatField(null=True, blank=True)   
+    score_smoking     = models.FloatField(null=True, blank=True)  
+    score_partying    = models.FloatField(null=True, blank=True)  
+    score_political   = models.FloatField(null=True, blank=True)  
+    score_personality = models.FloatField(null=True, blank=True)   
+    score_schedule    = models.FloatField(null=True, blank=True)   
+
+    is_stale   = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'match_result'
+        unique_together = ('user_1', 'user_2')
+        indexes = [
+            models.Index(fields=['user_1', 'total_score']),
+            models.Index(fields=['user_2', 'total_score']),
+            models.Index(fields=['is_stale']),
+        ]
+
+    def __str__(self):
+        return f"Match {self.user_1_id} ↔ {self.user_2_id}: {self.total_score}"
