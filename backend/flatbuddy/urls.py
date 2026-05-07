@@ -15,6 +15,7 @@ from user.views.UserHousingView import UserHousingViewSet, MeHousingView
 from user.views.UserRegistrationView import UserRegistrationView
 from user.views.VerifyMagicLinkView import VerifyMagicLinkView
 from user.views.ResendMagicLinkView import ResendMagicLinkView
+from user.views.MatchView import MyMatchListView
 
 from user.views.UserPhotoView import MePhotoListCreateView, MePhotoDestroyView
 
@@ -39,6 +40,8 @@ urlpatterns = [
     path('api/profile/housing/', MeHousingView.as_view(), name='profile-housing'),
     path('api/profile/photos/', MePhotoListCreateView.as_view(), name='profile-photos-list'),
     path('api/profile/photos/<int:pk>/', MePhotoDestroyView.as_view(), name='profile-photos-detail'),
+
+    path('api/matches/', MyMatchListView.as_view(), name='matches-list'),
 
     path('', TemplateView.as_view(template_name='index.html')),
     path('admin/', admin.site.urls),

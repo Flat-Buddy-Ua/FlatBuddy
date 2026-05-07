@@ -34,19 +34,20 @@ def _to_score(raw: float, low: float, high: float) -> float:
 def _build_texts(profile) -> dict[str, str]:
     from user.constants.choices import Hobby
 
-    hobby_label = ''
-    if profile.hobbies is not None:
+    hobby_labels = []
+    for h in (profile.hobbies or []):
         try:
-            hobby_label = Hobby(profile.hobbies).label
+            hobby_labels.append(Hobby(h).label)
         except ValueError:
-            hobby_label = ''
+            continue
+    hobby_text = ', '.join(hobby_labels)
 
     return {
         'vibe':     (
             f"Стиль життя: {profile.my_vibe or ''} "
             f"Шукаю: {profile.buddy_vibe or ''}"
         ),
-        'hobbies':  f"Мої захоплення: {hobby_label}",
+        'hobbies':  f"Мої захоплення: {hobby_text}",
         'schedule': (
             f"Мій графік: {profile.schedule or ''}. "
             f"Режим сну: {profile.sleep_schedule or ''}"
