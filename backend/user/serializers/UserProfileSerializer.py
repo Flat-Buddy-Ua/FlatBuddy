@@ -52,7 +52,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             return "Помірковано правий"
         elif 60 < value <= 100:
             return "Ультраправий"
-
         return "Хтозна..."
 
     # Вісь Y

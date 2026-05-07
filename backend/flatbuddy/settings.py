@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'user',
     'drf_spectacular',
+    'django_celery_results',
+    'django_celery_beat',
     'django.contrib.postgres',
     # 'services',
 ]
@@ -196,6 +198,19 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Kyiv'
+
+CELERY_TASK_SOFT_TIME_LIMIT = 600
+CELERY_TASK_TIME_LIMIT = 660
+
+CELERY_IMPORTS = [
+    'user.matching.tasks',
+]
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",

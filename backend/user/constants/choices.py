@@ -544,3 +544,14 @@ VALID_UA_PHONE_CODES = [
     # Фінтелеком
     '039'
 ]
+
+class PriorityField(models.TextChoices):
+    CLEANLINESS    = 'cleanliness',    'Охайність'
+    HOBBIES        = 'hobbies',        'Хобі'
+    SMOKING        = 'smoking',        'Ставлення до паління'
+    PARTYING       = 'partying',       'Ставлення до вечірок'
+    SCHEDULE       = 'schedule',       'Графік дня'
+    SLEEP_SCHEDULE = 'sleep_schedule', 'Режим сну'
+    POLITICAL_VIEW = 'political_view', 'Політичні погляди'
+    PERSONALITY    = 'extra_intro_version', 'Інтро/екстраверсія'
+    VIBE           = 'vibe',           'Загальний вайб'
