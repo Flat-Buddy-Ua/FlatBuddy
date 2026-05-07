@@ -7,6 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('user', '0002_userprofile_embedding_hobbies_and_more'),
+        ('user', '0004_expand_hobbies_and_custom_hobbies'),
     ]
 
     operations = [
