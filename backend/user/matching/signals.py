@@ -44,28 +44,47 @@ def connect_signals():
                 f"[Signals] Profile {instance.pk}: embeddings cleared."
             )
 
-        recalculate_matches_for_user.delay(instance.user_id)
-        logger.debug(
-            f"[Signals] Profile {'created' if created else 'updated'} "
-            f"→ task queued for user {instance.user_id}"
-        )
+        try:
+            recalculate_matches_for_user.delay(instance.user_id)
+            logger.debug(
+                f"[Signals] Profile {'created' if created else 'updated'} "
+                f"→ task queued for user {instance.user_id}"
+            )
+        except Exception:
+            # Broker (Redis/RabbitMQ) недоступний — save вже відбувся, не валимо API.
+            logger.exception(
+                "[Signals] Failed to enqueue matching recalc for user %s",
+                instance.user_id,
+            )
 
     @receiver(post_save, sender=UserHousing)
     def on_housing_save(sender, instance, created, **kwargs):
         from user.matching.tasks import recalculate_matches_for_user
 
-        recalculate_matches_for_user.delay(instance.user_id)
-        logger.debug(
-            f"[Signals] Housing {'created' if created else 'updated'} "
-            f"→ task queued for user {instance.user_id}"
-        )
+        try:
+            recalculate_matches_for_user.delay(instance.user_id)
+            logger.debug(
+                f"[Signals] Housing {'created' if created else 'updated'} "
+                f"→ task queued for user {instance.user_id}"
+            )
+        except Exception:
+            logger.exception(
+                "[Signals] Failed to enqueue matching recalc for user %s",
+                instance.user_id,
+            )
 
     @receiver(post_save, sender=UserPriority)
     def on_priority_save(sender, instance, created, **kwargs):
         from user.matching.tasks import recalculate_matches_for_user
 
-        recalculate_matches_for_user.delay(instance.user_id)
-        logger.debug(
-            f"[Signals] Priority {'created' if created else 'updated'} "
-            f"→ task queued for user {instance.user_id}"
-        )
+        try:
+            recalculate_matches_for_user.delay(instance.user_id)
+            logger.debug(
+                f"[Signals] Priority {'created' if created else 'updated'} "
+                f"→ task queued for user {instance.user_id}"
+            )
+        except Exception:
+            logger.exception(
+                "[Signals] Failed to enqueue matching recalc for user %s",
+                instance.user_id,
+            )
