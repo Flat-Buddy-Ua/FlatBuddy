@@ -37,6 +37,14 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     username = None
+
+    class Package(models.TextChoices):
+        FREE    = "free",    "Безкоштовний"
+        P25     = "p25",     "Пакет 25"
+        P45     = "p45",     "Пакет 45"
+        P55     = "p55",     "Пакет 55"
+        PREMIUM = "premium", "Преміум (безліміт)"
+
     country = models.IntegerField(choices=Country.choices)
     city = models.CharField(max_length=100)
     gender = models.IntegerField(choices=Gender.choices)
@@ -44,6 +52,11 @@ class User(AbstractUser):
     phone_number = models.CharField(unique=True)
     email = models.EmailField(unique=True, max_length=254)
     is_active = models.BooleanField(default=False)
+    package = models.CharField(
+        max_length=7,
+        choices=Package.choices,
+        default=Package.PREMIUM,
+    )
     objects = UserManager()
     
     USERNAME_FIELD = 'email'
@@ -228,3 +241,17 @@ class MatchResult(models.Model):
 
     def __str__(self):
         return f"Match {self.user_1_id} ↔ {self.user_2_id}: {self.total_score}"
+
+
+class SeenProfile(models.Model):
+    user    = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seen_profiles')
+    match   = models.ForeignKey(MatchResult, on_delete=models.CASCADE, related_name='seen_by')
+    seen_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table        = 'seen_profile'
+        unique_together = ('user', 'match')
+        indexes         = [models.Index(fields=['user', 'seen_at'])]
+
+    def __str__(self):
+        return f"Seen: user {self.user_id} → match {self.match_id}"

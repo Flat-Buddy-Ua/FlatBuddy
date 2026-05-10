@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Header } from "../components/Header.jsx";
-import { fetchWithAuth } from "../utils/api.js";
-import "./BuddiesPage.css";
+import { fetchWithAuth, getMatches, markSeen, getFomoData } from "../utils/api.js";
+import { adaptMatch } from "../utils/adaptMatch.js";
+import { FomoBlock } from "../components/FomoBlock.jsx";
+import "./Card.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -37,56 +39,6 @@ function checkCompleteness(profile, housing, photos) {
     }
     return true;
 }
-
-const DEMO_BUDDY = {
-    name: "Роман Яцишин",
-    age: 19,
-    photos: [
-        "http://flatbuddyua.com/media/user_photos/user_53/photo_2025-11-10_13-54-55.jpg",
-        "http://flatbuddyua.com/media/user_photos/user_53/photo_2025-12-14_01-15-19.jpg",
-        "http://flatbuddyua.com/media/user_photos/user_53/photo_2026-01-05_12-42-46.jpg",
-    ],
-    sub: "Львів · Студент і працюю · STEM та IT",
-    badges: [
-        { kind: "yellow", text: "Шукає квартиру та сусіда" },
-        { kind: "default", text: "Бюджет 7 000–10 000 ₴" },
-        { kind: "outline", text: "Львів — Личаківський, Галицький, Залізничний, Сихівський, Франківський, Шевченківський" },
-    ],
-    myVibe:
-        "Студент 2-го курсу Львівської політехніки, спеціальність — програмна інженерія. Паралельно з навчанням працюю фронтенд-розробником на парт-тайм у невеликій продуктовій команді, тому половина дня — пари, друга половина — код. По вечорах і на вихідних сідаю на велосипед і їжджу від Високого Замку до Винників — це мій спосіб скинути голову. Не курю в квартирі, до людей довкола ставлюсь без зайвого драматизму, можу мовчати поряд цілий день і це нормально.",
-    buddyVibe:
-        "Шукаю співмешканця приблизно мого віку (18–25), бажано теж студента або айтівця. Найважливіше — щоб людина була охайна на спільних зонах (кухня, ванна) і поважала особистий простір: я не люблю гучних компаній серед буднього вечора, але якщо запросиш друзів на вихідних — це нормально. Стать не принципова. Готовий ділити кімнату, якщо квартира гарна і ціна того варта. Романтичних відносин не шукаю, тільки рівне сусідство.",
-    cleanlinessPct: 80,
-    personalityPct: 100,
-    schedule: "Пари 08:30–14:00, робота 15:00–19:00. Вечорами вдома або на велосипеді.",
-    sleepSchedule: "Лягаю 23:30–00:30, встаю 07:30.",
-    smokingLabel: "Іноді палю",
-    partyingLabel: "Це не проблема для мене",
-    politicalEconLabel: "Центрист",
-    politicalEconPct: 47.5,
-    politicalSocLabel: "Центрист",
-    politicalSocPct: 52.5,
-    languages: [
-        "🇬🇧 English",
-        "🇺🇦 Українська",
-        "🇵🇱 Polski",
-    ],
-    hobbies: ["Велоспорт"],
-    customHobbies: [],
-    housing: [
-        ["Преференція", "Mені комфортно ділити кімнату з співмешканцем"],
-        ["З ким готовий жити", "Не має значення"],
-        ["Ситуація", "Я шукаю квартиру та співмешканця"],
-        ["Бюджет", "7 000 – 10 000 ₴"],
-        ["Місто", "Львів"],
-        ["Бажані райони", "Личаківський, Галицький, Залізничний, Сихівський, Франківський, Шевченківський"],
-        ["Термін проживання", "Від 6 до 12 місяців"],
-        ["Дата заселення", "04.05.2026"],
-        ["Тваринка", "—"],
-    ],
-    email: "roman.yatsyshyn.shi.2024@lpnu.ua",
-    phone: "+38 (096) 996-52-30",
-};
 
 function ProfileCard({ buddy }) {
     return (
@@ -229,35 +181,29 @@ function ProfileCard({ buddy }) {
                     ))}
                 </div>
             </div>
-
-            {/* CONTACT */}
-            <div className="bp-card">
-                <h2>Контакти</h2>
-                <div className="bp-row">
-                    <div>
-                        <div className="bp-label">Email</div>
-                        <div className="bp-val">{buddy.email}</div>
-                    </div>
-                    <div>
-                        <div className="bp-label">Телефон</div>
-                        <div className="bp-val">{buddy.phone}</div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }
 
-export function BuddiesPage() {
+export function Card() {
     if (!localStorage.getItem("access_token")) {
         alert("Необхідний вхід у профіль");
         return <Navigate to="/" replace />;
     }
 
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
+
+    // ── стан профілю ──────────────────────────────────────────────────────
+    const [loading,    setLoading]    = useState(true);
     const [isComplete, setIsComplete] = useState(false);
 
+    // ── стан стрічки ──────────────────────────────────────────────────────
+    const [matches,     setMatches]     = useState([]);   // адаптовані матчі
+    const [index,       setIndex]       = useState(0);    // поточна картка
+    const [feedLoading, setFeedLoading] = useState(false);
+    const [fomoData,    setFomoData]    = useState(null); // { hidden_count, best_score }
+
+    // ── завантаження повноти профілю ──────────────────────────────────────
     useEffect(() => {
         let cancelled = false;
 
@@ -271,7 +217,7 @@ export function BuddiesPage() {
 
                 const profile = profileRes.ok ? await profileRes.json() : null;
                 const housing = housingRes.ok ? await housingRes.json() : null;
-                const photos = photosRes.ok ? await photosRes.json() : [];
+                const photos  = photosRes.ok  ? await photosRes.json() : [];
 
                 if (cancelled) return;
                 setIsComplete(checkCompleteness(profile, housing, photos));
@@ -286,15 +232,83 @@ export function BuddiesPage() {
         return () => { cancelled = true; };
     }, []);
 
-    const isBlurred = loading || !isComplete;
-    const showGate = !loading && !isComplete;
+    // ── завантаження стрічки матчів ───────────────────────────────────────
+    useEffect(() => {
+        if (!isComplete) return;
+
+        let cancelled = false;
+        setFeedLoading(true);
+
+        getMatches()
+            .then(r => r.ok ? r.json() : [])
+            .then(raw => {
+                if (cancelled) return;
+                setMatches(raw.map(adaptMatch));
+                setIndex(0);
+            })
+            .catch(() => { if (!cancelled) setMatches([]); })
+            .finally(() => { if (!cancelled) setFeedLoading(false); });
+
+        return () => { cancelled = true; };
+    }, [isComplete]);
+
+    // ── навігація: наступна картка ────────────────────────────────────────
+    const handleNext = useCallback(async () => {
+        const current = matches[index];
+        if (current) {
+            await markSeen(current.id).catch(() => {});
+        }
+
+        const nextIndex = index + 1;
+
+        if (nextIndex >= matches.length) {
+            // Кінець стрічки — спробуємо отримати FOMO
+            try {
+                const r = await getFomoData();
+                if (r.ok) setFomoData(await r.json());
+                else      setFomoData({ hidden_count: 0, best_score: null });
+            } catch {
+                setFomoData({ hidden_count: 0, best_score: null });
+            }
+        } else {
+            setIndex(nextIndex);
+        }
+    }, [matches, index]);
+
+    // ── рендер ────────────────────────────────────────────────────────────
+    const isBlurred  = loading || !isComplete;
+    const showGate   = !loading && !isComplete;
+    const currentBuddy = matches[index] ?? null;
 
     return (
         <>
             <div className={`bp-page ${isBlurred ? "is-blurred" : ""}`}>
                 <Header />
                 <main className="bp-main">
-                    <ProfileCard buddy={DEMO_BUDDY} />
+                    {feedLoading && (
+                        <div className="bp-feed-loading">Завантаження…</div>
+                    )}
+
+                    {!feedLoading && fomoData !== null && (
+                        <FomoBlock data={fomoData} />
+                    )}
+
+                    {!feedLoading && fomoData === null && currentBuddy && (
+                        <>
+                            <ProfileCard buddy={currentBuddy} />
+                            <div className="bp-nav">
+                                <button className="bp-nav-btn" onClick={handleNext}>
+                                    Далі →
+                                </button>
+                            </div>
+                        </>
+                    )}
+
+                    {!feedLoading && fomoData === null && !currentBuddy && matches.length === 0 && (
+                        <div className="bp-empty">
+                            Поки немає нових збігів. Зайди пізніше 👋
+                        </div>
+                    )}
                 </main>
             </div>
 
