@@ -18,9 +18,10 @@ from user.views.ResendMagicLinkView import ResendMagicLinkView
 from user.views.MatchView import MyMatchListView
 
 from user.views.UserPhotoView import MePhotoListCreateView, MePhotoDestroyView
-
+from user.views.LikeView import (
+    LikeView, IncomingLikesView, OutgoingLikesView, MyMatchesView,
+)
 from django.views.generic import TemplateView
-
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 router = routers.DefaultRouter()

@@ -81,7 +81,6 @@ def recalculate_matches_for_user(self, user_id: int):
         )
         raise self.retry(exc=exc)
 
-
 @shared_task(
     name='user.matching.tasks.recompute_all_embeddings',
 )
@@ -110,7 +109,6 @@ def _get_user(user_id: int):
     except User.DoesNotExist:
         return None
 
-
 def _get_candidates(user):
     from user.models import User
 
@@ -126,10 +124,8 @@ def _get_candidates(user):
         .iterator(chunk_size=50)
     )
 
-
 def _ordered_pair(u1, u2):
     return (u1, u2) if u1.id < u2.id else (u2, u1)
-
 
 def _save_result(u1, u2, result):
     from user.models import MatchResult
@@ -163,3 +159,15 @@ def _save_result(u1, u2, result):
                 'is_stale':           False,
             },
         )
+
+@shared_task(name='user.matching.tasks.notify_mutual_match')
+def notify_mutual_match(user_id_1: int, user_id_2: int):
+    from user.models import User
+    try:
+        u1 = User.objects.get(id=user_id_1)
+        u2 = User.objects.get(id=user_id_2)
+        logger.info(
+            f"[Match] Mutual match: {u1.email} ↔ {u2.email}. "
+        )
+    except User.DoesNotExist:
+        logger.warning(f"[Match] notify_mutual_match: user not found ({user_id_1}, {user_id_2})")
