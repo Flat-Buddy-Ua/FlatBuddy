@@ -42,7 +42,13 @@ urlpatterns = [
     path('api/profile/photos/', MePhotoListCreateView.as_view(), name='profile-photos-list'),
     path('api/profile/photos/<int:pk>/', MePhotoDestroyView.as_view(), name='profile-photos-detail'),
 
+
+    path('api/likes/', LikeView.as_view(), name='like-create'),
+    path('api/likes/<int:user_id>/', LikeView.as_view(), name='like-delete'),
+    path('api/likes/incoming/', IncomingLikesView.as_view(), name='likes-incoming'),
+    path('api/likes/outgoing/', OutgoingLikesView.as_view(), name='likes-outgoing'),
     path('api/matches/', MyMatchListView.as_view(), name='matches-list'),
+    path('api/user-matches/', MyMatchesView.as_view(), name='user-matches'),
 
     path('', TemplateView.as_view(template_name='index.html')),
     path('admin/', admin.site.urls),
