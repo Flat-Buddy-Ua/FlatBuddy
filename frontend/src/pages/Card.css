@@ -85,16 +85,21 @@
     line-height: 1.1;
 }
 .bp-sub { color: #555; font-size: 16px; margin: 0 0 16px; }
-.bp-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.bp-badges { display: flex; flex-wrap: wrap; gap: 10px; }
 .bp-badge {
-    padding: 6px 12px;
+    padding: 8px 16px;
     background: #F6DDD4;
-    border: 2px solid #111;
-    font-size: 14px;
-    font-weight: 500;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.18);
+    transform: translate(-1px, -1px);
 }
 .bp-badge.yellow { background: #FCD531; }
-.bp-badge.outline { background: transparent; }
+.bp-badge.outline {
+    background: transparent;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.12);
+}
 
 /* Tags */
 .bp-tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
