@@ -482,7 +482,7 @@ export default function Step1 ({ isEditing }) {
 						</div>
 
 					{!isEditing && (
-						<div>
+						<div style={{ position: 'relative', zIndex: 10 }}>
 							<RequiredLabel>Пароль</RequiredLabel>
 							<SmartBox
 								fieldName="password"

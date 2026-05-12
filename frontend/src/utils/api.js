@@ -61,3 +61,14 @@ function logoutUser() {
     localStorage.removeItem('refresh_token');
     window.location.href = '/'; // Викидаємо на головну
 }
+
+// ── Matches / Feed ────────────────────────────────────────────────────────
+
+export const getMatches = () =>
+    fetchWithAuth(`${BASE_URL}/api/matches/`);
+
+export const markSeen = (matchId) =>
+    fetchWithAuth(`${BASE_URL}/api/matches/${matchId}/seen/`, { method: 'POST' });
+
+export const getFomoData = () =>
+    fetchWithAuth(`${BASE_URL}/api/matches/fomo/`);

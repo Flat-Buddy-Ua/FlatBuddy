@@ -16,6 +16,7 @@ from user.views.UserRegistrationView import UserRegistrationView
 from user.views.VerifyMagicLinkView import VerifyMagicLinkView
 from user.views.ResendMagicLinkView import ResendMagicLinkView
 from user.views.MatchView import MyMatchListView
+from user.views.FeedView import MarkSeenView, FomoView
 
 from user.views.UserPhotoView import MePhotoListCreateView, MePhotoDestroyView
 from user.views.LikeView import (
@@ -43,12 +44,14 @@ urlpatterns = [
     path('api/profile/photos/<int:pk>/', MePhotoDestroyView.as_view(), name='profile-photos-detail'),
 
 
-    path('api/likes/', LikeView.as_view(), name='like-create'),
-    path('api/likes/incoming/', IncomingLikesView.as_view(), name='likes-incoming'),
-    path('api/likes/outgoing/', OutgoingLikesView.as_view(), name='likes-outgoing'),
-    path('api/likes/<int:user_id>/', LikeView.as_view(), name='like-delete'),
-    path('api/matches/', MyMatchListView.as_view(), name='matches-list'),
-    path('api/user-matches/', MyMatchesView.as_view(), name='user-matches'),
+    path('api/likes/',                         LikeView.as_view(),          name='like-create'),
+    path('api/likes/incoming/',                IncomingLikesView.as_view(), name='likes-incoming'),
+    path('api/likes/outgoing/',                OutgoingLikesView.as_view(), name='likes-outgoing'),
+    path('api/likes/<int:user_id>/',           LikeView.as_view(),          name='like-delete'),
+    path('api/matches/',                       MyMatchListView.as_view(),   name='matches-list'),
+    path('api/matches/fomo/',                  FomoView.as_view(),          name='matches-fomo'),
+    path('api/matches/<int:match_id>/seen/',   MarkSeenView.as_view(),      name='matches-seen'),
+    path('api/user-matches/',                  MyMatchesView.as_view(),     name='user-matches'),
 
     path('', TemplateView.as_view(template_name='index.html')),
     path('admin/', admin.site.urls),

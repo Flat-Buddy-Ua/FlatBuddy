@@ -10,7 +10,6 @@
     border: 2px solid transparent;
     background: #F6DDD4;
     cursor: text;
-    transform: translate(0, 0);
     box-shadow: none;
     transition: all 0.2s ease;
 }

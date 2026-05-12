@@ -3,7 +3,7 @@ import { SmartInput } from "./SmartInput";
 import { EyeOFF, EyeON } from "./EyeComponent";
 import "./PasswordInfo.css";
 
-export function PasswordInput ({ value, onChange, onFocus, onBlur, name }) {
+export function PasswordInput ({ value, onChange, onFocus, onBlur, name, hideInfo = false }) {
     const [showInfo, setShowInfo] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isActive, setIsActive] = useState(false);
@@ -40,26 +40,30 @@ export function PasswordInput ({ value, onChange, onFocus, onBlur, name }) {
                 {showPassword ? <EyeOFF /> : <EyeON />}
             </button>
 
-            <button
-                type="button"
-                onClick={() => setShowInfo(prev => !prev)}
-                className="password-info-btn"
-            >
-                i
-            </button>
+            {!hideInfo && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setShowInfo(prev => !prev)}
+                        className="password-info-btn"
+                    >
+                        i
+                    </button>
 
-            {showInfo && (
-                <div className="password-info-popover">
-                    <strong>Password requirements:</strong>
-                    <ul>
-                        <li>Як мінімум 8 символів</li>
-                        <li>Максимум 20 символів</li>
-                        <li>Щонайменше одна велика літера</li>
-                        <li>Щонайменше одна мала літера</li>
-                        <li>Щонайменше одна цифра</li>
-                        <li>Щонайменше один спеціальний символ</li>
-                    </ul>
-                </div>
+                    {showInfo && (
+                        <div className="password-info-popover">
+                            <strong>Password requirements:</strong>
+                            <ul>
+                                <li>Як мінімум 8 символів</li>
+                                <li>Максимум 20 символів</li>
+                                <li>Щонайменше одна велика літера</li>
+                                <li>Щонайменше одна мала літера</li>
+                                <li>Щонайменше одна цифра</li>
+                                <li>Щонайменше один спеціальний символ</li>
+                            </ul>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
