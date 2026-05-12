@@ -85,16 +85,21 @@
     line-height: 1.1;
 }
 .bp-sub { color: #555; font-size: 16px; margin: 0 0 16px; }
-.bp-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.bp-badges { display: flex; flex-wrap: wrap; gap: 10px; }
 .bp-badge {
-    padding: 6px 12px;
+    padding: 8px 16px;
     background: #F6DDD4;
-    border: 2px solid #111;
-    font-size: 14px;
-    font-weight: 500;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.18);
+    transform: translate(-1px, -1px);
 }
 .bp-badge.yellow { background: #FCD531; }
-.bp-badge.outline { background: transparent; }
+.bp-badge.outline {
+    background: transparent;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.12);
+}
 
 /* Tags */
 .bp-tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -209,6 +214,113 @@
 .bp-gate-btn:active {
     transform: translate(0, 0);
     box-shadow: 1px 1px 0 #111;
+}
+
+/* ── Two-column feed layout ──────────────────────────────────────────────── */
+.bp-feed-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* ── Compatibility panel ─────────────────────────────────────────────────── */
+.bp-compat-panel {
+    position: sticky;
+    top: 24px;
+    background: #fff;
+    border: 3px solid #111;
+    box-shadow: 5px 5px 0 #111;
+    padding: 24px;
+    font-family: 'Inter', sans-serif;
+}
+
+.bp-compat-total-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+.bp-compat-total-value {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.bp-compat-total-bar-track {
+    height: 10px;
+    background: #F6DDD4;
+    border: 2px solid #111;
+}
+
+.bp-compat-total-bar-fill {
+    height: 100%;
+    transition: width 0.4s ease;
+}
+
+.bp-compat-divider {
+    border: none;
+    border-top: 2px dashed #F6DDD4;
+    margin: 20px 0;
+}
+
+.bp-compat-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bp-compat-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.bp-compat-row-label {
+    font-size: 12px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.bp-compat-row-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bp-compat-bar-track {
+    flex: 1;
+    height: 7px;
+    background: #F6DDD4;
+    border: 1.5px solid #111;
+}
+
+.bp-compat-bar-fill {
+    height: 100%;
+    transition: width 0.4s ease;
+}
+
+.bp-compat-row-pct {
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: right;
+}
+
+@media (max-width: 860px) {
+    .bp-feed-layout {
+        grid-template-columns: 1fr;
+    }
+    .bp-compat-panel {
+        position: static;
+        order: -1;
+    }
 }
 
 /* Feed nav button */
