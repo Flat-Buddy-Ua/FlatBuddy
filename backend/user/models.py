@@ -255,3 +255,55 @@ class SeenProfile(models.Model):
 
     def __str__(self):
         return f"Seen: user {self.user_id} → match {self.match_id}"
+
+
+class UserLike(models.Model):
+    from_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='likes_sent',
+    )
+    to_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='likes_received',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_like'
+        unique_together = ('from_user', 'to_user')
+        indexes = [
+            models.Index(fields=['from_user']),
+            models.Index(fields=['to_user']),
+        ]
+
+    def __str__(self):
+        return f"{self.from_user_id} → {self.to_user_id}"
+
+
+class UserMatch(models.Model):
+    user_1 = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='mutual_matches_1',
+    )
+    user_2 = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='mutual_matches_2',
+    )
+    compatibility_score = models.FloatField(null=True, blank=True)
+    matched_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'user_match'
+        unique_together = ('user_1', 'user_2')
+        indexes = [
+            models.Index(fields=['user_1']),
+            models.Index(fields=['user_2']),
+        ]
+
+    def __str__(self):
+        return f"Match {self.user_1_id} ↔ {self.user_2_id}"

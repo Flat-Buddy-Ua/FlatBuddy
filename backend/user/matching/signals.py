@@ -60,6 +60,8 @@ def connect_signals():
     @receiver(post_save, sender=UserHousing)
     def on_housing_save(sender, instance, created, **kwargs):
         from user.matching.tasks import recalculate_matches_for_user
+        from django.db.models import Q
+        from user.models import MatchResult
 
         try:
             recalculate_matches_for_user.delay(instance.user_id)
@@ -72,11 +74,37 @@ def connect_signals():
                 "[Signals] Failed to enqueue matching recalc for user %s",
                 instance.user_id,
             )
-
+ 
+        stale_partner_ids = (
+            MatchResult.objects.filter(
+                Q(user_1_id=instance.user_id) | Q(user_2_id=instance.user_id),
+                status=MatchResult.Status.DONE,
+            ).values_list('user_1_id', 'user_2_id')
+        )
+ 
+        partner_ids = set()
+        for u1_id, u2_id in stale_partner_ids:
+            other = u2_id if u1_id == instance.user_id else u1_id
+            partner_ids.add(other)
+ 
+        for partner_id in partner_ids:
+            try:
+                recalculate_matches_for_user.delay(partner_id)
+            except Exception:
+                logger.exception(
+                    "[Signals] Failed to enqueue matching recalc for partner %s",
+                    partner_id,
+                )
+ 
+        logger.debug(
+            f"[Signals] Housing updated for user {instance.user_id} "
+            f"→ triggered recalc for {len(partner_ids)} partners"
+        )
+ 
     @receiver(post_save, sender=UserPriority)
     def on_priority_save(sender, instance, created, **kwargs):
         from user.matching.tasks import recalculate_matches_for_user
-
+ 
         try:
             recalculate_matches_for_user.delay(instance.user_id)
             logger.debug(
