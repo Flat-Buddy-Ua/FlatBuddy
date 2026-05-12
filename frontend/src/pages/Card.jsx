@@ -40,6 +40,82 @@ function checkCompleteness(profile, housing, photos) {
     return true;
 }
 
+const SCORE_ROWS = [
+    { key: "vibe",        label: "Характер та цілі" },
+    { key: "hobbies",     label: "Захоплення"       },
+    { key: "cleanliness", label: "Охайність"         },
+    { key: "smoking",     label: "Куріння"           },
+    { key: "partying",    label: "Вечірки / гості"   },
+    { key: "schedule",    label: "Розклад"           },
+    { key: "personality", label: "Інтровертність"    },
+    { key: "political",   label: "Світогляд"         },
+];
+
+function scoreColor(val) {
+    if (val >= 0.75) return "#3aaf6f";
+    if (val >= 0.50) return "#F58A3D";
+    return "#e04b3a";
+}
+
+function CompatibilityPanel({ buddy }) {
+    const total = buddy.totalScore ?? 0;
+    const scores = buddy.scores ?? {};
+
+    return (
+        <div className="bp-compat-panel">
+            <div className="bp-compat-total">
+                <div className="bp-compat-total-label">Загальна сумісність</div>
+                <div
+                    className="bp-compat-total-value"
+                    style={{ color: scoreColor(total) }}
+                >
+                    {Math.round(total * 100)}%
+                </div>
+                <div className="bp-compat-total-bar-track">
+                    <div
+                        className="bp-compat-total-bar-fill"
+                        style={{
+                            width: `${Math.round(total * 100)}%`,
+                            background: scoreColor(total),
+                        }}
+                    />
+                </div>
+            </div>
+
+            <div className="bp-compat-divider" />
+
+            <div className="bp-compat-rows">
+                {SCORE_ROWS.map(({ key, label }) => {
+                    const val = scores[key] ?? 0;
+                    const pct = Math.round(val * 100);
+                    return (
+                        <div key={key} className="bp-compat-row">
+                            <div className="bp-compat-row-label">{label}</div>
+                            <div className="bp-compat-row-right">
+                                <div className="bp-compat-bar-track">
+                                    <div
+                                        className="bp-compat-bar-fill"
+                                        style={{
+                                            width: `${pct}%`,
+                                            background: scoreColor(val),
+                                        }}
+                                    />
+                                </div>
+                                <div
+                                    className="bp-compat-row-pct"
+                                    style={{ color: scoreColor(val) }}
+                                >
+                                    {pct}%
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
 function ProfileCard({ buddy }) {
     return (
         <div className="bp-wrap">
@@ -295,7 +371,10 @@ export function Card() {
 
                     {!feedLoading && fomoData === null && currentBuddy && (
                         <>
-                            <ProfileCard buddy={currentBuddy} />
+                            <div className="bp-feed-layout">
+                                <ProfileCard buddy={currentBuddy} />
+                                <CompatibilityPanel buddy={currentBuddy} />
+                            </div>
                             <div className="bp-nav">
                                 <button className="bp-nav-btn" onClick={handleNext}>
                                     Далі →
