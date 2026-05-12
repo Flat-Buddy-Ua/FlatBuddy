@@ -8,15 +8,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user', '0006_userpriority_matchresult_and_alter_user_is_active'),
+        ('user', '0008_seenprofile'),
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='user',
-            name='is_active',
-            field=models.BooleanField(default=False),
-        ),
         migrations.CreateModel(
             name='UserLike',
             fields=[
