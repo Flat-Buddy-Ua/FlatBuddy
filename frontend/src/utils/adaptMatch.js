@@ -185,6 +185,7 @@ export function adaptMatch(match) {
 
     return {
         id:               match.id,
+        matchedUserId:    user.id,
         name:             `${user.first_name} ${user.last_name}`,
         age:              user.age,
         photos,
