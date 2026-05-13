@@ -134,3 +134,15 @@ def send_announcement(user):
 </html>"""
 
     _send(user.email, "Готові до знайомства з ідеальним співмешканцем?", html)
+
+
+def send_new_like_email(to_user, from_user):
+    link = settings.FRONTEND_URL
+    html = f"<p>Привіт, {to_user.first_name}!</p><p>Тобою зацікавився користувач {from_user.first_name} {from_user.last_name}. Перейдіть, щоб переглянути профіль.</p>"
+    _send(to_user.email, "Вас лайкнули!", html)
+
+
+def send_new_match_email(to_user, from_user):
+    link = settings.FRONTEND_URL
+    html = f"<p>Вітаємо, {to_user.first_name}!</p><p>У Вас новий метч з {from_user.first_name} {from_user.last_name} 🎉. Перейдіть, щоб переглянути.</p>"
+    _send(to_user.email, "У Вас новий метч!", html)

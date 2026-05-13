@@ -19,6 +19,8 @@ def handle_like(from_user, to_user) -> dict:
         ).exists()
 
         if not mutual:
+            from user.matching.tasks import notify_new_like
+            notify_new_like.delay(from_user.id, to_user.id)
             return {'status': 'liked', 'match_id': None}
 
         u1_id, u2_id = _ordered(from_user.id, to_user.id)

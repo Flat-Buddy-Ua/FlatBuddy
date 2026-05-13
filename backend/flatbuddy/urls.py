@@ -20,7 +20,7 @@ from user.views.FeedView import MarkSeenView, FomoView
 
 from user.views.UserPhotoView import MePhotoListCreateView, MePhotoDestroyView
 from user.views.LikeView import (
-    LikeView, IncomingLikesView, OutgoingLikesView, MyMatchesView,
+    LikeCreateView, LikeDeleteView, IncomingLikesView, OutgoingLikesView, MyMatchesView,
 )
 from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
@@ -44,10 +44,10 @@ urlpatterns = [
     path('api/profile/photos/<int:pk>/', MePhotoDestroyView.as_view(), name='profile-photos-detail'),
 
 
-    path('api/likes/',                         LikeView.as_view(),          name='like-create'),
+    path('api/likes/',                         LikeCreateView.as_view(),    name='like-create'),
     path('api/likes/incoming/',                IncomingLikesView.as_view(), name='likes-incoming'),
     path('api/likes/outgoing/',                OutgoingLikesView.as_view(), name='likes-outgoing'),
-    path('api/likes/<int:user_id>/',           LikeView.as_view(),          name='like-delete'),
+    path('api/likes/<int:user_id>/',           LikeDeleteView.as_view(),    name='like-delete'),
     path('api/matches/',                       MyMatchListView.as_view(),   name='matches-list'),
     path('api/matches/fomo/',                  FomoView.as_view(),          name='matches-fomo'),
     path('api/matches/<int:match_id>/seen/',   MarkSeenView.as_view(),      name='matches-seen'),
