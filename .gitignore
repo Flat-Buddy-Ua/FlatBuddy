@@ -60,3 +60,7 @@ media/
 
 # Claude
 .claude/
+
+# PDF files
+*.pdf 
+
