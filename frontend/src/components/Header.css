@@ -64,6 +64,25 @@
   opacity: 0.7;
 }
 
+.fb-header__icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  line-height: 0;
+}
+
+.fb-header__heart {
+  display: block;
+  transition: transform 0.15s ease, fill 0.15s ease;
+}
+
+.fb-header__icon-link:hover .fb-header__heart {
+  transform: scale(1.1);
+  fill: #F58A3D;
+  stroke: #F58A3D;
+}
+
 .fb-header__auth-link {
   font-family: "Seenonim", sans-serif;
   font-size: 18px;
