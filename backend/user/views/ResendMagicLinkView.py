@@ -33,7 +33,11 @@ class ResendMagicLinkView(generics.GenericAPIView):
         rate_key = f"magic_link_rate:{user.id}"
         block_key = f"magic_link_block:{user.id}"
 
-        block_time = cache.ttl(block_key)
+        try:
+            block_time = cache.ttl(block_key)
+        except AttributeError:
+            # LocMemCache не має ttl() — просто перевіряємо наявність ключа
+            block_time = 1 if cache.get(block_key) else 0
         if block_time and block_time > 0:
             return Response({'detail':f'Try again in {math.ceil(block_time / 60)} minutes'}, status=429)
 

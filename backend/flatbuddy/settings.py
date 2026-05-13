@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'user',
     'drf_spectacular',
+    'django_celery_results',
+    'django_celery_beat',
     'django.contrib.postgres',
     # 'services',
 ]
@@ -196,18 +198,6 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
-
-RESEND_API_KEY = os.getenv('RESEND_API_KEY')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'news@flatbuddyua.com')
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'django-db'
@@ -221,3 +211,37 @@ CELERY_TASK_TIME_LIMIT = 660
 CELERY_IMPORTS = [
     'user.matching.tasks',
 ]
+def _redis_available(host="127.0.0.1", port=6379, timeout=0.5):
+    import socket
+    try:
+        s = socket.create_connection((host, port), timeout=timeout)
+        s.close()
+        return True
+    except OSError:
+        return False
+
+if _redis_available():
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://127.0.0.1:6379/1",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+        }
+    }
+else:
+    import warnings
+    warnings.warn(
+        "Redis недоступний — використовується LocMemCache (тільки для локальної розробки).",
+        RuntimeWarning,
+        stacklevel=2,
+    )
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+
+RESEND_API_KEY = os.getenv('RESEND_API_KEY')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'news@flatbuddyua.com')

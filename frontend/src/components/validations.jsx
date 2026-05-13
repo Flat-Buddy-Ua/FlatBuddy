@@ -14,7 +14,6 @@ export const validations = {
     if (firstLetter !== firstLetter.toUpperCase()) {
       return "Перша літера має бути великою";
     }
-
     const restOfName = value.trim().substring(1);
     if (/[А-ЯЄІЇҐ]/.test(restOfName)) {
       return "Решта літер мають бути маленькими";
@@ -22,7 +21,6 @@ export const validations = {
 
     return null;
   },
-
   surname: (value) => {
     if (!value.trim()) return "Прізвище обов'язкове";
     if (!/^[А-Яа-яЄєІіЇїҐґ\s-]{2,50}$/.test(value)) {
@@ -33,7 +31,6 @@ export const validations = {
     if (firstLetter !== firstLetter.toUpperCase()) {
       return "Перша літера має бути великою";
     }
-
     const restOfName = value.trim().substring(1);
     if (/[А-ЯЄІЇҐ]/.test(restOfName)) {
       return "Решта літер мають бути маленькими";
@@ -65,7 +62,6 @@ export const validations = {
     if (age > 120) return "Некоректна дата";
     return null;
   },
-
   email: (value) => {
     if (!value.trim()) return "Email обов'язковий";
     if (!/\S+@\S+\.\S+/.test(value)) {
@@ -95,7 +91,6 @@ export const validations = {
       // Фінтелеком
       '039'
     ];
-
     if (!validCodes.includes(operatorCode)) {
       return `Невірний код оператора. Дозволені: ${validCodes.slice(0, 5).join(', ')}...`;
     }

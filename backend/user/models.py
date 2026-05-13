@@ -37,6 +37,14 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     username = None
+
+    class Package(models.TextChoices):
+        FREE    = "free",    "Безкоштовний"
+        P25     = "p25",     "Пакет 25"
+        P45     = "p45",     "Пакет 45"
+        P55     = "p55",     "Пакет 55"
+        PREMIUM = "premium", "Преміум (безліміт)"
+
     country = models.IntegerField(choices=Country.choices)
     city = models.CharField(max_length=100)
     gender = models.IntegerField(choices=Gender.choices)
@@ -44,6 +52,11 @@ class User(AbstractUser):
     phone_number = models.CharField(unique=True)
     email = models.EmailField(unique=True, max_length=254)
     is_active = models.BooleanField(default=False)
+    package = models.CharField(
+        max_length=7,
+        choices=Package.choices,
+        default=Package.PREMIUM,
+    )
     objects = UserManager()
     
     USERNAME_FIELD = 'email'
@@ -79,6 +92,26 @@ class UserProfile(models.Model):
     sleep_schedule = models.TextField(max_length=100, validators=[MinLengthValidator(3)], blank=True)
     smoking = models.IntegerField(choices=Smoking.choices, null=True, blank=True)
     extra_intro_version = models.IntegerField(choices=Personality.choices, null=True, blank=True)
+    hobbies = models.IntegerField(choices=Hobby.choices, null=True, blank=True)
+    partying = models.IntegerField(choices=Partying.choices, null=True, blank=True)
+
+
+    # Cached sentence-transformer embeddings (MiniLM-L12, dim=384)
+    embedding_vibe = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_hobbies = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_schedule = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_updated_at = models.DateTimeField(
+        null=True, blank=True
+    )
+    parsed_wake_hour  = models.FloatField(null=True, blank=True)
+    parsed_sleep_hour = models.FloatField(null=True, blank=True)
+
     hobbies = ArrayField(
         models.IntegerField(choices=Hobby.choices),
         size=10,
@@ -163,6 +196,7 @@ class UserHousing(models.Model):
 
     def __str__(self):
         return f"Житлові уподобання {self.user.email}"
+    
 
 class UserPriority(models.Model):
     user = models.OneToOneField(
@@ -180,12 +214,11 @@ class UserPriority(models.Model):
     class Meta:
         db_table = 'user_priority'
 
-    def str(self):
+    def __str__(self):
         return f"Пріоритети {self.user.email}: {self.fields}"
 
 
 class MatchResult(models.Model):
-
     class Status(models.TextChoices):
         PENDING  = 'pending',  'Очікує обрахунку'
         DONE     = 'done',     'Розраховано'
@@ -221,5 +254,71 @@ class MatchResult(models.Model):
             models.Index(fields=['is_stale']),
         ]
 
-    def str(self):
-        return f"Match {self.user_1_id} ↔️ {self.user_2_id}: {self.total_score}"
+    def __str__(self):
+        return f"Match {self.user_1_id} ↔ {self.user_2_id}: {self.total_score}"
+
+
+class SeenProfile(models.Model):
+    user    = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seen_profiles')
+    match   = models.ForeignKey(MatchResult, on_delete=models.CASCADE, related_name='seen_by')
+    seen_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table        = 'seen_profile'
+        unique_together = ('user', 'match')
+        indexes         = [models.Index(fields=['user', 'seen_at'])]
+
+    def __str__(self):
+        return f"Seen: user {self.user_id} → match {self.match_id}"
+
+
+class UserLike(models.Model):
+    from_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='likes_sent',
+    )
+    to_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='likes_received',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_like'
+        unique_together = ('from_user', 'to_user')
+        indexes = [
+            models.Index(fields=['from_user']),
+            models.Index(fields=['to_user']),
+        ]
+
+    def __str__(self):
+        return f"{self.from_user_id} → {self.to_user_id}"
+
+
+class UserMatch(models.Model):
+    user_1 = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='mutual_matches_1',
+    )
+    user_2 = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='mutual_matches_2',
+    )
+    compatibility_score = models.FloatField(null=True, blank=True)
+    matched_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'user_match'
+        unique_together = ('user_1', 'user_2')
+        indexes = [
+            models.Index(fields=['user_1']),
+            models.Index(fields=['user_2']),
+        ]
+
+    def __str__(self):
+        return f"Match {self.user_1_id} ↔ {self.user_2_id}"

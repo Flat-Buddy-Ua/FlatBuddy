@@ -138,7 +138,7 @@ export function LoginPopup({ isOpen, onClose, onSuccess }) {
               				setFormState={setFormState}
               				mywidth="100%"
             			>
-              				<PasswordInput name="login_pass_word" placeholder="Пароль" />
+              				<PasswordInput name="login_pass_word" placeholder="Пароль" hideInfo />
             			</SmartBox>
           			</div>
         		</div>

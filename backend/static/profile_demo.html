@@ -55,18 +55,19 @@ body {
 .hero .photo-stack { display: flex; flex-direction: column; gap: 8px; }
 .hero .photo-main {
   width: 220px; height: 260px;
-  background: linear-gradient(135deg, var(--peach), var(--yellow));
   border: 3px solid var(--ink);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Seenonim','Inter',sans-serif; font-size: 48px; color: var(--ink);
+  background-size: cover;
+  background-position: center;
+  background-color: var(--peach);
 }
 .hero .photo-row { display: flex; gap: 6px; }
 .hero .photo-thumb {
   width: 50px; height: 50px;
-  background: var(--peach);
   border: 2px solid var(--ink);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--peach);
+  cursor: pointer;
 }
 .hero h1 { margin: 0 0 6px; font-size: 36px; font-weight: 700; line-height: 1.1; }
 .hero .sub { color: var(--ink-soft); font-size: 16px; margin: 0 0 16px; }
@@ -142,21 +143,20 @@ body {
   <!-- HERO -->
   <div class="hero">
     <div class="photo-stack">
-      <div class="photo-main">📷</div>
+      <div class="photo-main" style="background-image:url('http://flatbuddyua.com/media/user_photos/user_53/photo_2025-11-10_13-54-55.jpg')"></div>
       <div class="photo-row">
-        <div class="photo-thumb">📷</div>
-        <div class="photo-thumb">📷</div>
-        <div class="photo-thumb">📷</div>
-        <div class="photo-thumb">📷</div>
+        <div class="photo-thumb" style="background-image:url('http://flatbuddyua.com/media/user_photos/user_53/photo_2025-11-10_13-54-55.jpg')"></div>
+        <div class="photo-thumb" style="background-image:url('http://flatbuddyua.com/media/user_photos/user_53/photo_2025-12-14_01-15-19.jpg')"></div>
+        <div class="photo-thumb" style="background-image:url('http://flatbuddyua.com/media/user_photos/user_53/photo_2026-01-05_12-42-46.jpg')"></div>
       </div>
     </div>
     <div>
-      <h1>Тарас Шевченко, 21</h1>
-      <p class="sub">Київ · Студент і працюю · STEM та IT</p>
+      <h1>Роман Яцишин, 19</h1>
+      <p class="sub">Львів · Студент і працюю · STEM та IT</p>
       <div class="badges">
-        <div class="badge yellow">Шукає сусіда</div>
-        <div class="badge">Бюджет 8 000–14 000 ₴</div>
-        <div class="badge outline">Київ — Печерський, Голосіївський</div>
+        <div class="badge yellow">Шукає квартиру та сусіда</div>
+        <div class="badge">Бюджет 7 000–10 000 ₴</div>
+        <div class="badge outline">Львів — Личаківський, Галицький, Залізничний, Сихівський, Франківський, Шевченківський</div>
       </div>
     </div>
   </div>
@@ -164,13 +164,13 @@ body {
   <!-- ABOUT / VIBE -->
   <div class="card">
     <h2>Про мене</h2>
-    <p class="bio">Привіт! Я навчаюсь на 3-му курсі КПІ за спеціальністю «Комп'ютерні науки», паралельно працюю Junior backend-розробником в українському стартапі. Люблю спокійні вечори за серіалами, варити каву по-турецьки і ходити в гори в теплу пору року. Чисту кухню вважаю основою здорового побуту, але не нав'язую охайність як обов'язок. Не курю, інколи можу долучитись до пляшечки сухого вина у вихідні. Шукаю когось, з ким можна жити в гармонії — без зайвого шуму, але і без надмірної дистанції.</p>
+    <p class="bio">Студент 2-го курсу Львівської політехніки, спеціальність — програмна інженерія. Паралельно з навчанням працюю фронтенд-розробником на парт-тайм у невеликій продуктовій команді, тому половина дня — пари, друга половина — код. По вечорах і на вихідних сідаю на велосипед і їжджу від Високого Замку до Винників — це мій спосіб скинути голову. Не курю в квартирі, до людей довкола ставлюсь без зайвого драматизму, можу мовчати поряд цілий день і це нормально.</p>
   </div>
 
   <!-- LOOKING FOR -->
   <div class="card">
     <h2>Кого шукаю</h2>
-    <p class="bio">Шукаю співмешканця/-ку 20–28 років, бажано теж студента або айтівця, з яким зможу ділити квартиру в районі Печерська чи Голосіївського. Важливо: чистоплотність, повага до особистого простору, відсутність шкідливих звичок (хіба що зрідка вино/пиво — ок), готовність по черзі прибирати спільні зони. Якщо ти любиш настолки, кіно, гори — у нас точно знайдеться спільне. Романтичних відносин не шукаю, тільки хорошого побутового співмешкання.</p>
+    <p class="bio">Шукаю співмешканця приблизно мого віку (18–25), бажано теж студента або айтівця. Найважливіше — щоб людина була охайна на спільних зонах (кухня, ванна) і поважала особистий простір: я не люблю гучних компаній серед буднього вечора, але якщо запросиш друзів на вихідних — це нормально. Стать не принципова. Готовий ділити кімнату, якщо квартира гарна і ціна того варта. Романтичних відносин не шукаю, тільки рівне сусідство.</p>
   </div>
 
   <!-- LIFESTYLE -->
@@ -179,32 +179,32 @@ body {
 
     <div class="slider-row">
       <div class="label">Охайність</div>
-      <div class="slider-track"><div class="slider-thumb" style="left:75%"></div></div>
+      <div class="slider-track"><div class="slider-thumb" style="left:80%"></div></div>
       <div class="slider-labels"><span>Абсолютно неохайний</span><span>Чистюня</span></div>
     </div>
 
     <div class="slider-row">
       <div class="label">Інтроверт ↔ Екстраверт</div>
-      <div class="slider-track"><div class="slider-thumb" style="left:50%"></div></div>
+      <div class="slider-track"><div class="slider-thumb" style="left:100%"></div></div>
       <div class="slider-labels"><span>Інтроверт</span><span>Амбіверт</span><span>Екстраверт</span></div>
     </div>
 
     <div class="row" style="margin-top: 8px;">
       <div>
         <div class="label">Розклад</div>
-        <div class="val">Пари 09:00–15:00, робота 16:00–20:00. Вечорами вдома.</div>
+        <div class="val">Пари 08:30–14:00, робота 15:00–19:00. Вечорами вдома або на велосипеді.</div>
       </div>
       <div>
         <div class="label">Графік сну</div>
-        <div class="val">Засинаю 23:30–00:30, прокидаюсь 07:30.</div>
+        <div class="val">Лягаю 23:30–00:30, встаю 07:30.</div>
       </div>
       <div>
         <div class="label">Ставлення до куріння</div>
-        <div class="val">Не палю, але це не проблема для мене</div>
+        <div class="val">Іноді палю</div>
       </div>
       <div>
         <div class="label">Ставлення до вечірок/гостей</div>
-        <div class="val">Іноді люблю вечірки/гостей</div>
+        <div class="val">Це не проблема для мене</div>
       </div>
     </div>
   </div>
@@ -214,14 +214,14 @@ body {
     <h2>Світогляд</h2>
 
     <div class="slider-row">
-      <div class="label">Економічна ось — Помірковано лівий</div>
-      <div class="slider-track"><div class="slider-thumb" style="left:30%"></div></div>
+      <div class="label">Економічна ось — Центрист</div>
+      <div class="slider-track"><div class="slider-thumb" style="left:47.5%"></div></div>
       <div class="slider-labels"><span>Лівий</span><span>·</span><span>Правий</span></div>
     </div>
 
     <div class="slider-row">
-      <div class="label">Соціальна ось — Поміркований ліберальний</div>
-      <div class="slider-track"><div class="slider-thumb" style="left:35%"></div></div>
+      <div class="label">Соціальна ось — Центрист</div>
+      <div class="slider-track"><div class="slider-thumb" style="left:52.5%"></div></div>
       <div class="slider-labels"><span>Ліберальний</span><span>·</span><span>Комунітарний</span></div>
     </div>
   </div>
@@ -230,8 +230,8 @@ body {
   <div class="card">
     <h2>Мови</h2>
     <div class="tag-list">
-      <span class="tag">🇺🇦 Українська</span>
       <span class="tag">🇬🇧 English</span>
+      <span class="tag">🇺🇦 Українська</span>
       <span class="tag">🇵🇱 Polski</span>
     </div>
   </div>
@@ -240,14 +240,7 @@ body {
   <div class="card">
     <h2>Захоплення / хобі</h2>
     <div class="tag-list">
-      <span class="tag">Технології / Програмування</span>
-      <span class="tag">Походи / Гори</span>
-      <span class="tag">Кіно та Серіали</span>
-      <span class="tag">Настільні ігри</span>
-      <span class="tag">Кава / Кавова культура</span>
-      <span class="tag">Подкасти</span>
-      <span class="tag custom">Ретро-фотокамери</span>
-      <span class="tag custom">Хобіхорсинг</span>
+      <span class="tag">Велоспорт</span>
     </div>
   </div>
 
@@ -257,7 +250,7 @@ body {
     <div class="housing-grid">
       <div class="housing-cell">
         <div class="label">Преференція</div>
-        <div class="val">Окрема кімната</div>
+        <div class="val">Mені комфортно ділити кімнату з співмешканцем</div>
       </div>
       <div class="housing-cell">
         <div class="label">З ким готовий жити</div>
@@ -265,31 +258,31 @@ body {
       </div>
       <div class="housing-cell">
         <div class="label">Ситуація</div>
-        <div class="val">Шукаю житло та співмешканця</div>
+        <div class="val">Я шукаю квартиру та співмешканця</div>
       </div>
       <div class="housing-cell">
         <div class="label">Бюджет</div>
-        <div class="val">8 000 – 14 000 ₴</div>
+        <div class="val">7 000 – 10 000 ₴</div>
       </div>
       <div class="housing-cell">
         <div class="label">Місто</div>
-        <div class="val">Київ</div>
+        <div class="val">Львів</div>
       </div>
       <div class="housing-cell">
         <div class="label">Бажані райони</div>
-        <div class="val">Печерський, Голосіївський</div>
+        <div class="val">Личаківський, Галицький, Залізничний, Сихівський, Франківський, Шевченківський</div>
       </div>
       <div class="housing-cell">
         <div class="label">Термін проживання</div>
-        <div class="val">Більше 1 року</div>
+        <div class="val">Від 6 до 12 місяців</div>
       </div>
       <div class="housing-cell">
         <div class="label">Дата заселення</div>
-        <div class="val">15.06.2026</div>
+        <div class="val">04.05.2026</div>
       </div>
       <div class="housing-cell">
         <div class="label">Тваринка</div>
-        <div class="val">Кіт-британець на ім'я Орест, 4 роки. Не лізе на стіл.</div>
+        <div class="val">—</div>
       </div>
     </div>
   </div>
@@ -300,11 +293,11 @@ body {
     <div class="row">
       <div>
         <div class="label">Email</div>
-        <div class="val">taras.shevchenko@example.com</div>
+        <div class="val">roman.yatsyshyn.shi.2024@lpnu.ua</div>
       </div>
       <div>
         <div class="label">Телефон</div>
-        <div class="val">+38 (098) 765-43-21</div>
+        <div class="val">+38 (096) 996-52-30</div>
       </div>
     </div>
   </div>

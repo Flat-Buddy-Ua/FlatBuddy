@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>FlatBuddy — Сумісність (demo)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --page: #faf6f3;
+  --ink: #111111;
+  --ink-soft: #555;
+  --peach: #F6DDD4;
+  --yellow: #FCD531;
+  --orange: #F58A3D;
+  --green: #2e7d32;
+  --green-soft: #d0e6d2;
+  --red: #c62828;
+  --red-soft: #f5d4d4;
+  --amber: #b97a1f;
+  --amber-soft: #fbe5c2;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  padding: 32px 16px 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+
+.page-header {
+  text-align: center;
+  padding: 0 8px;
+}
+.page-header h1 {
+  font-size: 40px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+.page-header .accent { color: var(--orange); }
+.page-header .accent-2 { color: var(--yellow); -webkit-text-stroke: 1px var(--ink); }
+.page-header p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+
+/* Pair card */
+.pair {
+  background: var(--bg);
+  border: 3px solid var(--peach);
+  padding: 32px;
+}
+.pair-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.profile.right { flex-direction: row-reverse; text-align: right; }
+.avatar {
+  width: 84px;
+  height: 84px;
+  border: 3px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.avatar.peach { background: var(--peach); }
+.avatar.yellow { background: var(--yellow); }
+.avatar.orange { background: var(--orange); color: white; }
+.avatar.amber { background: var(--amber-soft); }
+.profile h3 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+}
+.profile .meta {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+/* Total badge */
+.total {
+  width: 140px;
+  height: 140px;
+  border: 4px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  text-align: center;
+  flex-shrink: 0;
+}
+.total .num {
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1;
+}
+.total .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+  color: var(--ink-soft);
+}
+.total.green { background: var(--green-soft); }
+.total.red { background: var(--red-soft); }
+
+/* Score grid */
+.scores {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 32px;
+  margin-bottom: 24px;
+}
+.score-row { display: flex; flex-direction: column; gap: 6px; }
+.score-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 14px;
+}
+.score-top .name {
+  font-weight: 600;
+  color: var(--ink);
+}
+.score-top .pct {
+  font-weight: 700;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.bar {
+  position: relative;
+  height: 10px;
+  background: var(--peach);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bar-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  transform-origin: left center;
+}
+.bar-fill.green { background: linear-gradient(90deg, #62b66a, #2e7d32); }
+.bar-fill.amber { background: linear-gradient(90deg, #f0b35a, #b97a1f); }
+.bar-fill.red   { background: linear-gradient(90deg, #e07474, #c62828); }
+.score-weight {
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Verdict */
+.verdict {
+  border-top: 2px dashed var(--peach);
+  padding-top: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.verdict-icon {
+  width: 36px; height: 36px;
+  border: 2px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.verdict-icon.green { background: var(--green-soft); }
+.verdict-icon.red   { background: var(--red-soft); }
+.verdict-text { font-size: 15px; line-height: 1.55; color: var(--ink); }
+.verdict-text strong { color: var(--ink); font-weight: 700; }
+
+@media (max-width: 720px) {
+  .pair-head { grid-template-columns: 1fr; }
+  .profile, .profile.right { flex-direction: column; text-align: center; }
+  .total { margin: 0 auto; }
+  .scores { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="page-header">
+    <h1>
+      <span class="accent">Сумісність</span> — це не випадковість
+    </h1>
+    <p>Розкладаємо результат FlatBuddy matching engine на компоненти. Дві пари — найкраща і найгірша — щоб побачити, як кожен фактор впливає на загальний бал.</p>
+  </div>
+
+  <!-- =================== PAIR 1: HIGH MATCH =================== -->
+  <div class="pair">
+    <div class="pair-head">
+      <div class="profile">
+        <div class="avatar peach">Я</div>
+        <div>
+          <h3>Ярина, 27</h3>
+          <div class="meta">STEM/IT · інтроверт · cleanliness 5/5<br>«Тиша і порядок понад усе»</div>
+        </div>
+      </div>
+
+      <div class="total green">
+        <div class="num">86.7%</div>
+        <div class="label">сумісність</div>
+      </div>
+
+      <div class="profile right">
+        <div class="avatar yellow">О</div>
+        <div>
+          <h3>Олена, 29</h3>
+          <div class="meta">EDUCATION · інтроверт · cleanliness 5/5<br>«Дисципліна і затишок»</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scores">
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Vibe</span>
+          <span class="pct">85%</span>
+        </div>
+        <div class="bar"><div class="bar-fill green" style="width:85%"></div></div>
+        <div class="score-weight">вага 30%</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Охайність</span>
+          <span class="pct">100%</span>
+        </div>
+        <div class="bar"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="score-weight">вага 20%</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Графік</span>
+          <span class="pct">75%</span>
+        </div>
+        <div class="bar"><div class="bar-fill green" style="width:75%"></div></div>
+        <div class="score-weight">вага 15% · sleep diff 1.0 год, wake diff 0.5 год</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Хобі</span>
+          <span class="pct">50%</span>
+        </div>
+        <div class="bar"><div class="bar-fill amber" style="width:50%"></div></div>
+        <div class="score-weight">вага 10% · TECHNOLOGY vs LANGUAGES</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Паління</span>
+          <span class="pct">100%</span>
+        </div>
+        <div class="bar"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="score-weight">вага 10% · обидві проти паління</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Партінг</span>
+          <span class="pct">100%</span>
+        </div>
+        <div class="bar"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="score-weight">вага 5% · обидві проти вечірок</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Світогляд</span>
+          <span class="pct">99.5%</span>
+        </div>
+        <div class="bar"><div class="bar-fill green" style="width:99.5%"></div></div>
+        <div class="score-weight">вага 5% · координати майже збігаються</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Особистість</span>
+          <span class="pct">100%</span>
+        </div>
+        <div class="bar"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="score-weight">вага 5% · обидві інтроверти</div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-icon green">✓</div>
+      <div class="verdict-text">
+        <strong>Майже ідеальна пара.</strong> Тиха магістрантка зі STEM і вчителька-інтровертка
+        збігаються по всіх ключових осях побуту: охайність, відсутність шкідливих звичок,
+        ставлення до гостей, тип темпераменту, світогляд. Невеликий мінус — різні
+        тематичні зацікавлення (технології проти мов), але це не блокує спільне життя.
+        Графік відрізняється на годину, що в межах розумного. Engine видає <strong>86.7%</strong>
+        — у топі для реальної бази.
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== PAIR 2: LOW MATCH =================== -->
+  <div class="pair">
+    <div class="pair-head">
+      <div class="profile">
+        <div class="avatar peach">Я</div>
+        <div>
+          <h3>Ярина, 27</h3>
+          <div class="meta">STEM/IT · інтроверт · cleanliness 5/5<br>«Тиша і порядок понад усе»</div>
+        </div>
+      </div>
+
+      <div class="total red">
+        <div class="num">22.8%</div>
+        <div class="label">сумісність</div>
+      </div>
+
+      <div class="profile right">
+        <div class="avatar orange">К</div>
+        <div>
+          <h3>Крістіна, 25</h3>
+          <div class="meta">SERVICE · екстраверт · cleanliness 2/5<br>«Барменша, DJ, нічне життя»</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scores">
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Vibe</span>
+          <span class="pct">20%</span>
+        </div>
+        <div class="bar"><div class="bar-fill red" style="width:20%"></div></div>
+        <div class="score-weight">вага 30% · «тиша і порядок» vs «спонтанні гості після клубу»</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Охайність</span>
+          <span class="pct">25%</span>
+        </div>
+        <div class="bar"><div class="bar-fill red" style="width:25%"></div></div>
+        <div class="score-weight">вага 20% · різниця 3 бали зі шкали 1–5</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Графік</span>
+          <span class="pct">0%</span>
+        </div>
+        <div class="bar"><div class="bar-fill red" style="width:2%"></div></div>
+        <div class="score-weight">вага 15% · 22:00–7:00 vs 7:00–15:00, ~9 год розбіжності</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Хобі</span>
+          <span class="pct">35%</span>
+        </div>
+        <div class="bar"><div class="bar-fill red" style="width:35%"></div></div>
+        <div class="score-weight">вага 10% · TECHNOLOGY vs MUSIC</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Паління</span>
+          <span class="pct">33%</span>
+        </div>
+        <div class="bar"><div class="bar-fill red" style="width:33%"></div></div>
+        <div class="score-weight">вага 10% · «проти» vs «іноді палю»</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Партінг</span>
+          <span class="pct">0%</span>
+        </div>
+        <div class="bar"><div class="bar-fill red" style="width:2%"></div></div>
+        <div class="score-weight">вага 5% · «проти» vs «люблю» — діаметрально</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Світогляд</span>
+          <span class="pct">99.0%</span>
+        </div>
+        <div class="bar"><div class="bar-fill green" style="width:99%"></div></div>
+        <div class="score-weight">вага 5% · обидві ліво-ліберальні (єдина точка згоди)</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-top">
+          <span class="name">Особистість</span>
+          <span class="pct">0%</span>
+        </div>
+        <div class="bar"><div class="bar-fill red" style="width:2%"></div></div>
+        <div class="score-weight">вага 5% · інтроверт vs екстраверт</div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-icon red">✗</div>
+      <div class="verdict-text">
+        <strong>Майже діаметральні життєві устрої.</strong> Тиха студентка зі STEM, що лягає о 22:00,
+        і барменша-DJ, яка повертається додому під ранок — це не сумісність, а гарантований
+        конфлікт. Збігаються тільки політичні координати (~99%), що для побуту не вирішує
+        нічого. Тип темпераменту, ставлення до вечірок, паління, охайності та графіку —
+        всі ці п'ять осей кажуть «ні». Engine коректно видає <strong>22.8%</strong> — нижче
+        порогу для рекомендації.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
