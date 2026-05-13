@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Header } from "../components/Header.jsx";
-import { fetchWithAuth, getMatches, markSeen, getFomoData } from "../utils/api.js";
+import { fetchWithAuth, getMatches, markSeen, getFomoData, likeUser } from "../utils/api.js";
 import { adaptMatch } from "../utils/adaptMatch.js";
 import { FomoBlock } from "../components/FomoBlock.jsx";
+import { MatchModal } from "../components/MatchModal.jsx";
 import "./Card.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -278,6 +279,8 @@ export function Card() {
     const [index,       setIndex]       = useState(0);    // поточна картка
     const [feedLoading, setFeedLoading] = useState(false);
     const [fomoData,    setFomoData]    = useState(null); // { hidden_count, best_score }
+    const [matchedBuddy, setMatchedBuddy] = useState(null); // не-null коли є мютуал
+    const [actionLocked, setActionLocked] = useState(false); // блокує дабл-клік
 
     // ── завантаження повноти профілю ──────────────────────────────────────
     useEffect(() => {
@@ -328,17 +331,11 @@ export function Card() {
         return () => { cancelled = true; };
     }, [isComplete]);
 
-    // ── навігація: наступна картка ────────────────────────────────────────
-    const handleNext = useCallback(async () => {
-        const current = matches[index];
-        if (current) {
-            await markSeen(current.id).catch(() => {});
-        }
-
+    // ── перехід до наступної картки (без дії з поточною) ─────────────────
+    const advance = useCallback(async () => {
         const nextIndex = index + 1;
 
         if (nextIndex >= matches.length) {
-            // Кінець стрічки — спробуємо отримати FOMO
             try {
                 const r = await getFomoData();
                 if (r.ok) setFomoData(await r.json());
@@ -350,6 +347,57 @@ export function Card() {
             setIndex(nextIndex);
         }
     }, [matches, index]);
+
+    // ── Пропустити: фіксуємо seen і переходимо далі ──────────────────────
+    const handlePass = useCallback(async () => {
+        if (actionLocked) return;
+        const current = matches[index];
+        if (!current) return;
+
+        setActionLocked(true);
+        try {
+            await markSeen(current.id).catch(() => {});
+            await advance();
+        } finally {
+            setActionLocked(false);
+        }
+    }, [matches, index, advance, actionLocked]);
+
+    // ── Лайк: API + seen; на мютуал показуємо модалку ────────────────────
+    const handleLike = useCallback(async () => {
+        if (actionLocked) return;
+        const current = matches[index];
+        if (!current) return;
+
+        setActionLocked(true);
+        try {
+            // seen робимо завжди, щоб після лайка цей юзер не вилазив у стрічці
+            await markSeen(current.id).catch(() => {});
+
+            let isMatch = false;
+            try {
+                const r = await likeUser(current.matchedUserId);
+                if (r.ok) {
+                    const data = await r.json();
+                    isMatch = data.status === "match";
+                }
+            } catch { /* мережа впала — мовчки */ }
+
+            if (isMatch) {
+                setMatchedBuddy(current);
+            } else {
+                await advance();
+            }
+        } finally {
+            setActionLocked(false);
+        }
+    }, [matches, index, advance, actionLocked]);
+
+    // ── Закриття модалки → переходимо на наступну ────────────────────────
+    const handleCloseMatchModal = useCallback(() => {
+        setMatchedBuddy(null);
+        advance();
+    }, [advance]);
 
     // ── рендер ────────────────────────────────────────────────────────────
     const isBlurred  = loading || !isComplete;
@@ -376,8 +424,19 @@ export function Card() {
                                 <CompatibilityPanel buddy={currentBuddy} />
                             </div>
                             <div className="bp-nav">
-                                <button className="bp-nav-btn" onClick={handleNext}>
-                                    Далі →
+                                <button
+                                    className="bp-nav-btn bp-nav-pass"
+                                    onClick={handlePass}
+                                    disabled={actionLocked}
+                                >
+                                    Пропустити
+                                </button>
+                                <button
+                                    className="bp-nav-btn bp-nav-like"
+                                    onClick={handleLike}
+                                    disabled={actionLocked}
+                                >
+                                    Подобається ♥
                                 </button>
                             </div>
                         </>
@@ -403,6 +462,10 @@ export function Card() {
                         </button>
                     </div>
                 </div>
+            )}
+
+            {matchedBuddy && (
+                <MatchModal buddy={matchedBuddy} onClose={handleCloseMatchModal} />
             )}
         </>
     );

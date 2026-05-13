@@ -72,3 +72,23 @@ export const markSeen = (matchId) =>
 
 export const getFomoData = () =>
     fetchWithAuth(`${BASE_URL}/api/matches/fomo/`);
+
+// ── Likes / Mutual matches ────────────────────────────────────────────────
+
+export const likeUser = (toUserId) =>
+    fetchWithAuth(`${BASE_URL}/api/likes/`, {
+        method: 'POST',
+        body: JSON.stringify({ to_user_id: toUserId }),
+    });
+
+export const unlikeUser = (userId) =>
+    fetchWithAuth(`${BASE_URL}/api/likes/${userId}/`, { method: 'DELETE' });
+
+export const getIncomingLikes = () =>
+    fetchWithAuth(`${BASE_URL}/api/likes/incoming/`);
+
+export const getOutgoingLikes = () =>
+    fetchWithAuth(`${BASE_URL}/api/likes/outgoing/`);
+
+export const getUserMatches = () =>
+    fetchWithAuth(`${BASE_URL}/api/user-matches/`);

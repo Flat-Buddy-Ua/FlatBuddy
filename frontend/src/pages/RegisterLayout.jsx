@@ -6,6 +6,7 @@ import Step3 from './Step3.jsx';
 import VerifyEmail from './VerifyEmail.jsx';
 import React, { useState } from 'react';
 import { Card } from './Card.jsx';
+import { Likes } from './Likes.jsx';
 
 function AppRoutes() {
     const navigate = useNavigate();
@@ -46,6 +47,11 @@ function AppRoutes() {
             <Route
                 path="/buddies"
                 element={<Card />}
+            />
+
+            <Route
+                path="/likes"
+                element={<Likes />}
             />
 
             {/* Інші кроки редагування доступні тільки для профілю */}

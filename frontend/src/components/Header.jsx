@@ -20,6 +20,7 @@ export function Header({
 	const onLoginClick = () => navigate('/login');
 	const onProfileClick = () => navigate('/profile/details');
 	const onFindRoommateClick = () => navigate('/buddies');
+	const onLikesClick = () => navigate('/likes');
 
 	const handleLogout = () => {
 		localStorage.removeItem("token");
@@ -113,6 +114,11 @@ export function Header({
               				<button type="button" className="fb-header__link" onClick={() => handleMenuAction(onFindRoommateClick)}>
                 				Знайти buddy
               				</button>
+              				{isLoggedIn && (
+                				<button type="button" className="fb-header__link" onClick={() => handleMenuAction(onLikesClick)}>
+                  					Лайки
+                				</button>
+              				)}
             			</div>
 
 					{!isLoggedIn ? (
