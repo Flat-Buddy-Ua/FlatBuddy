@@ -65,6 +65,7 @@ class Command(BaseCommand):
         for a, b in combinations(ids, 2):
             u1, u2 = _ordered_pair(users[a], users[b])
             self.stdout.write(f"\n--- {u1.id} ↔ {u2.id} ---")
+            self._trace_gender_check(u1, u2)
             try:
                 result = calculate_match(u1, u2)
             except Exception as e:
@@ -113,6 +114,41 @@ class Command(BaseCommand):
             )
             if not complete:
                 self.stdout.write(f"   missing: {missing}")
+
+    def _trace_gender_check(self, u1, u2):
+        from user.constants.choices import PreferredGender, Gender
+        from user.matching.hard_filters import genders_compatible
+
+        h1, h2 = u1.housing, u2.housing
+        self.stdout.write(
+            f"   trace: u1.gender={u1.gender!r} (type={type(u1.gender).__name__}) "
+            f"h1.preferred_gender={h1.preferred_gender!r} (type={type(h1.preferred_gender).__name__})"
+        )
+        self.stdout.write(
+            f"   trace: u2.gender={u2.gender!r} (type={type(u2.gender).__name__}) "
+            f"h2.preferred_gender={h2.preferred_gender!r} (type={type(h2.preferred_gender).__name__})"
+        )
+        self.stdout.write(
+            f"   trace: PreferredGender.GIRLS_ONLY={int(PreferredGender.GIRLS_ONLY)} "
+            f"Gender.FEMALE={int(Gender.FEMALE)}"
+        )
+        self.stdout.write(
+            f"   trace: h1.preferred_gender == GIRLS_ONLY → "
+            f"{h1.preferred_gender == PreferredGender.GIRLS_ONLY}"
+        )
+        self.stdout.write(
+            f"   trace: u2.gender == FEMALE → {u2.gender == Gender.FEMALE}"
+        )
+        self.stdout.write(
+            f"   trace: h2.preferred_gender == GIRLS_ONLY → "
+            f"{h2.preferred_gender == PreferredGender.GIRLS_ONLY}"
+        )
+        self.stdout.write(
+            f"   trace: u1.gender == FEMALE → {u1.gender == Gender.FEMALE}"
+        )
+        self.stdout.write(
+            f"   trace: genders_compatible() = {genders_compatible(u1, h1, u2, h2)}"
+        )
 
     def _print_existing_record(self, u1, u2):
         rec = MatchResult.objects.filter(user_1=u1, user_2=u2).first()
