@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 
 # ── Конфігурація пакетів ──────────────────────────────────────────────────
 PACKAGE_CONFIG = {
-    "free":    {"limit": 5,  "threshold": 0.55, "peak_pos": 1},
-    "p25":     {"limit": 25, "threshold": 0.45, "peak_pos": 8},
-    "p45":     {"limit": 45, "threshold": 0.35, "peak_pos": 16},
-    "p55":     {"limit": 55, "threshold": 0.25, "peak_pos": 22},
-    "premium": {"limit": None, "threshold": 0.0, "peak_pos": None},
+    "free":    {"limit": 5,  "threshold": 55, "peak_pos": 1},
+    "p25":     {"limit": 25, "threshold": 45, "peak_pos": 8},
+    "p45":     {"limit": 45, "threshold": 35, "peak_pos": 16},
+    "p55":     {"limit": 55, "threshold": 25, "peak_pos": 22},
+    "premium": {"limit": None, "threshold": 0, "peak_pos": None},
 }
 
 

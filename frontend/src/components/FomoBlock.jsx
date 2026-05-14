@@ -27,7 +27,7 @@ export function FomoBlock({ data }) {
                         {best_score !== null && best_score !== undefined && (
                             <p className="fomo-sub">
                                 Найкращий скор сумісності серед прихованих —{" "}
-                                <strong>{Math.round(best_score * 100)}%</strong>
+                                <strong>{Math.round(best_score)}%</strong>
                             </p>
                         )}
                         <p className="fomo-desc">

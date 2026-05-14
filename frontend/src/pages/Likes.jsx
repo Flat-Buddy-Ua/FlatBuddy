@@ -32,7 +32,7 @@ function PersonCard({ user, score, dateLabel, actions }) {
                 <div className="likes-card-name">{name}</div>
                 {score !== undefined && score !== null && (
                     <div className="likes-card-score">
-                        Сумісність: <strong>{Math.round(score * 100)}%</strong>
+                        Сумісність: <strong>{Math.round(score)}%</strong>
                     </div>
                 )}
                 {dateLabel && (

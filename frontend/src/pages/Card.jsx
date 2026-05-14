@@ -53,8 +53,8 @@ const SCORE_ROWS = [
 ];
 
 function scoreColor(val) {
-    if (val >= 0.75) return "#3aaf6f";
-    if (val >= 0.50) return "#F58A3D";
+    if (val >= 75) return "#3aaf6f";
+    if (val >= 50) return "#F58A3D";
     return "#e04b3a";
 }
 
@@ -70,13 +70,13 @@ function CompatibilityPanel({ buddy }) {
                     className="bp-compat-total-value"
                     style={{ color: scoreColor(total) }}
                 >
-                    {Math.round(total * 100)}%
+                    {Math.round(total)}%
                 </div>
                 <div className="bp-compat-total-bar-track">
                     <div
                         className="bp-compat-total-bar-fill"
                         style={{
-                            width: `${Math.round(total * 100)}%`,
+                            width: `${Math.round(total)}%`,
                             background: scoreColor(total),
                         }}
                     />
@@ -88,7 +88,7 @@ function CompatibilityPanel({ buddy }) {
             <div className="bp-compat-rows">
                 {SCORE_ROWS.map(({ key, label }) => {
                     const val = scores[key] ?? 0;
-                    const pct = Math.round(val * 100);
+                    const pct = Math.round(val);
                     return (
                         <div key={key} className="bp-compat-row">
                             <div className="bp-compat-row-label">{label}</div>
