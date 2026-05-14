@@ -102,8 +102,12 @@ class Command(BaseCommand):
                 and u.profile is not None
                 and bool(u.profile.embedding_vibe)
             )
+            h = getattr(u, "housing", None)
+            pref_g = getattr(h, "preferred_gender", None) if h else None
+            dest = getattr(h, "destination", None) if h else None
             self.stdout.write(
                 f"user={uid:<4} gender={u.gender} "
+                f"housing.preferred_gender={pref_g} destination={dest} "
                 f"profile={has_profile} housing={has_housing} "
                 f"complete={complete} embedding_vibe={'yes' if has_emb else 'NO'}"
             )
