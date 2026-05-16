@@ -36,3 +36,13 @@ def score_personality(p1, p2) -> float:
         return 50.0
     diff = abs(p1.extra_intro_version - p2.extra_intro_version)
     return round(max(0.0, 100.0 - diff * 50.0), 1)
+
+
+def score_budget(h1, h2) -> float:
+    if None in (h1.budget_min, h1.budget_max, h2.budget_min, h2.budget_max):
+        return 50.0
+    overlap = max(0, min(h1.budget_max, h2.budget_max) - max(h1.budget_min, h2.budget_min))
+    union   = max(h1.budget_max, h2.budget_max) - min(h1.budget_min, h2.budget_min)
+    if union <= 0:
+        return 100.0
+    return round((overlap / union) * 100, 1)

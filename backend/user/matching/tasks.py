@@ -151,6 +151,7 @@ def _save_result(u1, u2, result):
                 'score_vibe':         result['score_vibe'],
                 'score_schedule':     result['score_schedule'],
                 'score_cleanliness':  result['score_cleanliness'],
+                'score_budget':       result['score_budget'],
                 'score_hobbies':      result['score_hobbies'],
                 'score_smoking':      result['score_smoking'],
                 'score_partying':     result['score_partying'],

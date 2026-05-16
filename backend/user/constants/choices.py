@@ -555,3 +555,4 @@ class PriorityField(models.TextChoices):
     POLITICAL_VIEW = 'political_view', 'Політичні погляди'
     PERSONALITY    = 'extra_intro_version', 'Інтро/екстраверсія'
     VIBE           = 'vibe',           'Загальний вайб'
+    BUDGET         = 'budget',         'Бюджет'

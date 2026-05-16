@@ -224,6 +224,7 @@ export function adaptMatch(match) {
             political:   match.score_political,
             personality: match.score_personality,
             schedule:    match.score_schedule,
+            budget:      match.score_budget,
         },
     };
 }

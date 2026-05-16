@@ -83,6 +83,7 @@ class MatchResultSerializer(serializers.ModelSerializer):
             'score_political',
             'score_personality',
             'score_schedule',
+            'score_budget',
         ]
 
     def get_matched_user(self, obj: MatchResult):
