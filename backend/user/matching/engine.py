@@ -5,7 +5,7 @@ from .completeness import is_profile_complete
 from .hard_filters import passes_hard_filters
 from .numeric_scorer import (
     score_cleanliness, score_smoking, score_partying,
-    score_political, score_personality,
+    score_political, score_personality, score_budget,
 )
 from .llm_scorer import score_vibe, score_hobbies
 from .schedule_scorer import score_schedule
@@ -14,9 +14,10 @@ from user.constants.choices import PriorityField
 logger = logging.getLogger(__name__)
 
 BASE_WEIGHTS: dict[PriorityField, float] = {
-    PriorityField.VIBE:           0.30,
+    PriorityField.VIBE:           0.25,
     PriorityField.CLEANLINESS:    0.20,
-    PriorityField.SCHEDULE:       0.15,
+    PriorityField.SCHEDULE:       0.10,
+    PriorityField.BUDGET:         0.10,
     PriorityField.HOBBIES:        0.10,
     PriorityField.SMOKING:        0.10,
     PriorityField.PARTYING:       0.05,
@@ -112,6 +113,7 @@ def calculate_match(user1, user2) -> dict:
         PriorityField.VIBE:           score_vibe(p1, p2),
         PriorityField.SCHEDULE:       score_schedule(p1, p2),
         PriorityField.CLEANLINESS:    score_cleanliness(p1, p2),
+        PriorityField.BUDGET:         score_budget(h1, h2),
         PriorityField.HOBBIES:        score_hobbies(p1, p2),
         PriorityField.SMOKING:        score_smoking(p1, p2),
         PriorityField.PARTYING:       score_partying(p1, p2),
@@ -137,6 +139,7 @@ def calculate_match(user1, user2) -> dict:
         'score_vibe':         scores[PriorityField.VIBE],
         'score_schedule':     scores[PriorityField.SCHEDULE],
         'score_cleanliness':  scores[PriorityField.CLEANLINESS],
+        'score_budget':       scores[PriorityField.BUDGET],
         'score_hobbies':      scores[PriorityField.HOBBIES],
         'score_smoking':      scores[PriorityField.SMOKING],
         'score_partying':     scores[PriorityField.PARTYING],

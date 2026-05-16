@@ -43,6 +43,7 @@ function checkCompleteness(profile, housing, photos) {
 
 const SCORE_ROWS = [
     { key: "vibe",        label: "Характер та цілі" },
+    { key: "budget",      label: "Бюджет"            },
     { key: "hobbies",     label: "Захоплення"       },
     { key: "cleanliness", label: "Охайність"         },
     { key: "smoking",     label: "Куріння"           },

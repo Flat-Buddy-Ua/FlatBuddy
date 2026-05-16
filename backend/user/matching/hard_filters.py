@@ -1,8 +1,3 @@
-def budgets_overlap(h1, h2) -> bool:
-    if None in (h1.budget_min, h1.budget_max, h2.budget_min, h2.budget_max):
-        return False
-    return h1.budget_min <= h2.budget_max and h2.budget_min <= h1.budget_max
-
 def genders_compatible(user1, h1, user2, h2) -> bool:
     from user.constants.choices import PreferredGender, Gender
 
@@ -41,9 +36,6 @@ def passes_hard_filters(user1, user2) -> tuple[bool, str]:
 
     if h1.destination != h2.destination:
         return False, 'different_city'
-
-    if not budgets_overlap(h1, h2):
-        return False, 'budget_mismatch'
 
     if not genders_compatible(user1, h1, user2, h2):
         return False, 'gender_mismatch'
