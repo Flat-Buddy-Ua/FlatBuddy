@@ -50,6 +50,11 @@ function AppRoutes() {
             />
 
             <Route
+                path="/buddies/:matchId"
+                element={<Card />}
+            />
+
+            <Route
                 path="/likes"
                 element={<Likes />}
             />
