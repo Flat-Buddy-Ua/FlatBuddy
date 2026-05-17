@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Header } from "../components/Header.jsx";
-import { fetchWithAuth, getMatches, markSeen, getFomoData, likeUser } from "../utils/api.js";
+import { fetchWithAuth, getMatches, getMatch, markSeen, getFomoData, likeUser } from "../utils/api.js";
 import { adaptMatch } from "../utils/adaptMatch.js";
 import { FomoBlock } from "../components/FomoBlock.jsx";
 import { MatchModal } from "../components/MatchModal.jsx";
@@ -62,9 +62,15 @@ function scoreColor(val) {
 function CompatibilityPanel({ buddy }) {
     const total = buddy.totalScore ?? 0;
     const scores = buddy.scores ?? {};
+    const locked = buddy.scoresLocked === true;
 
     return (
-        <div className="bp-compat-panel">
+        <div className={`bp-compat-panel ${locked ? "is-locked" : ""}`}>
+            {locked && (
+                <div className="bp-compat-lock">
+                    Сумісність доступна на платних пакетах
+                </div>
+            )}
             <div className="bp-compat-total">
                 <div className="bp-compat-total-label">Загальна сумісність</div>
                 <div
@@ -270,18 +276,23 @@ export function Card() {
     }
 
     const navigate = useNavigate();
+    const { matchId } = useParams();
 
     // ── стан профілю ──────────────────────────────────────────────────────
     const [loading,    setLoading]    = useState(true);
     const [isComplete, setIsComplete] = useState(false);
 
     // ── стан стрічки ──────────────────────────────────────────────────────
-    const [matches,     setMatches]     = useState([]);   // адаптовані матчі
-    const [index,       setIndex]       = useState(0);    // поточна картка
+    const [matches,     setMatches]     = useState([]);   // адаптована feed-стрічка
     const [feedLoading, setFeedLoading] = useState(false);
     const [fomoData,    setFomoData]    = useState(null); // { hidden_count, best_score }
     const [matchedBuddy, setMatchedBuddy] = useState(null); // не-null коли є мютуал
     const [actionLocked, setActionLocked] = useState(false); // блокує дабл-клік
+
+    // ── стан поточного матча (керується URL) ─────────────────────────────
+    const [currentBuddy, setCurrentBuddy] = useState(null);
+    const [matchLoading, setMatchLoading] = useState(false);
+    const [matchError,   setMatchError]   = useState(null); // 'not_found' | 'forbidden' | 'error'
 
     // ── завантаження повноти профілю ──────────────────────────────────────
     useEffect(() => {
@@ -312,7 +323,7 @@ export function Card() {
         return () => { cancelled = true; };
     }, []);
 
-    // ── завантаження стрічки матчів ───────────────────────────────────────
+    // ── завантаження стрічки матчів (для навігації next/prev) ─────────────
     useEffect(() => {
         if (!isComplete) return;
 
@@ -324,7 +335,6 @@ export function Card() {
             .then(raw => {
                 if (cancelled) return;
                 setMatches(raw.map(adaptMatch));
-                setIndex(0);
             })
             .catch(() => { if (!cancelled) setMatches([]); })
             .finally(() => { if (!cancelled) setFeedLoading(false); });
@@ -332,11 +342,47 @@ export function Card() {
         return () => { cancelled = true; };
     }, [isComplete]);
 
+    // ── якщо в URL немає matchId — редіректимо на перший із feed ──────────
+    useEffect(() => {
+        if (!isComplete) return;
+        if (matchId) return;
+        if (feedLoading) return;
+        if (matches.length === 0) return;
+        navigate(`/buddies/${matches[0].id}`, { replace: true });
+    }, [isComplete, matchId, feedLoading, matches, navigate]);
+
+    // ── завантаження конкретного матча по ID з URL ───────────────────────
+    useEffect(() => {
+        if (!isComplete || !matchId) return;
+
+        let cancelled = false;
+        setMatchLoading(true);
+        setMatchError(null);
+        setFomoData(null);
+
+        getMatch(matchId)
+            .then(async r => {
+                if (cancelled) return;
+                if (r.status === 404) { setMatchError("not_found"); setCurrentBuddy(null); return; }
+                if (r.status === 403) { setMatchError("forbidden"); setCurrentBuddy(null); return; }
+                if (!r.ok)            { setMatchError("error");     setCurrentBuddy(null); return; }
+                const data = await r.json();
+                setCurrentBuddy(adaptMatch(data));
+            })
+            .catch(() => { if (!cancelled) { setMatchError("error"); setCurrentBuddy(null); } })
+            .finally(() => { if (!cancelled) setMatchLoading(false); });
+
+        return () => { cancelled = true; };
+    }, [matchId, isComplete]);
+
     // ── перехід до наступної картки (без дії з поточною) ─────────────────
     const advance = useCallback(async () => {
-        const nextIndex = index + 1;
+        const idx = matches.findIndex(m => String(m.id) === String(matchId));
+        const next = idx >= 0 ? matches[idx + 1] : matches[0];
 
-        if (nextIndex >= matches.length) {
+        if (next) {
+            navigate(`/buddies/${next.id}`);
+        } else {
             try {
                 const r = await getFomoData();
                 if (r.ok) setFomoData(await r.json());
@@ -344,40 +390,33 @@ export function Card() {
             } catch {
                 setFomoData({ hidden_count: 0, best_score: null });
             }
-        } else {
-            setIndex(nextIndex);
         }
-    }, [matches, index]);
+    }, [matches, matchId, navigate]);
 
     // ── Пропустити: фіксуємо seen і переходимо далі ──────────────────────
     const handlePass = useCallback(async () => {
-        if (actionLocked) return;
-        const current = matches[index];
-        if (!current) return;
+        if (actionLocked || !currentBuddy) return;
 
         setActionLocked(true);
         try {
-            await markSeen(current.id).catch(() => {});
+            await markSeen(currentBuddy.id).catch(() => {});
             await advance();
         } finally {
             setActionLocked(false);
         }
-    }, [matches, index, advance, actionLocked]);
+    }, [currentBuddy, advance, actionLocked]);
 
     // ── Лайк: API + seen; на мютуал показуємо модалку ────────────────────
     const handleLike = useCallback(async () => {
-        if (actionLocked) return;
-        const current = matches[index];
-        if (!current) return;
+        if (actionLocked || !currentBuddy) return;
 
         setActionLocked(true);
         try {
-            // seen робимо завжди, щоб після лайка цей юзер не вилазив у стрічці
-            await markSeen(current.id).catch(() => {});
+            await markSeen(currentBuddy.id).catch(() => {});
 
             let isMatch = false;
             try {
-                const r = await likeUser(current.matchedUserId);
+                const r = await likeUser(currentBuddy.matchedUserId);
                 if (r.ok) {
                     const data = await r.json();
                     isMatch = data.status === "match";
@@ -385,14 +424,14 @@ export function Card() {
             } catch { /* мережа впала — мовчки */ }
 
             if (isMatch) {
-                setMatchedBuddy(current);
+                setMatchedBuddy(currentBuddy);
             } else {
                 await advance();
             }
         } finally {
             setActionLocked(false);
         }
-    }, [matches, index, advance, actionLocked]);
+    }, [currentBuddy, advance, actionLocked]);
 
     // ── Закриття модалки → переходимо на наступну ────────────────────────
     const handleCloseMatchModal = useCallback(() => {
@@ -401,24 +440,43 @@ export function Card() {
     }, [advance]);
 
     // ── рендер ────────────────────────────────────────────────────────────
-    const isBlurred  = loading || !isComplete;
     const showGate   = !loading && !isComplete;
-    const currentBuddy = matches[index] ?? null;
+    const cardLoading = matchLoading || (!matchId && (feedLoading || matches.length > 0));
+    const isBlurred  = loading || !isComplete || cardLoading;
+    const showEmpty  = !cardLoading && !matchId && !feedLoading && matches.length === 0;
 
     return (
         <>
             <div className={`bp-page ${isBlurred ? "is-blurred" : ""}`}>
                 <Header />
                 <main className="bp-main">
-                    {feedLoading && (
+                    {cardLoading && (
                         <div className="bp-feed-loading">Завантаження…</div>
                     )}
 
-                    {!feedLoading && fomoData !== null && (
+                    {!cardLoading && matchError === "not_found" && (
+                        <div className="bp-empty">
+                            Цей матч недоступний.
+                        </div>
+                    )}
+
+                    {!cardLoading && matchError === "forbidden" && (
+                        <div className="bp-empty">
+                            У тебе немає доступу до цього матчу.
+                        </div>
+                    )}
+
+                    {!cardLoading && matchError === "error" && (
+                        <div className="bp-empty">
+                            Щось пішло не так. Спробуй ще раз.
+                        </div>
+                    )}
+
+                    {!cardLoading && fomoData !== null && (
                         <FomoBlock data={fomoData} />
                     )}
 
-                    {!feedLoading && fomoData === null && currentBuddy && (
+                    {!cardLoading && !matchError && fomoData === null && currentBuddy && (
                         <>
                             <div className="bp-feed-layout">
                                 <ProfileCard buddy={currentBuddy} />
@@ -443,7 +501,7 @@ export function Card() {
                         </>
                     )}
 
-                    {!feedLoading && fomoData === null && !currentBuddy && matches.length === 0 && (
+                    {showEmpty && (
                         <div className="bp-empty">
                             Поки немає нових збігів. Зайди пізніше 👋
                         </div>

@@ -147,7 +147,11 @@ export function Likes() {
                         actions={
                             <button
                                 className="likes-btn"
-                                onClick={() => navigate("/buddies")}
+                                onClick={() => navigate(
+                                    m.match_result_id
+                                        ? `/buddies/${m.match_result_id}`
+                                        : "/buddies"
+                                )}
                             >
                                 До стрічки
                             </button>

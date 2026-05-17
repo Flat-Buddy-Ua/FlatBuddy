@@ -67,6 +67,9 @@ function logoutUser() {
 export const getMatches = () =>
     fetchWithAuth(`${BASE_URL}/api/matches/`);
 
+export const getMatch = (matchId) =>
+    fetchWithAuth(`${BASE_URL}/api/matches/${matchId}/`);
+
 export const markSeen = (matchId) =>
     fetchWithAuth(`${BASE_URL}/api/matches/${matchId}/seen/`, { method: 'POST' });
 

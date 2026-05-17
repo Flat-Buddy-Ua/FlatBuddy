@@ -215,6 +215,7 @@ export function adaptMatch(match) {
 
         // Скори сумісності
         totalScore:       match.total_score,
+        scoresLocked:     match.scores_locked === true,
         scores: {
             vibe:        match.score_vibe,
             hobbies:     match.score_hobbies,

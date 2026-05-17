@@ -15,7 +15,7 @@ from user.views.UserHousingView import UserHousingViewSet, MeHousingView
 from user.views.UserRegistrationView import UserRegistrationView
 from user.views.VerifyMagicLinkView import VerifyMagicLinkView
 from user.views.ResendMagicLinkView import ResendMagicLinkView
-from user.views.MatchView import MyMatchListView
+from user.views.MatchView import MyMatchListView, MyMatchDetailView
 from user.views.FeedView import MarkSeenView, FomoView
 
 from user.views.UserPhotoView import MePhotoListCreateView, MePhotoDestroyView
@@ -51,6 +51,7 @@ urlpatterns = [
     path('api/matches/',                       MyMatchListView.as_view(),   name='matches-list'),
     path('api/matches/fomo/',                  FomoView.as_view(),          name='matches-fomo'),
     path('api/matches/<int:match_id>/seen/',   MarkSeenView.as_view(),      name='matches-seen'),
+    path('api/matches/<int:match_id>/',        MyMatchDetailView.as_view(), name='matches-detail'),
     path('api/user-matches/',                  MyMatchesView.as_view(),     name='user-matches'),
 
     path('', TemplateView.as_view(template_name='index.html')),
