@@ -134,7 +134,12 @@ function ErrorEntry({ entry }) {
             }}
         >
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                <strong style={{ color: '#a02414' }}>{entry.type}</strong>
+                <strong style={{ color: '#a02414' }}>
+                    {entry.type}
+                    {entry.count > 1 && (
+                        <span style={{ color: '#888', fontWeight: 400 }}> ×{entry.count}</span>
+                    )}
+                </strong>
                 <span style={{ color: '#888', fontSize: 11 }}>{time}</span>
             </div>
             <pre style={{
