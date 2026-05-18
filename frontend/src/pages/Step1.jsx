@@ -96,7 +96,7 @@ export default function Step1 ({ isEditing }) {
                 const response = await fetchWithAuth(`${BASE_URL}/api/profile/general/`);
                 
                 if (response.ok) {
-                    const data = await response.json();
+                    const data = await response.json().catch(() => ({}));
                     console.log("Отримані дані профілю:", data);
                     
                     // Форматування телефону
@@ -186,7 +186,7 @@ export default function Step1 ({ isEditing }) {
 				setPendingVerification({ email: submittedEmail });
 
 	        } else {
-	            const errorData = await response.json();
+	            const errorData = await response.json().catch(() => ({}));
 	            setSubmitError(errorData.detail || "Помилка реєстрації. Перевірте дані.");
 	            console.error("Помилка реєстрації:", errorData);
 

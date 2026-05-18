@@ -116,7 +116,7 @@ export default function Step3() {
 				const response = await fetchWithAuth(`${BASE_URL}/api/profile/housing/`);
 
 				if (response.ok) {
-					const data = await response.json();
+					const data = await response.json().catch(() => ({}));
 
 					const selectedRoomSharing = ROOM_SHARING_OPTIONS.find(o => o.value === data.room_sharing_preference) || null;
 					const selectedPreferredGender = PREFERRED_GENDER_OPTIONS.find(o => o.value === data.preferred_gender) || null;
