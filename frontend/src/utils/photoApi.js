@@ -20,7 +20,7 @@ export async function listPhotos() {
     if (!res.ok) {
         throw new Error(`Failed to load photos (${res.status})`);
     }
-    const data = await res.json();
+    const data = await res.json().catch(() => []);
     return Array.isArray(data) ? data.map(normalize) : [];
 }
 
@@ -41,7 +41,8 @@ export async function uploadPhoto(file) {
         throw new Error(msg);
     }
 
-    return normalize(await res.json());
+    const body = await res.json().catch(() => ({}));
+    return normalize(body);
 }
 
 export async function deletePhoto(id) {

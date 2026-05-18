@@ -5,7 +5,7 @@ const getId = (v) => (v && typeof v === 'object' && 'value' in v) ? v.value : v;
 export const validations = {
 
   name: (value) => {
-    if (!value.trim()) return "Ім'я обов'язкове";
+    if (typeof value !== 'string' || !value.trim()) return "Ім'я обов'язкове";
     if (!/^[А-Яа-яЄєІіЇїҐґ\s-]{2,50}$/.test(value)) {
       return "Тільки українські літери (2-50 символів)";
     }
@@ -22,7 +22,7 @@ export const validations = {
     return null;
   },
   surname: (value) => {
-    if (!value.trim()) return "Прізвище обов'язкове";
+    if (typeof value !== 'string' || !value.trim()) return "Прізвище обов'язкове";
     if (!/^[А-Яа-яЄєІіЇїҐґ\s-]{2,50}$/.test(value)) {
       return "Тільки українські літери (2-50 символів)";
     }
@@ -40,17 +40,20 @@ export const validations = {
   },
 
   country: (realValue) => {
-    if (!realValue.value || realValue.value === 0) return "Оберіть країну";
+    const id = getId(realValue);
+    if (!id || id === 0) return "Оберіть країну";
     return null;
   },
 
   city: (realValue) => {
-    if (!realValue.value || realValue.value === 0) return "Оберіть місто";
+    const id = getId(realValue);
+    if (!id || id === 0) return "Оберіть місто";
     return null;
   },
 
   gender: (realValue) => {
-    if (!realValue.value || realValue.value === 0) return "Оберіть стать";
+    const id = getId(realValue);
+    if (!id || id === 0) return "Оберіть стать";
     return null;
   },
 
@@ -63,7 +66,7 @@ export const validations = {
     return null;
   },
   email: (value) => {
-    if (!value.trim()) return "Email обов'язковий";
+    if (typeof value !== 'string' || !value.trim()) return "Email обов'язковий";
     if (!/\S+@\S+\.\S+/.test(value)) {
       return "Введіть коректний email";
     }
@@ -71,7 +74,7 @@ export const validations = {
   },
 
   phone: (value) => {
-    if (!value.trim()) return "Телефон обов'зковий";
+    if (typeof value !== 'string' || !value.trim()) return "Телефон обов'зковий";
 
     const operatorCode = value.trim().substring(4, 7);
 
@@ -101,7 +104,7 @@ export const validations = {
   },
 
   password: (value) => {
-    if (!value.trim()) return "Пароль обов'язковий";
+    if (typeof value !== 'string' || !value.trim()) return "Пароль обов'язковий";
     if (!/^[A-Za-z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?\s]+$/.test(value)) {
       return "Пароль має містити лише латинські літери";
     }

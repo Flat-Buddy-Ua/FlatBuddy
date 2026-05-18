@@ -306,9 +306,9 @@ export function Card() {
                     fetchWithAuth(`${BASE_URL}/api/profile/photos/`),
                 ]);
 
-                const profile = profileRes.ok ? await profileRes.json() : null;
-                const housing = housingRes.ok ? await housingRes.json() : null;
-                const photos  = photosRes.ok  ? await photosRes.json() : [];
+                const profile = profileRes.ok ? await profileRes.json().catch(() => null) : null;
+                const housing = housingRes.ok ? await housingRes.json().catch(() => null) : null;
+                const photos  = photosRes.ok  ? await photosRes.json().catch(() => [])   : [];
 
                 if (cancelled) return;
                 setIsComplete(checkCompleteness(profile, housing, photos));
@@ -334,7 +334,8 @@ export function Card() {
             .then(r => r.ok ? r.json() : [])
             .then(raw => {
                 if (cancelled) return;
-                setMatches(raw.map(adaptMatch));
+                const list = Array.isArray(raw) ? raw : [];
+                setMatches(list.map(adaptMatch).filter(Boolean));
             })
             .catch(() => { if (!cancelled) setMatches([]); })
             .finally(() => { if (!cancelled) setFeedLoading(false); });
@@ -366,8 +367,10 @@ export function Card() {
                 if (r.status === 404) { setMatchError("not_found"); setCurrentBuddy(null); return; }
                 if (r.status === 403) { setMatchError("forbidden"); setCurrentBuddy(null); return; }
                 if (!r.ok)            { setMatchError("error");     setCurrentBuddy(null); return; }
-                const data = await r.json();
-                setCurrentBuddy(adaptMatch(data));
+                const data = await r.json().catch(() => null);
+                const adapted = data ? adaptMatch(data) : null;
+                if (!adapted) { setMatchError("error"); setCurrentBuddy(null); return; }
+                setCurrentBuddy(adapted);
             })
             .catch(() => { if (!cancelled) { setMatchError("error"); setCurrentBuddy(null); } })
             .finally(() => { if (!cancelled) setMatchLoading(false); });

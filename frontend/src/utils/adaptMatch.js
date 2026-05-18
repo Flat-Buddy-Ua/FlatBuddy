@@ -128,10 +128,16 @@ function formatDate(dateStr) {
  * @returns {Object}      — об'єкт у формі, яку очікує ProfileCard
  */
 export function adaptMatch(match) {
-    const user    = match.matched_user;
-    const profile = user.profile  ?? {};
-    const housing = user.housing  ?? {};
-    const photos  = (profile.photos ?? []).map(p => p.image);
+    if (!match || typeof match !== 'object') return null;
+    const user = match.matched_user;
+    if (!user || typeof user !== 'object') return null;
+
+    const profile = (user.profile && typeof user.profile === 'object') ? user.profile : {};
+    const housing = (user.housing && typeof user.housing === 'object') ? user.housing : {};
+    const rawPhotos = Array.isArray(profile.photos) ? profile.photos : [];
+    const photos = rawPhotos
+        .map(p => (p && typeof p === 'object' ? p.image : null))
+        .filter(Boolean);
 
     // Підпис під іменем
     const city      = lookupMap(CITY_LABELS, housing.destination);

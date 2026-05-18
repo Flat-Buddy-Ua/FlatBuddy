@@ -91,7 +91,7 @@ export default function Step2() {
 				const response = await fetchWithAuth(`${BASE_URL}/api/profile/personal/`);
 
 				if (response.ok) {
-					const data = await response.json();
+					const data = await response.json().catch(() => ({}));
 
 					const selectedStatus = statusOptions.find(o => o.value === data.status) || null;
 					const selectedOrbit = orbitOptions.find(o => o.value === data.orbit) || null;
