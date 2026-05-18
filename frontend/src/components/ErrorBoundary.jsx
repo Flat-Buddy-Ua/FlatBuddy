@@ -1,17 +1,5 @@
 import React from 'react';
-
-function persistError(payload) {
-    try {
-        localStorage.setItem('lastError', JSON.stringify({
-            ...payload,
-            at: new Date().toISOString(),
-            url: window.location.href,
-            userAgent: navigator.userAgent,
-        }));
-    } catch {
-        // localStorage недоступний (private mode або quota) — мовчки.
-    }
-}
+import { pushEntry } from '../utils/errorBus.js';
 
 export class ErrorBoundary extends React.Component {
     state = { error: null, info: null };
@@ -22,8 +10,8 @@ export class ErrorBoundary extends React.Component {
 
     componentDidCatch(error, info) {
         this.setState({ info });
-        persistError({
-            type: 'react',
+        pushEntry({
+            type: 'react.boundary',
             message: String(error?.message ?? error),
             stack: error?.stack,
             componentStack: info?.componentStack,
@@ -37,9 +25,7 @@ export class ErrorBoundary extends React.Component {
             componentStack: this.state.info?.componentStack,
             url: window.location.href,
         }, null, 2);
-        try {
-            navigator.clipboard?.writeText?.(text);
-        } catch { /* mobile / no clipboard — пофіг */ }
+        try { navigator.clipboard?.writeText?.(text); } catch { /* mobile / no clipboard */ }
     };
 
     render() {
@@ -102,29 +88,4 @@ export class ErrorBoundary extends React.Component {
             </div>
         );
     }
-}
-
-// Глобальні слухачі — ловлять навіть те, чого ErrorBoundary не бачить
-// (помилки в обробниках подій, unhandled Promise rejections).
-// Записують у localStorage.lastError, щоб можна було подивитись пост-фактум.
-export function installGlobalErrorHandlers() {
-    window.addEventListener('error', (event) => {
-        persistError({
-            type: 'window.error',
-            message: event.message,
-            source: event.filename,
-            line: event.lineno,
-            col: event.colno,
-            stack: event.error?.stack,
-        });
-    });
-
-    window.addEventListener('unhandledrejection', (event) => {
-        const reason = event.reason;
-        persistError({
-            type: 'unhandledrejection',
-            message: String(reason?.message ?? reason),
-            stack: reason?.stack,
-        });
-    });
 }
