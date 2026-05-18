@@ -69,40 +69,40 @@ export function SmartBox({ fieldName, formState, setFormState, children, disable
     const errorText = backendError || (value && !isValid ? localError : null);
     const error = !!errorText;
 
+    // Cross-field валідація: repeat_password читає formState.password.
+    // Слухаємо тільки ці два поля, щоб не тригеритись на кожну зміну будь-чого
+    // у formState (це створювало нескінченний cascade setState / React error #185).
+    const crossDepRealValue = validationType === 'repeat_password' ? formState?.password?.realValue : null;
+    const crossDepIsValid   = validationType === 'repeat_password' ? formState?.password?.isValid   : null;
+
     useEffect(() => {
-        if (validationType && validations[validationType] && value !== "") {
+        if (!validationType || !validations[validationType]) return;
+
+        let nextIsValid;
+        let nextError;
+        if (value === "") {
+            nextIsValid = true;
+            nextError = null;
+        } else {
             const errorMsg = validations[validationType](value, formState);
-
-            const validationResult = {
-                isValid: errorMsg === null,
-                error: errorMsg,
-            };
-
-            if (
-                fieldData.isValid === undefined ||
-                validationResult.isValid !== isValid ||
-                validationResult.error !== localError
-            ) {
-                setFormState((prev) => ({
-                    ...prev,
-                    [fieldName]: {
-                        ...prev[fieldName],
-                        isValid: validationResult.isValid,
-                        localError: validationResult.error,
-                    },
-                }));
-            }
-        } else if (value === "" && !isValid) {
-            setFormState((prev) => ({
-                ...prev,
-                [fieldName]: {
-                    ...prev[fieldName],
-                    isValid: true,
-                    localError: null,
-                },
-            }));
+            nextIsValid = errorMsg === null;
+            nextError = errorMsg;
         }
-    }, [value, validationType, fieldName, isValid, localError, setFormState, formState]);
+
+        const currIsValid = fieldData.isValid ?? true;
+        const currError   = fieldData.localError ?? null;
+        if (nextIsValid === currIsValid && nextError === currError) return;
+
+        setFormState((prev) => ({
+            ...prev,
+            [fieldName]: {
+                ...prev[fieldName],
+                isValid: nextIsValid,
+                localError: nextError,
+            },
+        }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value, validationType, fieldName, fieldData, crossDepRealValue, crossDepIsValid]);
 
     const handleChange = (e) => {
         const newValue = e && e.target ? e.target.value : e;
