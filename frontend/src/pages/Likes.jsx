@@ -17,6 +17,7 @@ const TABS = [
 ];
 
 function PersonCard({ user, score, dateLabel, actions }) {
+    const navigate = useNavigate();
     const photo = user?.photo;
     const name  = `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim() || "Без імені";
 
@@ -24,7 +25,10 @@ function PersonCard({ user, score, dateLabel, actions }) {
         <div className="likes-card">
             <div
                 className="likes-card-photo"
-                style={photo ? { backgroundImage: `url('${photo}')` } : undefined}
+                style={{...(photo ? { backgroundImage: `url('${photo}')` } : {}),
+                    cursor: "pointer"
+                }}
+                onClick={() => navigate(`/users/${user?.id}`)}
             >
                 {!photo && <div className="likes-card-photo-placeholder">?</div>}
             </div>
@@ -71,6 +75,7 @@ export function Likes() {
     const [outgoing, setOutgoing] = useState([]);
 
     const [pendingId, setPendingId] = useState(null); // id юзера в процесі дії
+    const [contactUser, setContactUser] = useState(null);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -119,6 +124,14 @@ export function Likes() {
         }
     }, [load, pendingId]);
 
+    const handleOpenContacts = useCallback((user) => {
+        setContactUser(user ?? null);
+    }, []);
+
+    const handleCloseContacts = useCallback(() => {
+        setContactUser(null);
+    }, []);
+
     // ── Рендер ───────────────────────────────────────────────────────────
     const counts = {
         matches:  matches.length,
@@ -145,16 +158,24 @@ export function Likes() {
                         score={m.compatibility_score}
                         dateLabel={`Матч від ${formatDate(m.matched_at)}`}
                         actions={
-                            <button
-                                className="likes-btn"
-                                onClick={() => navigate(
-                                    m.match_result_id
-                                        ? `/buddies/${m.match_result_id}`
-                                        : "/buddies"
-                                )}
-                            >
-                                До стрічки
-                            </button>
+                            <>
+                                <button
+                                    className="likes-btn"
+                                    onClick={() => navigate(
+                                        m.match_result_id
+                                            ? `/buddies/${m.match_result_id}`
+                                            : "/buddies"
+                                    )}
+                                >
+                                    До стрічки
+                                </button>
+                                <button
+                                    className="likes-btn"
+                                    onClick={() => handleOpenContacts(m.other_user)}
+                                >
+                                    Контакти
+                                </button>
+                            </>
                         }
                     />
                 ))}
@@ -239,6 +260,40 @@ export function Likes() {
 
                 {body}
             </main>
+
+            {contactUser && (
+                <div className="likes-contact-backdrop" onClick={handleCloseContacts}>
+                    <div
+                        className="likes-contact-modal"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            className="likes-contact-close"
+                            onClick={handleCloseContacts}
+                            aria-label="Закрити контакти"
+                        >
+                            ×
+                        </button>
+                        <div className="likes-contact-title">Контакти</div>
+                        <div className="likes-contact-name">
+                            {`${contactUser?.first_name ?? ""} ${contactUser?.last_name ?? ""}`.trim() || "Користувач"}
+                        </div>
+                        <div className="likes-contact-phone-label">Телефон</div>
+                        <a
+                            className="likes-contact-phone"
+                            href={contactUser?.phone_number ? `tel:${contactUser.phone_number}` : undefined}
+                        >
+                            {contactUser?.phone_number || "Номер не вказано"}
+                        </a>
+                        <div className="likes-contact-actions">
+                            <button type="button" className="likes-btn primary" onClick={handleCloseContacts}>
+                                Закрити
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

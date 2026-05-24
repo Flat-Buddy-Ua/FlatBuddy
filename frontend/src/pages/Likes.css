@@ -118,11 +118,12 @@
 .likes-card-actions {
     margin-top: 10px;
     display: flex;
+    flex-direction: column;
     gap: 8px;
 }
 
 .likes-btn {
-    flex: 1;
+    width: 100%;
     background: #fff;
     border: 2px solid #111;
     box-shadow: 2px 2px 0 #111;
@@ -159,4 +160,69 @@
     font-size: 16px;
     background: #fff;
     border: 2px dashed #F6DDD4;
+}
+
+.likes-contact-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 17, 17, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 1000;
+}
+
+.likes-contact-modal {
+    position: relative;
+    width: min(420px, 100%);
+    background: #fff;
+    border: 2px solid #111;
+    box-shadow: 6px 6px 0 #111;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-family: 'Inter', sans-serif;
+}
+
+.likes-contact-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+    color: #111;
+}
+
+.likes-contact-title {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.likes-contact-name {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.likes-contact-phone-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+}
+
+.likes-contact-phone {
+    color: #111;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.likes-contact-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
 }
