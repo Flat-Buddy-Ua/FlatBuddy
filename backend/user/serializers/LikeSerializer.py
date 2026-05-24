@@ -14,6 +14,22 @@ class ShortUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'first_name', 'last_name', 'photo']
 
+
+class MatchShortUserSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
+
+    def get_photo(self, obj):
+        photo = obj.profile.photos.first() if hasattr(obj, 'profile') else None
+        if photo and photo.image:
+            request = self.context.get('request')
+            return request.build_absolute_uri(photo.image.url) if request else photo.image.url
+        return None
+
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'photo', 'phone_number']
+
+
 class UserLikeSerializer(serializers.ModelSerializer):
     from_user = ShortUserSerializer(read_only=True)
     to_user   = ShortUserSerializer(read_only=True)
@@ -29,7 +45,7 @@ class UserMatchSerializer(serializers.ModelSerializer):
     def get_other_user(self, obj):
         me = self.context['request'].user
         other = obj.user_2 if obj.user_1_id == me.id else obj.user_1
-        return ShortUserSerializer(other, context=self.context).data
+        return MatchShortUserSerializer(other, context=self.context).data
 
     def get_match_result_id(self, obj):
         mr = (
