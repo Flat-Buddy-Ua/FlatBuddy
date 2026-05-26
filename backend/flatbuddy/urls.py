@@ -25,6 +25,12 @@ from user.views.LikeView import (
 from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from user.views.FeedView import FeedView, MarkSeenView, FomoView 
+from user.payment.PaymentView import ( 
+    InitiateUnlockView, PaymentStatusView, UnlockedProfilesView, UnlockPriceView,
+)
+from user.payment.webhook import mono_webhook
+
 router = routers.DefaultRouter()
 router.register('users', UserViewSet, basename='user-admin')
 router.register('profiles', UserProfileViewSet, basename='profile-admin')
@@ -49,10 +55,20 @@ urlpatterns = [
     path('api/likes/outgoing/',                OutgoingLikesView.as_view(), name='likes-outgoing'),
     path('api/likes/<int:user_id>/',           LikeView.as_view(),          name='like-delete'),
     path('api/matches/',                       MyMatchListView.as_view(),   name='matches-list'),
-    path('api/matches/fomo/',                  FomoView.as_view(),          name='matches-fomo'),
     path('api/matches/<int:match_id>/seen/',   MarkSeenView.as_view(),      name='matches-seen'),
     path('api/matches/<int:match_id>/',        MyMatchDetailView.as_view(), name='matches-detail'),
     path('api/user-matches/',                  MyMatchesView.as_view(),     name='user-matches'),
+
+
+    path('api/feed/', FeedView.as_view(), name='feed'),
+    path('api/feed/fomo/', FomoView.as_view(), name='feed-fomo'), 
+
+    path('api/payment/unlock/', InitiateUnlockView.as_view(), name='payment-unlock'),    
+    path('api/payment/status/<str:comment_id>/', PaymentStatusView.as_view(), name='payment-status'),
+    path('api/payment/unlocked/', UnlockedProfilesView.as_view(), name='payment-unlocked'),  
+    path('api/payment/price/', UnlockPriceView.as_view(), name='payment-price'), 
+    path('api/mono-webhook/', mono_webhook, name='mono-webhook'),
+
 
     path('', TemplateView.as_view(template_name='index.html')),
     path('admin/', admin.site.urls),

@@ -1,13 +1,13 @@
 import logging
 
+from django.db import models as django_models
 from rest_framework import status
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from user.matching.feed_service import get_sorted_matches
-from user.models import MatchResult, SeenProfile
+from user.models import MatchResult, SeenProfile, ProfileUnlock
 from user.serializers.MatchSerializer import MatchResultSerializer
 
 logger = logging.getLogger(__name__)
@@ -20,26 +20,38 @@ SCORE_FIELDS = (
     "score_political", "score_personality",
 )
 
-
 class MyMatchListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        matches    = get_sorted_matches(request.user)
-        serializer = MatchResultSerializer(
-            matches, many=True, context={"request": request}
-        )
-        return Response(serializer.data)
+        unlocked_match_ids = ProfileUnlock.objects.filter(
+            buyer=request.user,
+            status=ProfileUnlock.Status.ACTIVE
+        ).values_list('match_id', flat=True)
+
+        matches = MatchResult.objects.filter(
+            django_models.Q(user_1=request.user) | django_models.Q(user_2=request.user),
+            id__in=unlocked_match_ids,
+            status=MatchResult.Status.DONE
+        ).select_related('user_1', 'user_2')
+
+        results = []
+        for match in matches:
+            other_user = match.user_2 if match.user_1_id == request.user.id else match.user_1
+            results.append({
+                "match_id": match.id,
+                "total_score": round(match.total_score or 0, 2),
+                "other_user_id": other_user.id,
+                "first_name": other_user.first_name,
+                "last_name": other_user.last_name,
+                "email": other_user.email,
+                "phone_number": other_user.phone_number
+            })
+
+        return Response(results, status=status.HTTP_200_OK)
 
 
 class MyMatchDetailView(APIView):
-    """
-    GET /api/matches/<match_id>/
-
-    Повертає один MatchResult із поточними скорами. Якщо матч застарів або
-    ще не порахований — перераховує синхронно. Чужі матчі недоступні
-    (403). Безкоштовний пакет отримує матч, який ще не «бачив», без скорів.
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, match_id: int):
@@ -83,8 +95,6 @@ class MyMatchDetailView(APIView):
         data["scores_locked"] = scores_locked
 
         return Response(data, status=status.HTTP_200_OK)
-
-    # ── helpers ──────────────────────────────────────────────────────────
 
     def _recompute(self, match: MatchResult) -> MatchResult:
         from user.matching.engine import calculate_match

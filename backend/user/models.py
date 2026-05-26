@@ -308,3 +308,79 @@ class UserMatch(models.Model):
 
     def __str__(self):
         return f"Match {self.user_1_id} ↔ {self.user_2_id}"
+
+
+class ProfileUnlock(models.Model):
+    class Status(models.TextChoices):
+        PENDING  = 'pending',  'Очікує оплати'
+        ACTIVE   = 'active',   'Активне (розблоковано)'
+        REFUNDED = 'refunded', 'Повернуто'
+
+    buyer = models.ForeignKey(
+        'user.User',
+        on_delete=models.CASCADE,
+        related_name='unlocked_profiles',
+    )
+    match = models.ForeignKey(
+        'user.MatchResult',
+        on_delete=models.CASCADE,
+        related_name='unlocks',
+    )
+    order = models.OneToOneField(
+        'user.PaymentOrder',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='profile_unlock',
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    unlocked_at  = models.DateTimeField(null=True, blank=True)
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'profile_unlock'
+        unique_together = ('buyer', 'match')
+        indexes = [
+            models.Index(fields=['buyer', 'status']),
+        ]
+
+    def __str__(self):
+        return f"Unlock buyer={self.buyer_id} match={self.match_id} [{self.status}]"
+
+    def activate(self):
+        self.status      = self.Status.ACTIVE
+        self.unlocked_at = timezone.now()
+        self.save(update_fields=['status', 'unlocked_at'])
+
+class PaymentOrder(models.Model):
+    class Status(models.TextChoices):
+        PENDING  = 'pending',  'Очікує оплати'
+        PAID     = 'paid',     'Оплачено'
+        EXPIRED  = 'expired',  'Прострочено'
+
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payment_orders')
+    comment_id = models.CharField(max_length=12, unique=True)
+    amount_expected = models.IntegerField()
+    status     = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    package    = models.CharField(max_length=7, choices=User.Package.choices)
+    created_at = models.DateTimeField(auto_now_add=True)
+    paid_at    = models.DateTimeField(null=True, blank=True)
+    class Type(models.TextChoices):
+        PROFILE_UNLOCK = 'profile_unlock', 'Розблокування анкети'
+
+    type = models.CharField(
+        max_length=20,
+        choices=Type.choices,
+        default=Type.PROFILE_UNLOCK,
+    )
+    match = models.ForeignKey(
+        'user.MatchResult',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='payment_orders',
+    )
+    class Meta:
+        db_table = 'payment_order'

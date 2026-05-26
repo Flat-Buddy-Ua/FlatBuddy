@@ -1,57 +1,72 @@
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework import status
 
-from user.models import SeenProfile
-from user.matching.feed_service import get_fomo_data
+from user.matching.feed_service import get_feed, get_fomo_data
+from user.models import SeenProfile, MatchResult
 
-
-class MarkSeenView(APIView):
-    """
-    POST /api/matches/<int:match_id>/seen/
-    Фіксує що юзер переглянув профіль.
-    Фронтенд викликає після показу кожної картки.
-    """
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, match_id):
-        from user.models import MatchResult
-
-        try:
-            match = MatchResult.objects.get(id=match_id)
-        except MatchResult.DoesNotExist:
-            return Response({"detail": "Матч не знайдено."}, status=status.HTTP_404_NOT_FOUND)
-
-        # Перевіряємо що матч належить цьому юзеру
-        user = request.user
-        if match.user_1 != user and match.user_2 != user:
-            return Response({"detail": "Немає доступу."}, status=status.HTTP_403_FORBIDDEN)
-
-        SeenProfile.objects.get_or_create(user=user, match=match)
-        return Response({"status": "seen"}, status=status.HTTP_200_OK)
-
-
-class FomoView(APIView):
-    """
-    GET /api/matches/fomo/
-    Повертає кількість прихованих матчів і найкращий скор серед них.
-    Актуально лише для безкоштовних юзерів.
-    """
+class FeedView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
+        feed = get_feed(request.user)
 
-        if getattr(user, "package", "free") != "free":
-            return Response({"detail": "Недоступно для цього пакету."}, status=status.HTTP_403_FORBIDDEN)
+        def serialize_match(match):
+            other = (
+                match.user_2 if match.user_1_id == request.user.id else match.user_1
+            )
+            return {
+                "match_id":         match.id,
+                "total_score":      round(match.total_score or 0, 2),
+                "other_user_id":    other.id,
+                "first_name":       other.first_name,
+                "photo_url": (
+                    other.profile.photos.first().image.url
+                    if other.profile.photos.exists() else None
+                ),
+            }
 
-        # Беремо id матчів які юзер вже бачив
-        shown_ids = list(
-            SeenProfile.objects
-            .filter(user=user)
-            .values_list("match_id", flat=True)
-        )
+        teaser_data = None
+        if feed["teaser"]:
+            t = feed["teaser"]
+            teaser_data = {
+                "match_id":    t.id,
+                "total_score": round(t.total_score or 0, 2),
+                "price_uah":   50,
+            }
 
-        data = get_fomo_data(user, shown_ids)
-        return Response(data, status=status.HTTP_200_OK)
+        return Response({
+            "free":     [serialize_match(m) for m in feed["free"]],
+            "teaser":   teaser_data,
+            "unlocked": [serialize_match(m) for m in feed["unlocked"]],
+        })
+
+class MarkSeenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, match_id):
+        try:
+            match = MatchResult.objects.get(
+                id=match_id,
+                status=MatchResult.Status.DONE,
+            )
+        except MatchResult.DoesNotExist:
+            return Response({"error": "Не знайдено."}, status=status.HTTP_404_NOT_FOUND)
+
+        SeenProfile.objects.get_or_create(user=request.user, match=match)
+        return Response({"ok": True})
+
+
+class FomoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        raw = request.query_params.get("seen", "")
+        try:
+            shown_ids = [int(x) for x in raw.split(",") if x.strip()]
+        except ValueError:
+            shown_ids = []
+
+        data = get_fomo_data(request.user, shown_ids)
+        return Response(data)
