@@ -164,11 +164,26 @@ def _save_result(u1, u2, result):
 @shared_task(name='user.matching.tasks.notify_mutual_match')
 def notify_mutual_match(user_id_1: int, user_id_2: int):
     from user.models import User
+    from user.email_utils import send_new_match_email
     try:
         u1 = User.objects.get(id=user_id_1)
         u2 = User.objects.get(id=user_id_2)
         logger.info(
             f"[Match] Mutual match: {u1.email} ↔ {u2.email}. "
         )
+        send_new_match_email(to_user=u2, from_user=u1)
     except User.DoesNotExist:
         logger.warning(f"[Match] notify_mutual_match: user not found ({user_id_1}, {user_id_2})")
+
+
+@shared_task(name='user.matching.tasks.notify_new_like')
+def notify_new_like(from_user_id: int, to_user_id: int):
+    from user.models import User
+    from user.email_utils import send_new_like_email
+    try:
+        from_user = User.objects.get(id=from_user_id)
+        to_user = User.objects.get(id=to_user_id)
+        send_new_like_email(to_user, from_user)
+        logger.info(f"[Like] Sent email to {to_user.email} from {from_user.email}")
+    except User.DoesNotExist:
+        logger.warning(f"[Like] notify_new_like: user not found ({from_user_id}, {to_user_id})")

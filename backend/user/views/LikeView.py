@@ -1,3 +1,4 @@
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -12,16 +13,20 @@ from user.serializers.LikeSerializer import (
     LikeActionSerializer, UserLikeSerializer, UserMatchSerializer,
 )
 
-class LikeView(APIView):
+class LikeCreateView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = LikeActionSerializer
+
     def post(self, request):
-        serializer = LikeActionSerializer(
-            data=request.data, context={'request': request}
-        )
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         to_user = User.objects.get(id=serializer.validated_data['to_user_id'])
         result = handle_like(request.user, to_user)
         return Response(result, status=status.HTTP_200_OK)
+
+
+class LikeDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def delete(self, request, user_id: int):
         try:

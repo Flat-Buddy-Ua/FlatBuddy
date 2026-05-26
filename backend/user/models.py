@@ -126,6 +126,21 @@ class UserProfile(models.Model):
     )
     partying = models.IntegerField(choices=Partying.choices, null=True, blank=True)
 
+    embedding_vibe = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_hobbies = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_schedule = ArrayField(
+        models.FloatField(), size=384, null=True, blank=True
+    )
+    embedding_updated_at = models.DateTimeField(
+        null=True, blank=True
+    )
+    parsed_wake_hour  = models.FloatField(null=True, blank=True)
+    parsed_sleep_hour = models.FloatField(null=True, blank=True)
+
     class Meta:
         managed = True
         db_table = 'user_profile'
