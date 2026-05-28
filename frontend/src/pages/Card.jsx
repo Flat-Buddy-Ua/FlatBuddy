@@ -335,7 +335,17 @@ export function Card() {
             .then(raw => {
                 if (cancelled) return;
                 const list = Array.isArray(raw) ? raw : [];
-                setMatches(list.map(adaptMatch).filter(Boolean));
+                setMatches(
+                    list
+                        .map(item => {
+                            if (!item || typeof item !== 'object') return null;
+                            return {
+                                id: item.match_id,
+                                matchedUserId: item.other_user_id,
+                            };
+                        })
+                        .filter(Boolean)
+                );
             })
             .catch(() => { if (!cancelled) setMatches([]); })
             .finally(() => { if (!cancelled) setFeedLoading(false); });
