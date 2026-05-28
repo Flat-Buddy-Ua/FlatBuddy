@@ -50,7 +50,7 @@ function AppRoutes() {
             />
 
             <Route
-                path="/buddies/:matchId"
+                path="/buddies/:id"
                 element={<Card />}
             />
 

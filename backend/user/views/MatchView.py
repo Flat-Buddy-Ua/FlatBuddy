@@ -96,6 +96,52 @@ class MyMatchDetailView(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
+
+class MyMatchByUserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id: int):
+        user = request.user
+        try:
+            match = (
+                MatchResult.objects
+                .select_related(
+                    "user_1__profile", "user_2__profile",
+                    "user_1__housing",  "user_2__housing",
+                )
+                .prefetch_related(
+                    "user_1__profile__photos",
+                    "user_2__profile__photos",
+                )
+                .get(
+                    django_models.Q(user_1=user, user_2_id=user_id) |
+                    django_models.Q(user_2=user, user_1_id=user_id)
+                )
+            )
+        except MatchResult.DoesNotExist:
+            raise NotFound("Матч не знайдено.")
+
+        if match.is_stale or match.status in (
+            MatchResult.Status.PENDING,
+            MatchResult.Status.ERROR,
+        ):
+            match = self._recompute(match)
+
+        if match.status == MatchResult.Status.SKIPPED:
+            raise NotFound("Матч недоступний.")
+        if match.status != MatchResult.Status.DONE:
+            raise NotFound("Матч ще не готовий.")
+
+        data = MatchResultSerializer(match, context={"request": request}).data
+
+        scores_locked = self._scores_locked(user, match)
+        if scores_locked:
+            for f in SCORE_FIELDS:
+                data[f] = None
+        data["scores_locked"] = scores_locked
+
+        return Response(data, status=status.HTTP_200_OK)
+
     def _recompute(self, match: MatchResult) -> MatchResult:
         from user.matching.engine import calculate_match
         from user.matching.tasks import _save_result

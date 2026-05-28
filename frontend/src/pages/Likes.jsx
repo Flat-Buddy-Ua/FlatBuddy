@@ -16,10 +16,21 @@ const TABS = [
     { key: "outgoing", label: "Кого я лайкнув"   },
 ];
 
-function PersonCard({ user, score, dateLabel, actions }) {
+function PersonCard({ user, score, dateLabel, actions, matchResultId }) {
     const navigate = useNavigate();
     const photo = user?.photo;
     const name  = `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim() || "Без імені";
+
+    const handlePhotoClick = () => {
+        if (matchResultId && user?.id) {
+            navigate(`/buddies/${user.id}`);
+            return;
+        }
+
+        if (user?.id) {
+            navigate(`/users/${user.id}`);
+        }
+    };
 
     return (
         <div className="likes-card">
@@ -28,7 +39,7 @@ function PersonCard({ user, score, dateLabel, actions }) {
                 style={{...(photo ? { backgroundImage: `url('${photo}')` } : {}),
                     cursor: "pointer"
                 }}
-                onClick={() => navigate(`/users/${user?.id}`)}
+                onClick={handlePhotoClick}
             >
                 {!photo && <div className="likes-card-photo-placeholder">?</div>}
             </div>
@@ -157,13 +168,14 @@ export function Likes() {
                         user={m.other_user}
                         score={m.compatibility_score}
                         dateLabel={`Матч від ${formatDate(m.matched_at)}`}
+                        matchResultId={m.match_result_id}
                         actions={
                             <>
                                 <button
                                     className="likes-btn"
                                     onClick={() => navigate(
-                                        m.match_result_id
-                                            ? `/buddies/${m.match_result_id}`
+                                        m.other_user?.id
+                                            ? `/buddies/${m.other_user.id}`
                                             : "/buddies"
                                     )}
                                 >
