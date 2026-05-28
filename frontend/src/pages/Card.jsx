@@ -433,7 +433,7 @@ export function Card() {
                 setFomoData({ hidden_count: 0, best_score: null });
             }
         }
-    }, [matches, userId, navigate]);
+    }, [matches, routeId, navigate]);
 
     // ── Пропустити: фіксуємо seen і переходимо далі ──────────────────────
     const handlePass = useCallback(async () => {
