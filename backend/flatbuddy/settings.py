@@ -106,9 +106,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'flatbuddy.wsgi.application'
 
 
-STATICFILES_DIRS = [
-    FRONTEND_DIR / 'dist' / 'static',
-]
+FRONTEND_DIST_DIR = FRONTEND_DIR / 'dist'
+STATICFILES_DIRS = [FRONTEND_DIST_DIR] if FRONTEND_DIST_DIR.exists() else []
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
