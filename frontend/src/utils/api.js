@@ -70,6 +70,9 @@ export const getMatches = () =>
 export const getMatch = (matchId) =>
     fetchWithAuth(`${BASE_URL}/api/matches/${matchId}/`);
 
+export const getMatchByUserId = (userId) =>
+    fetchWithAuth(`${BASE_URL}/api/matches/user/${userId}/`);
+
 export const markSeen = (matchId) =>
     fetchWithAuth(`${BASE_URL}/api/matches/${matchId}/seen/`, { method: 'POST' });
 

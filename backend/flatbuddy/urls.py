@@ -15,7 +15,11 @@ from user.views.UserHousingView import UserHousingViewSet, MeHousingView
 from user.views.UserRegistrationView import UserRegistrationView
 from user.views.VerifyMagicLinkView import VerifyMagicLinkView
 from user.views.ResendMagicLinkView import ResendMagicLinkView
-from user.views.MatchView import MyMatchListView, MyMatchDetailView
+from user.views.MatchView import (
+    MyMatchListView,
+    MyMatchDetailView,
+    MyMatchByUserDetailView,
+)
 from user.views.FeedView import MarkSeenView, FomoView
 
 from user.views.UserPhotoView import MePhotoListCreateView, MePhotoDestroyView
@@ -55,6 +59,7 @@ urlpatterns = [
     path('api/likes/outgoing/',                OutgoingLikesView.as_view(), name='likes-outgoing'),
     path('api/likes/<int:user_id>/',           LikeDeleteView.as_view(),    name='like-delete'),
     path('api/matches/',                       MyMatchListView.as_view(),   name='matches-list'),
+    path('api/matches/user/<int:user_id>/',  MyMatchByUserDetailView.as_view(), name='matches-detail-by-user'),
     path('api/matches/<int:match_id>/seen/',   MarkSeenView.as_view(),      name='matches-seen'),
     path('api/matches/<int:match_id>/',        MyMatchDetailView.as_view(), name='matches-detail'),
     path('api/user-matches/',                  MyMatchesView.as_view(),     name='user-matches'),

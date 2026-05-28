@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Header } from "../components/Header.jsx";
-import { fetchWithAuth, getMatches, getMatch, markSeen, getFomoData, likeUser } from "../utils/api.js";
+import { fetchWithAuth, getMatches, getMatch, getMatchByUserId, markSeen, getFomoData, likeUser } from "../utils/api.js";
 import { adaptMatch } from "../utils/adaptMatch.js";
 import { FomoBlock } from "../components/FomoBlock.jsx";
 import { MatchModal } from "../components/MatchModal.jsx";
@@ -276,7 +276,7 @@ export function Card() {
     }
 
     const navigate = useNavigate();
-    const { matchId } = useParams();
+    const { id: routeId } = useParams();
 
     // ── стан профілю ──────────────────────────────────────────────────────
     const [loading,    setLoading]    = useState(true);
@@ -343,48 +343,87 @@ export function Card() {
         return () => { cancelled = true; };
     }, [isComplete]);
 
-    // ── якщо в URL немає matchId — редіректимо на перший із feed ──────────
+    // ── якщо в URL немає id — редіректимо на перший із feed ──────────
     useEffect(() => {
         if (!isComplete) return;
-        if (matchId) return;
+        if (routeId) return;
         if (feedLoading) return;
         if (matches.length === 0) return;
-        navigate(`/buddies/${matches[0].id}`, { replace: true });
-    }, [isComplete, matchId, feedLoading, matches, navigate]);
+        navigate(`/buddies/${matches[0].matchedUserId}`, { replace: true });
+    }, [isComplete, routeId, feedLoading, matches, navigate]);
 
-    // ── завантаження конкретного матча по ID з URL ───────────────────────
+    // ── завантаження конкретного матча по id з URL ───────────────────────
     useEffect(() => {
-        if (!isComplete || !matchId) return;
+        if (!isComplete || !routeId || feedLoading) return;
 
         let cancelled = false;
         setMatchLoading(true);
         setMatchError(null);
         setFomoData(null);
 
-        getMatch(matchId)
-            .then(async r => {
-                if (cancelled) return;
-                if (r.status === 404) { setMatchError("not_found"); setCurrentBuddy(null); return; }
-                if (r.status === 403) { setMatchError("forbidden"); setCurrentBuddy(null); return; }
-                if (!r.ok)            { setMatchError("error");     setCurrentBuddy(null); return; }
-                const data = await r.json().catch(() => null);
-                const adapted = data ? adaptMatch(data) : null;
-                if (!adapted) { setMatchError("error"); setCurrentBuddy(null); return; }
-                setCurrentBuddy(adapted);
-            })
+        const matchByUser = matches.find(m => String(m.matchedUserId) === String(routeId));
+        const matchByMatchId = matches.find(m => String(m.id) === String(routeId));
+
+        if (matchByMatchId && !matchByUser) {
+            navigate(`/buddies/${matchByMatchId.matchedUserId}`, { replace: true });
+            return;
+        }
+
+        async function loadMatch() {
+            const fetcher = matchByUser ? getMatch(matchByUser.id) : getMatchByUserId(routeId);
+            const r = await fetcher.catch(() => null);
+
+            if (!r) {
+                if (!cancelled) {
+                    setMatchError("error");
+                    setCurrentBuddy(null);
+                }
+                return;
+            }
+
+            if (cancelled) return;
+
+            if (r.status === 404 && !matchByUser) {
+                const oldMatch = await getMatch(routeId).catch(() => null);
+                if (oldMatch && oldMatch.ok) {
+                    const oldData = await oldMatch.json().catch(() => null);
+                    const oldAdapted = oldData ? adaptMatch(oldData) : null;
+                    if (oldAdapted) {
+                        navigate(`/buddies/${oldAdapted.matchedUserId}`, { replace: true });
+                        return;
+                    }
+                }
+                if (!cancelled) {
+                    setMatchError("not_found");
+                    setCurrentBuddy(null);
+                }
+                return;
+            }
+
+            if (r.status === 404) { setMatchError("not_found"); setCurrentBuddy(null); return; }
+            if (r.status === 403) { setMatchError("forbidden"); setCurrentBuddy(null); return; }
+            if (!r.ok)            { setMatchError("error"); setCurrentBuddy(null); return; }
+
+            const data = await r.json().catch(() => null);
+            const adapted = data ? adaptMatch(data) : null;
+            if (!adapted) { setMatchError("error"); setCurrentBuddy(null); return; }
+            setCurrentBuddy(adapted);
+        }
+
+        loadMatch()
             .catch(() => { if (!cancelled) { setMatchError("error"); setCurrentBuddy(null); } })
             .finally(() => { if (!cancelled) setMatchLoading(false); });
 
         return () => { cancelled = true; };
-    }, [matchId, isComplete]);
+    }, [routeId, isComplete, feedLoading, matches, navigate]);
 
     // ── перехід до наступної картки (без дії з поточною) ─────────────────
     const advance = useCallback(async () => {
-        const idx = matches.findIndex(m => String(m.id) === String(matchId));
+        const idx = matches.findIndex(m => String(m.matchedUserId) === String(routeId));
         const next = idx >= 0 ? matches[idx + 1] : matches[0];
 
         if (next) {
-            navigate(`/buddies/${next.id}`);
+            navigate(`/buddies/${next.matchedUserId}`);
         } else {
             try {
                 const r = await getFomoData();
@@ -394,7 +433,7 @@ export function Card() {
                 setFomoData({ hidden_count: 0, best_score: null });
             }
         }
-    }, [matches, matchId, navigate]);
+    }, [matches, userId, navigate]);
 
     // ── Пропустити: фіксуємо seen і переходимо далі ──────────────────────
     const handlePass = useCallback(async () => {
@@ -444,9 +483,9 @@ export function Card() {
 
     // ── рендер ────────────────────────────────────────────────────────────
     const showGate   = !loading && !isComplete;
-    const cardLoading = matchLoading || (!matchId && (feedLoading || matches.length > 0));
+    const cardLoading = matchLoading || (!routeId && (feedLoading || matches.length > 0));
     const isBlurred  = loading || !isComplete || cardLoading;
-    const showEmpty  = !cardLoading && !matchId && !feedLoading && matches.length === 0;
+    const showEmpty  = !cardLoading && !routeId && !feedLoading && matches.length === 0;
 
     return (
         <>
