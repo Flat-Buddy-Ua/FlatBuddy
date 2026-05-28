@@ -336,6 +336,7 @@ export function Card() {
                 if (cancelled) return;
                 const free      = Array.isArray(raw.free) ? raw.free : [];
                 const unlocked  = Array.isArray(raw.unlocked) ? raw.unlocked : [];
+                const teaser    = raw.teaser && typeof raw.teaser === 'object' ? [raw.teaser] : [];
                 const buildList = (items) => items
                     .map(item => {
                         if (!item || typeof item !== 'object') return null;
@@ -346,7 +347,7 @@ export function Card() {
                     })
                     .filter(Boolean);
 
-                setMatches([...buildList(free), ...buildList(unlocked)]);
+                setMatches([...buildList(free), ...buildList(unlocked), ...buildList(teaser)]);
             })
             .catch(() => { if (!cancelled) setMatches([]); })
             .finally(() => { if (!cancelled) setFeedLoading(false); });

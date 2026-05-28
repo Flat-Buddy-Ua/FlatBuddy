@@ -30,11 +30,8 @@ class FeedView(APIView):
         teaser_data = None
         if feed["teaser"]:
             t = feed["teaser"]
-            teaser_data = {
-                "match_id":    t.id,
-                "total_score": round(t.total_score or 0, 2),
-                "price_uah":   50,
-            }
+            teaser_data = serialize_match(t)
+            teaser_data["price_uah"] = 50
 
         return Response({
             "free":     [serialize_match(m) for m in feed["free"]],
