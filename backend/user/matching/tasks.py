@@ -81,9 +81,7 @@ def recalculate_matches_for_user(self, user_id: int):
         )
         raise self.retry(exc=exc)
 
-@shared_task(
-    name='user.matching.tasks.recompute_all_embeddings',
-)
+@shared_task(name='user.matching.tasks.recompute_all_embeddings')
 def recompute_all_embeddings():
     from user.models import UserProfile
     from .llm_scorer import compute_and_cache_embeddings

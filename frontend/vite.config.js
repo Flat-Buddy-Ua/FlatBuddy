@@ -6,4 +6,9 @@ export default defineConfig({
   server: {
     port: 3000, // Щоб звично відкривалося на 3000 порту
   },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['tests/**/*.test.{js,jsx}'],
+  },
 });
