@@ -23,7 +23,8 @@ class FeedView(APIView):
                 "first_name":       other.first_name,
                 "photo_url": (
                     other.profile.photos.first().image.url
-                    if other.profile.photos.exists() else None
+                    if getattr(other, 'profile', None) is not None and other.profile.photos.exists()
+                    else None
                 ),
             }
 

@@ -51,8 +51,8 @@ class _HousingSerializer(serializers.ModelSerializer):
 
 class _MatchedUserSerializer(serializers.ModelSerializer):
     age    = serializers.SerializerMethodField()
-    profile = _ProfileSerializer(read_only=True)
-    housing = _HousingSerializer(read_only=True)
+    profile = _ProfileSerializer(read_only=True, allow_null=True)
+    housing = _HousingSerializer(read_only=True, allow_null=True)
 
     class Meta:
         model  = User
