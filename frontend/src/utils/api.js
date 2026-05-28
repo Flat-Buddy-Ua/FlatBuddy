@@ -65,7 +65,7 @@ function logoutUser() {
 // ── Matches / Feed ────────────────────────────────────────────────────────
 
 export const getMatches = () =>
-    fetchWithAuth(`${BASE_URL}/api/matches/`);
+    fetchWithAuth(`${BASE_URL}/api/feed/`);
 
 export const getMatch = (matchId) =>
     fetchWithAuth(`${BASE_URL}/api/matches/${matchId}/`);

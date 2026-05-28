@@ -331,21 +331,22 @@ export function Card() {
         setFeedLoading(true);
 
         getMatches()
-            .then(r => r.ok ? r.json() : [])
+            .then(r => r.ok ? r.json() : {})
             .then(raw => {
                 if (cancelled) return;
-                const list = Array.isArray(raw) ? raw : [];
-                setMatches(
-                    list
-                        .map(item => {
-                            if (!item || typeof item !== 'object') return null;
-                            return {
-                                id: item.match_id,
-                                matchedUserId: item.other_user_id,
-                            };
-                        })
-                        .filter(Boolean)
-                );
+                const free      = Array.isArray(raw.free) ? raw.free : [];
+                const unlocked  = Array.isArray(raw.unlocked) ? raw.unlocked : [];
+                const buildList = (items) => items
+                    .map(item => {
+                        if (!item || typeof item !== 'object') return null;
+                        return {
+                            id: item.match_id,
+                            matchedUserId: item.other_user_id,
+                        };
+                    })
+                    .filter(Boolean);
+
+                setMatches([...buildList(free), ...buildList(unlocked)]);
             })
             .catch(() => { if (!cancelled) setMatches([]); })
             .finally(() => { if (!cancelled) setFeedLoading(false); });
