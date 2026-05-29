@@ -181,7 +181,6 @@ def get_fomo_data(user, shown_match_ids: list) -> dict:
             django_models.Q(user_1=user) | django_models.Q(user_2=user),
             status=MatchResult.Status.DONE,
             hard_filter_passed=True,
-            total_score__gte=TEASER_SCORE_MIN,
         )
         .exclude(id__in=excluded)
     )
