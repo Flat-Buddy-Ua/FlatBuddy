@@ -295,6 +295,25 @@ export function Card() {
     const [matchLoading, setMatchLoading] = useState(false);
     const [matchError,   setMatchError]   = useState(null); // 'not_found' | 'forbidden' | 'error'
 
+    const loadFeedMatches = useCallback(async () => {
+        const r = await getMatches();
+        const raw = r.ok ? await r.json().catch(() => ({})) : {};
+        const free      = Array.isArray(raw.free) ? raw.free : [];
+        const unlocked  = Array.isArray(raw.unlocked) ? raw.unlocked : [];
+        const teaser    = raw.teaser && typeof raw.teaser === 'object' ? [raw.teaser] : [];
+        const buildList = (items) => items
+            .map(item => {
+                if (!item || typeof item !== 'object') return null;
+                return {
+                    id: item.match_id,
+                    matchedUserId: item.other_user_id,
+                };
+            })
+            .filter(Boolean);
+
+        return [...buildList(free), ...buildList(unlocked), ...buildList(teaser)];
+    }, []);
+
     // ── завантаження повноти профілю ──────────────────────────────────────
     useEffect(() => {
         let cancelled = false;
@@ -332,24 +351,10 @@ export function Card() {
         setFeedLoading(true);
         setFeedLoaded(false);
 
-        getMatches()
-            .then(r => r.ok ? r.json() : {})
-            .then(raw => {
+        loadFeedMatches()
+            .then(nextMatches => {
                 if (cancelled) return;
-                const free      = Array.isArray(raw.free) ? raw.free : [];
-                const unlocked  = Array.isArray(raw.unlocked) ? raw.unlocked : [];
-                const teaser    = raw.teaser && typeof raw.teaser === 'object' ? [raw.teaser] : [];
-                const buildList = (items) => items
-                    .map(item => {
-                        if (!item || typeof item !== 'object') return null;
-                        return {
-                            id: item.match_id,
-                            matchedUserId: item.other_user_id,
-                        };
-                    })
-                    .filter(Boolean);
-
-                setMatches([...buildList(free), ...buildList(unlocked), ...buildList(teaser)]);
+                setMatches(nextMatches);
             })
             .catch(() => { if (!cancelled) setMatches([]); })
             .finally(() => {
@@ -360,7 +365,7 @@ export function Card() {
             });
 
         return () => { cancelled = true; };
-    }, [isComplete]);
+    }, [isComplete, loadFeedMatches]);
 
     // ── якщо в URL немає id — редіректимо на перший із feed ──────────
     useEffect(() => {
@@ -419,14 +424,36 @@ export function Card() {
             navigate(`/buddies/${next.matchedUserId}`);
         } else {
             try {
-                const r = await getFomoData();
-                if (r.ok) setFomoData(await r.json());
-                else      setFomoData({ hidden_count: 0, best_score: null });
+                const shownMatchIds = matches.map(m => m.id);
+                const r = await getFomoData(shownMatchIds);
+                const data = r.ok ? await r.json().catch(() => null) : null;
+
+                if (data?.show_fomo) {
+                    setFomoData(data);
+                    return;
+                }
+
+                const nextMatches = (await loadFeedMatches())
+                    .filter(m => !shownMatchIds.includes(m.id));
+                setMatches(nextMatches);
+
+                if (nextMatches.length > 0) {
+                    navigate(`/buddies/${nextMatches[0].matchedUserId}`);
+                    return;
+                }
+
+                if (data?.fomo_enabled === false) {
+                    setCurrentBuddy(null);
+                    navigate("/buddies", { replace: true });
+                    return;
+                }
+
+                setFomoData({ hidden_count: 0, best_score: null });
             } catch {
                 setFomoData({ hidden_count: 0, best_score: null });
             }
         }
-    }, [matches, routeId, navigate]);
+    }, [matches, routeId, navigate, loadFeedMatches]);
 
     // ── Пропустити: фіксуємо seen і переходимо далі ──────────────────────
     const handlePass = useCallback(async () => {

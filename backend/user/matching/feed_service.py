@@ -14,11 +14,11 @@ FREE_SCORE_MAX     = 60
 TEASER_SCORE_MIN   = 70     
 
 PLAN_DAILY_LIMITS = {
-    User.Package.FREE: 5,
-    User.Package.P25: 25,
-    User.Package.P45: 45,
-    User.Package.P55: 55,
-    User.Package.PREMIUM: None,
+    User.Package.FREE.value: 5,
+    User.Package.P25.value: 25,
+    User.Package.P45.value: 45,
+    User.Package.P55.value: 55,
+    User.Package.PREMIUM.value: None,
 }
 
 
@@ -56,8 +56,8 @@ def _unlocked_match_ids(user):
 
 
 def _daily_limit(user):
-    package = getattr(user, "package", User.Package.FREE) or User.Package.FREE
-    return PLAN_DAILY_LIMITS.get(package, PLAN_DAILY_LIMITS[User.Package.FREE])
+    package = getattr(user, "package", User.Package.FREE.value) or User.Package.FREE.value
+    return PLAN_DAILY_LIMITS.get(package, PLAN_DAILY_LIMITS[User.Package.FREE.value])
 
 
 def _today_seen_count(user):
