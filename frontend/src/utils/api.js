@@ -73,8 +73,11 @@ export const getMatchByUserId = (userId) =>
 export const markSeen = (matchId) =>
     fetchWithAuth(`${BASE_URL}/api/matches/${matchId}/seen/`, { method: 'POST' });
 
-export const getFomoData = () =>
-    fetchWithAuth(`${BASE_URL}/api/matches/fomo/`);
+export const getFomoData = (shownMatchIds = []) => {
+    const seen = shownMatchIds.filter(Boolean).join(',');
+    const query = seen ? `?seen=${encodeURIComponent(seen)}` : '';
+    return fetchWithAuth(`${BASE_URL}/api/matches/fomo/${query}`);
+};
 
 // ── Likes / Mutual matches ────────────────────────────────────────────────
 

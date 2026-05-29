@@ -38,6 +38,7 @@ class FeedView(APIView):
             "free":     [serialize_match(m) for m in feed["free"]],
             "teaser":   teaser_data,
             "unlocked": [serialize_match(m) for m in feed["unlocked"]],
+            "meta":     feed["meta"],
         })
 
 class MarkSeenView(APIView):
