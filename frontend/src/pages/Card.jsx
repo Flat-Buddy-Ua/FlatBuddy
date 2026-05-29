@@ -283,9 +283,10 @@ export function Card() {
     const [isComplete, setIsComplete] = useState(false);
 
     // ── стан стрічки ──────────────────────────────────────────────────────
-    const [matches,     setMatches]     = useState([]);   // адаптована feed-стрічка
-    const [feedLoading, setFeedLoading] = useState(false);
-    const [fomoData,    setFomoData]    = useState(null); // { hidden_count, best_score }
+    const [matches,      setMatches]      = useState([]);   // адаптована feed-стрічка
+    const [feedLoading,  setFeedLoading]  = useState(false);
+    const [feedLoaded,   setFeedLoaded]   = useState(false);
+    const [fomoData,     setFomoData]     = useState(null); // { hidden_count, best_score }
     const [matchedBuddy, setMatchedBuddy] = useState(null); // не-null коли є мютуал
     const [actionLocked, setActionLocked] = useState(false); // блокує дабл-клік
 
@@ -329,6 +330,7 @@ export function Card() {
 
         let cancelled = false;
         setFeedLoading(true);
+        setFeedLoaded(false);
 
         getMatches()
             .then(r => r.ok ? r.json() : {})
@@ -350,7 +352,12 @@ export function Card() {
                 setMatches([...buildList(free), ...buildList(unlocked), ...buildList(teaser)]);
             })
             .catch(() => { if (!cancelled) setMatches([]); })
-            .finally(() => { if (!cancelled) setFeedLoading(false); });
+            .finally(() => {
+                if (!cancelled) {
+                    setFeedLoading(false);
+                    setFeedLoaded(true);
+                }
+            });
 
         return () => { cancelled = true; };
     }, [isComplete]);
@@ -359,14 +366,14 @@ export function Card() {
     useEffect(() => {
         if (!isComplete) return;
         if (routeId) return;
-        if (feedLoading) return;
+        if (feedLoading || !feedLoaded) return;
         if (matches.length === 0) return;
         navigate(`/buddies/${matches[0].matchedUserId}`, { replace: true });
-    }, [isComplete, routeId, feedLoading, matches, navigate]);
+    }, [isComplete, routeId, feedLoading, feedLoaded, matches, navigate]);
 
     // ── завантаження конкретного матча по id з URL ───────────────────────
     useEffect(() => {
-        if (!isComplete || !routeId || feedLoading) return;
+        if (!isComplete || !routeId || feedLoading || !feedLoaded) return;
 
         let cancelled = false;
         setMatchLoading(true);
@@ -396,13 +403,15 @@ export function Card() {
             if (cancelled) return;
 
             if (r.status === 404 && !matchByUser) {
-                const oldMatch = await getMatch(routeId).catch(() => null);
-                if (oldMatch && oldMatch.ok) {
-                    const oldData = await oldMatch.json().catch(() => null);
-                    const oldAdapted = oldData ? adaptMatch(oldData) : null;
-                    if (oldAdapted) {
-                        navigate(`/buddies/${oldAdapted.matchedUserId}`, { replace: true });
-                        return;
+                if (matchByMatchId) {
+                    const oldMatch = await getMatch(routeId).catch(() => null);
+                    if (oldMatch && oldMatch.ok) {
+                        const oldData = await oldMatch.json().catch(() => null);
+                        const oldAdapted = oldData ? adaptMatch(oldData) : null;
+                        if (oldAdapted) {
+                            navigate(`/buddies/${oldAdapted.matchedUserId}`, { replace: true });
+                            return;
+                        }
                     }
                 }
                 if (!cancelled) {
