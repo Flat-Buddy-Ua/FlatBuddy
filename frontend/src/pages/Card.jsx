@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Header } from "../components/Header.jsx";
-import { fetchWithAuth, getMatches, getMatch, getMatchByUserId, markSeen, getFomoData, likeUser } from "../utils/api.js";
+import { fetchWithAuth, getMatches, getMatchByUserId, markSeen, getFomoData, likeUser } from "../utils/api.js";
 import { adaptMatch } from "../utils/adaptMatch.js";
 import { FomoBlock } from "../components/FomoBlock.jsx";
 import { MatchModal } from "../components/MatchModal.jsx";
@@ -380,17 +380,8 @@ export function Card() {
         setMatchError(null);
         setFomoData(null);
 
-        const matchByUser = matches.find(m => String(m.matchedUserId) === String(routeId));
-        const matchByMatchId = matches.find(m => String(m.id) === String(routeId));
-
-        if (matchByMatchId && !matchByUser) {
-            navigate(`/buddies/${matchByMatchId.matchedUserId}`, { replace: true });
-            return;
-        }
-
         async function loadMatch() {
-            const fetcher = matchByUser ? getMatch(matchByUser.id) : getMatchByUserId(routeId);
-            const r = await fetcher.catch(() => null);
+            const r = await getMatchByUserId(routeId).catch(() => null);
 
             if (!r) {
                 if (!cancelled) {
@@ -401,25 +392,6 @@ export function Card() {
             }
 
             if (cancelled) return;
-
-            if (r.status === 404 && !matchByUser) {
-                if (matchByMatchId) {
-                    const oldMatch = await getMatch(routeId).catch(() => null);
-                    if (oldMatch && oldMatch.ok) {
-                        const oldData = await oldMatch.json().catch(() => null);
-                        const oldAdapted = oldData ? adaptMatch(oldData) : null;
-                        if (oldAdapted) {
-                            navigate(`/buddies/${oldAdapted.matchedUserId}`, { replace: true });
-                            return;
-                        }
-                    }
-                }
-                if (!cancelled) {
-                    setMatchError("not_found");
-                    setCurrentBuddy(null);
-                }
-                return;
-            }
 
             if (r.status === 404) { setMatchError("not_found"); setCurrentBuddy(null); return; }
             if (r.status === 403) { setMatchError("forbidden"); setCurrentBuddy(null); return; }
@@ -436,7 +408,7 @@ export function Card() {
             .finally(() => { if (!cancelled) setMatchLoading(false); });
 
         return () => { cancelled = true; };
-    }, [routeId, isComplete, feedLoading, matches, navigate]);
+    }, [routeId, isComplete, feedLoading, feedLoaded]);
 
     // ── перехід до наступної картки (без дії з поточною) ─────────────────
     const advance = useCallback(async () => {
