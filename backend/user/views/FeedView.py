@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import models as django_models
 
 from user.matching.feed_service import get_feed, get_fomo_data
 from user.models import SeenProfile, MatchResult
@@ -18,7 +19,6 @@ class FeedView(APIView):
             )
             return {
                 "match_id":         match.id,
-                "total_score":      round(match.total_score or 0, 2),
                 "other_user_id":    other.id,
                 "first_name":       other.first_name,
                 "photo_url": (
@@ -47,8 +47,10 @@ class MarkSeenView(APIView):
     def post(self, request, match_id):
         try:
             match = MatchResult.objects.get(
+                django_models.Q(user_1=request.user) | django_models.Q(user_2=request.user),
                 id=match_id,
                 status=MatchResult.Status.DONE,
+                hard_filter_passed=True,
             )
         except MatchResult.DoesNotExist:
             return Response({"error": "Не знайдено."}, status=status.HTTP_404_NOT_FOUND)

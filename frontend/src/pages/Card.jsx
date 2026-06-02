@@ -389,48 +389,6 @@ export function Card() {
         navigate(`/buddies/${matches[0].matchedUserId}`, { replace: true });
     }, [isComplete, routeId, feedLoading, feedLoaded, matches, navigate]);
 
-    // ── завантаження конкретного матча по id з URL ───────────────────────
-    useEffect(() => {
-        if (!isComplete || !routeId || feedLoading || !feedLoaded) return;
-
-        let cancelled = false;
-        setMatchLoading(true);
-        setMatchError(null);
-        setFomoData(null);
-
-        async function loadMatch() {
-            const r = await getMatchByUserId(routeId).catch(() => null);
-
-            if (!r) {
-                if (!cancelled) {
-                    setMatchError("error");
-                    setCurrentBuddy(null);
-                }
-                return;
-            }
-
-            if (cancelled) return;
-
-            if (r.status === 404) { setMatchError("not_found"); setCurrentBuddy(null); return; }
-            if (r.status === 403) { setMatchError("forbidden"); setCurrentBuddy(null); return; }
-            if (!r.ok)            { setMatchError("error"); setCurrentBuddy(null); return; }
-
-            const data = await r.json().catch(() => null);
-            const adapted = data ? adaptMatch(data) : null;
-            if (!adapted) { setMatchError("error"); setCurrentBuddy(null); return; }
-
-            adapted.isTeaser = teaserUserIds.has(Number(routeId));
-
-            setCurrentBuddy(adapted);
-        }
-
-        loadMatch()
-            .catch(() => { if (!cancelled) { setMatchError("error"); setCurrentBuddy(null); } })
-            .finally(() => { if (!cancelled) setMatchLoading(false); });
-
-        return () => { cancelled = true; };
-    }, [routeId, isComplete, feedLoading, feedLoaded, teaserUserIds]);
-
     // ── перехід до наступної картки (без дії з поточною) ─────────────────
     const advance = useCallback(async () => {
         const idx = matches.findIndex(m => String(m.matchedUserId) === String(routeId));
@@ -440,7 +398,9 @@ export function Card() {
             navigate(`/buddies/${next.matchedUserId}`);
         } else {
             try {
-                const shownMatchIds = matches.map(m => m.id);
+                const shownMatchIds = matches
+                    .filter(m => !m.isTeaser)
+                    .map(m => m.id);
                 const r = await getFomoData(shownMatchIds);
                 const data = r.ok ? await r.json().catch(() => null) : null;
 
@@ -470,6 +430,52 @@ export function Card() {
             }
         }
     }, [matches, routeId, navigate, loadFeedMatches]);
+
+    // ── завантаження конкретного матча по id з URL ───────────────────────
+    useEffect(() => {
+        if (!isComplete || !routeId || feedLoading || !feedLoaded) return;
+
+        let cancelled = false;
+        setMatchLoading(true);
+        setMatchError(null);
+        setFomoData(null);
+
+        async function loadMatch() {
+            const r = await getMatchByUserId(routeId).catch(() => null);
+
+            if (!r) {
+                if (!cancelled) {
+                    setMatchError("error");
+                    setCurrentBuddy(null);
+                }
+                return;
+            }
+
+            if (cancelled) return;
+
+            if (r.status === 404) {
+                setCurrentBuddy(null);
+                await advance();
+                return;
+            }
+            if (r.status === 403) { setMatchError("forbidden"); setCurrentBuddy(null); return; }
+            if (!r.ok)            { setMatchError("error"); setCurrentBuddy(null); return; }
+
+            const data = await r.json().catch(() => null);
+            const adapted = data ? adaptMatch(data) : null;
+            if (!adapted) { setMatchError("error"); setCurrentBuddy(null); return; }
+
+            adapted.isTeaser = teaserUserIds.has(Number(routeId));
+
+            setCurrentBuddy(adapted);
+        }
+
+        loadMatch()
+            .catch(() => { if (!cancelled) { setMatchError("error"); setCurrentBuddy(null); } })
+            .finally(() => { if (!cancelled) setMatchLoading(false); });
+
+        return () => { cancelled = true; };
+    }, [routeId, isComplete, feedLoading, feedLoaded, teaserUserIds, advance]);
 
     // ── Пропустити: фіксуємо seen і переходимо далі ──────────────────────
     const handlePass = useCallback(async () => {
@@ -553,7 +559,7 @@ export function Card() {
                     {!cardLoading && fomoData !== null && (
                         <DailyLimitBlock
                             data={fomoData}
-                            shownMatchIds={matches.map(m => m.id)}
+                            shownMatchIds={matches.filter(m => !m.isTeaser).map(m => m.id)}
                         />
                     )}
 

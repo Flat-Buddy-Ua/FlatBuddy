@@ -46,6 +46,7 @@ def create_unlock_order(user: User, match_id: int) -> dict:
         match=match,
         type=PaymentOrder.Type.PROFILE_UNLOCK,
         amount_expected=UNLOCK_PRICE,
+        package=getattr(user, "package", User.Package.FREE.value) or User.Package.FREE.value,
     )
  
     ProfileUnlock.objects.create(

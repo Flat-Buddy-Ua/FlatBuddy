@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from user.models import MatchResult, SeenProfile, ProfileUnlock
+from user.matching.feed_service import FREE_SCORE_MAX, FREE_SCORE_MIN, _daily_usage
 from user.serializers.MatchSerializer import MatchResultSerializer
 
 logger = logging.getLogger(__name__)
@@ -79,20 +80,14 @@ class MyMatchDetailView(APIView):
             MatchResult.Status.PENDING,
             MatchResult.Status.ERROR,
         ):
-            match = self._recompute(match)
+            match = recompute_match(match)
 
         if match.status == MatchResult.Status.SKIPPED:
             raise NotFound("Матч недоступний.")
         if match.status != MatchResult.Status.DONE:
             raise NotFound("Матч ще не готовий.")
 
-        data = MatchResultSerializer(match, context={"request": request}).data
-
-        scores_locked = self._scores_locked(user, match)
-        if scores_locked:
-            for f in SCORE_FIELDS:
-                data[f] = None
-        data["scores_locked"] = scores_locked
+        data = serialize_accessible_match(user, match, request)
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -125,56 +120,71 @@ class MyMatchByUserDetailView(APIView):
             MatchResult.Status.PENDING,
             MatchResult.Status.ERROR,
         ):
-            match = self._recompute(match)
+            match = recompute_match(match)
 
         if match.status == MatchResult.Status.SKIPPED:
             raise NotFound("Матч недоступний.")
         if match.status != MatchResult.Status.DONE:
             raise NotFound("Матч ще не готовий.")
 
-        data = MatchResultSerializer(match, context={"request": request}).data
-
-        scores_locked = self._scores_locked(user, match)
-        if scores_locked:
-            for f in SCORE_FIELDS:
-                data[f] = None
-        data["scores_locked"] = scores_locked
+        data = serialize_accessible_match(user, match, request)
 
         return Response(data, status=status.HTTP_200_OK)
 
-    def _recompute(self, match: MatchResult) -> MatchResult:
-        from user.matching.engine import calculate_match
-        from user.matching.tasks import _save_result
-        from user.matching.llm_scorer import compute_and_cache_embeddings
+def serialize_accessible_match(user, match: MatchResult, request) -> dict:
+    access = _access_state(user, match)
+    if not access["can_view"]:
+        raise NotFound("Матч недоступний.")
 
-        u1, u2 = match.user_1, match.user_2
+    if access["counts_as_view"]:
+        SeenProfile.objects.get_or_create(user=user, match=match)
 
-        for u in (u1, u2):
-            profile = getattr(u, "profile", None)
-            if profile is None:
-                continue
-            if not profile.embedding_vibe:
-                try:
-                    compute_and_cache_embeddings(profile)
-                    profile.refresh_from_db()
-                except Exception:
-                    logger.exception(
-                        "[MatchDetail] embedding compute failed for user %s",
-                        u.id,
-                    )
+    data = MatchResultSerializer(match, context={"request": request}).data
 
-        try:
-            result = calculate_match(u1, u2)
-            _save_result(u1, u2, result)
-        except Exception:
-            logger.exception(
-                "[MatchDetail] sync recompute failed for match %s", match.pk
-            )
+    if access["scores_locked"]:
+        for f in SCORE_FIELDS:
+            data[f] = None
+    data["scores_locked"] = access["scores_locked"]
 
-        match.refresh_from_db()
-        return match
+    return data
 
-    def _scores_locked(self, user, match: MatchResult) -> bool:
-        if (getattr(user, "package", "free") or "free") != "free":
-            return False
-        return not SeenProfile.objects.filter(user=user, match=match).exists()
+
+def _access_state(user, match: MatchResult) -> dict:
+    package = getattr(user, "package", "free") or "free"
+    is_free = package == "free"
+    is_unlimited = package == "premium"
+    is_unlocked = ProfileUnlock.objects.filter(
+        buyer=user,
+        match=match,
+        status=ProfileUnlock.Status.ACTIVE,
+    ).exists()
+    already_seen = SeenProfile.objects.filter(user=user, match=match).exists()
+
+    if is_unlocked:
+        return {
+            "can_view": True,
+            "counts_as_view": False,
+            "scores_locked": False,
+        }
+
+    score = match.total_score or 0
+    if is_free and not (FREE_SCORE_MIN <= score <= FREE_SCORE_MAX):
+        return {
+            "can_view": False,
+            "counts_as_view": False,
+            "scores_locked": True,
+        }
+
+    daily = _daily_usage(user)
+    if not already_seen and not is_unlimited and daily["daily_limit_reached"]:
+        return {
+            "can_view": False,
+            "counts_as_view": False,
+            "scores_locked": is_free,
+        }
+
+    return {
+        "can_view": True,
+        "counts_as_view": not already_seen and not is_unlocked,
+        "scores_locked": is_free,
+    }

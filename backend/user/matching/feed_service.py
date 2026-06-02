@@ -160,6 +160,7 @@ def get_fomo_data(user, shown_match_ids: list) -> dict:
         return {
             **daily,
             "hidden_count": 0,
+            "has_hidden_profiles": False,
             "best_score": None,
             "show_fomo": False,
         }
@@ -168,6 +169,7 @@ def get_fomo_data(user, shown_match_ids: list) -> dict:
         return {
             **daily,
             "hidden_count": 0,
+            "has_hidden_profiles": False,
             "best_score": None,
             "show_fomo": False,
         }
@@ -185,13 +187,13 @@ def get_fomo_data(user, shown_match_ids: list) -> dict:
         .exclude(id__in=excluded)
     )
 
-    count = hidden_qs.count()
     best_match = hidden_qs.order_by("-total_score").first()
 
     return {
         **daily,
-        "hidden_count": count,
-        "best_score":   round(best_match.total_score, 2) if best_match is not None else None,
+        "hidden_count": 0,
+        "has_hidden_profiles": best_match is not None,
+        "best_score": None,
         "unlock_match_id": best_match.id if best_match is not None else None,
         "show_fomo":    True,
     }
