@@ -123,3 +123,4 @@ class FlatBuddyPaymentAndFeedTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['hidden_count'], 1) # Тільки high_match (score >= 70)
         self.assertEqual(response.data['best_score'], 85.0)
+        self.assertEqual(response.data['unlock_match_id'], self.high_match.id)

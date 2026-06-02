@@ -76,7 +76,7 @@ export const markSeen = (matchId) =>
 export const getFomoData = (shownMatchIds = []) => {
     const seen = shownMatchIds.filter(Boolean).join(',');
     const query = seen ? `?seen=${encodeURIComponent(seen)}` : '';
-    return fetchWithAuth(`${BASE_URL}/api/matches/fomo/${query}`);
+    return fetchWithAuth(`${BASE_URL}/api/feed/fomo/${query}`);
 };
 
 // ── Likes / Mutual matches ────────────────────────────────────────────────
@@ -98,3 +98,15 @@ export const getOutgoingLikes = () =>
 
 export const getUserMatches = () =>
     fetchWithAuth(`${BASE_URL}/api/user-matches/`);
+
+export const initiateUnlock = (matchId) =>
+    fetchWithAuth(`${BASE_URL}/api/payment/unlock/`, {
+        method: 'POST',
+        body: JSON.stringify({ match_id: matchId }),
+    });
+
+export const getPaymentStatus = (commentId) =>
+    fetchWithAuth(`${BASE_URL}/api/payment/status/${commentId}/`);
+
+export const getUnlockedProfiles = () =>
+    fetchWithAuth(`${BASE_URL}/api/payment/unlocked/`);

@@ -1,0 +1,152 @@
+.daily-limit-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 48px 16px;
+    font-family: 'Inter', sans-serif;
+}
+
+.daily-limit-card {
+    width: 100%;
+    max-width: 620px;
+    background: #fff;
+    border: 3px solid #111;
+    box-shadow: 6px 6px 0 #111;
+    padding: 36px 42px;
+    text-align: center;
+}
+
+.daily-limit-kicker {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 12px;
+    margin-bottom: 16px;
+    background: #F6DDD4;
+    border: 2px solid #111;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #111;
+}
+
+.daily-limit-title {
+    margin: 0 0 12px;
+    color: #111;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.daily-limit-desc {
+    max-width: 480px;
+    margin: 0 auto;
+    color: #555;
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+.daily-limit-insight {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 28px 0 0;
+}
+
+.daily-limit-insight > div {
+    min-height: 96px;
+    padding: 16px;
+    background: #fbf6f2;
+    border: 2px solid #F6DDD4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.daily-limit-number {
+    color: #F58A3D;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.daily-limit-label {
+    color: #555;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.daily-limit-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.daily-limit-btn {
+    border: 2px solid #111;
+    box-shadow: 3px 3px 0 #111;
+    padding: 12px 24px;
+    color: #111;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.daily-limit-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.daily-limit-btn-primary {
+    background: #FCD531;
+}
+
+.daily-limit-btn-secondary {
+    background: #fff;
+}
+
+.daily-limit-btn:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 #111;
+}
+
+.daily-limit-btn:active:not(:disabled) {
+    transform: translate(0, 0);
+    box-shadow: 1px 1px 0 #111;
+}
+
+.daily-limit-error {
+    margin: 20px auto 0;
+    max-width: 420px;
+    padding: 10px 12px;
+    background: #fff3ef;
+    border: 2px solid #e04b3a;
+    color: #9d2f24;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+@media (max-width: 560px) {
+    .daily-limit-card {
+        padding: 28px 22px;
+    }
+
+    .daily-limit-title {
+        font-size: 24px;
+    }
+
+    .daily-limit-insight {
+        grid-template-columns: 1fr;
+    }
+
+    .daily-limit-btn {
+        width: 100%;
+    }
+}

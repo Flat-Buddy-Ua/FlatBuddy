@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Header } from "../components/Header.jsx";
 import { fetchWithAuth, getMatches, getMatchByUserId, markSeen, getFomoData, likeUser } from "../utils/api.js";
 import { adaptMatch } from "../utils/adaptMatch.js";
-import { FomoBlock } from "../components/FomoBlock.jsx";
+import { DailyLimitBlock } from "../components/DailyLimitBlock.jsx";
 import { MatchModal } from "../components/MatchModal.jsx";
 import "./Card.css";
 
@@ -284,6 +284,7 @@ export function Card() {
 
     // ── стан стрічки ──────────────────────────────────────────────────────
     const [matches,      setMatches]      = useState([]);   // адаптована feed-стрічка
+    const [teaserUserIds, setTeaserUserIds] = useState(new Set());
     const [feedLoading,  setFeedLoading]  = useState(false);
     const [feedLoaded,   setFeedLoaded]   = useState(false);
     const [fomoData,     setFomoData]     = useState(null); // { hidden_count, best_score }
@@ -301,17 +302,19 @@ export function Card() {
         const free      = Array.isArray(raw.free) ? raw.free : [];
         const unlocked  = Array.isArray(raw.unlocked) ? raw.unlocked : [];
         const teaser    = raw.teaser && typeof raw.teaser === 'object' ? [raw.teaser] : [];
-        const buildList = (items) => items
+
+        const buildList = (items, isTeaser = false) => items
             .map(item => {
                 if (!item || typeof item !== 'object') return null;
                 return {
                     id: item.match_id,
                     matchedUserId: item.other_user_id,
+                    isTeaser,
                 };
             })
             .filter(Boolean);
 
-        return [...buildList(free), ...buildList(unlocked), ...buildList(teaser)];
+        return [...buildList(free), ...buildList(unlocked), ...buildList(teaser, true)];
     }, []);
 
     // ── завантаження повноти профілю ──────────────────────────────────────
@@ -355,8 +358,18 @@ export function Card() {
             .then(nextMatches => {
                 if (cancelled) return;
                 setMatches(nextMatches);
+                setTeaserUserIds(new Set(
+                    nextMatches
+                        .filter(m => m.isTeaser)
+                        .map(m => m.matchedUserId)
+                ));
             })
-            .catch(() => { if (!cancelled) setMatches([]); })
+            .catch(() => {
+                if (!cancelled) {
+                    setMatches([]);
+                    setTeaserUserIds(new Set());
+                }
+            })
             .finally(() => {
                 if (!cancelled) {
                     setFeedLoading(false);
@@ -405,6 +418,9 @@ export function Card() {
             const data = await r.json().catch(() => null);
             const adapted = data ? adaptMatch(data) : null;
             if (!adapted) { setMatchError("error"); setCurrentBuddy(null); return; }
+
+            adapted.isTeaser = teaserUserIds.has(Number(routeId));
+
             setCurrentBuddy(adapted);
         }
 
@@ -413,7 +429,7 @@ export function Card() {
             .finally(() => { if (!cancelled) setMatchLoading(false); });
 
         return () => { cancelled = true; };
-    }, [routeId, isComplete, feedLoading, feedLoaded]);
+    }, [routeId, isComplete, feedLoading, feedLoaded, teaserUserIds]);
 
     // ── перехід до наступної картки (без дії з поточною) ─────────────────
     const advance = useCallback(async () => {
@@ -535,7 +551,10 @@ export function Card() {
                     )}
 
                     {!cardLoading && fomoData !== null && (
-                        <FomoBlock data={fomoData} />
+                        <DailyLimitBlock
+                            data={fomoData}
+                            shownMatchIds={matches.map(m => m.id)}
+                        />
                     )}
 
                     {!cardLoading && !matchError && fomoData === null && currentBuddy && (
