@@ -11,6 +11,9 @@ from user.models import MatchResult, SeenProfile, ProfileUnlock
 from user.matching.feed_service import FREE_SCORE_MAX, FREE_SCORE_MIN, _daily_usage
 from user.serializers.MatchSerializer import MatchResultSerializer
 
+from user.matching.engine import calculate_match
+from user.matching.tasks import _save_result, _ordered_pair
+
 logger = logging.getLogger(__name__)
 
 
@@ -50,6 +53,17 @@ class MyMatchListView(APIView):
             })
 
         return Response(results, status=status.HTTP_200_OK)
+
+
+def recompute_match(match: MatchResult) -> MatchResult:
+    u1, u2 = _ordered_pair(match.user_1, match.user_2)
+    try:
+        result = calculate_match(u1, u2)
+        _save_result(u1, u2, result)
+        match.refresh_from_db()
+    except Exception as e:
+        logger.error(f"[recompute_match] Failed ({u1.id}, {u2.id}): {e}", exc_info=True)
+    return match
 
 
 class MyMatchDetailView(APIView):
