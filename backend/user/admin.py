@@ -304,3 +304,335 @@ class UserMatchAdmin(admin.ModelAdmin):
     def activate(self, request, queryset):
         n = queryset.update(is_active=True)
         self.message_user(request, f"Активовано: {n}")
+
+from django.contrib import admin, messages
+from django.utils import timezone
+from django.utils.html import format_html
+
+from user.models import PaymentOrder, ProfileUnlock, MatchResult
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  PaymentOrder
+# ══════════════════════════════════════════════════════════════════════════════
+
+@admin.register(PaymentOrder)
+class PaymentOrderAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "comment_id",
+        "user_link",
+        "type",
+        "amount_uah",
+        "status_badge",
+        "package",
+        "created_at",
+        "paid_at",
+    )
+    list_filter  = ("status", "type", "package")
+    search_fields = (
+        "comment_id",
+        "user__email",
+        "user__id",
+    )
+    readonly_fields = (
+        "comment_id",
+        "user",
+        "match",
+        "type",
+        "amount_expected",
+        "package",
+        "created_at",
+        "paid_at",
+    )
+    ordering = ("-created_at",)
+    raw_id_fields = ("user", "match")
+
+    # ── Actions ───────────────────────────────────────────────────────────
+
+    actions = ["action_mark_paid", "action_mark_expired"]
+
+    @admin.action(description="✅ Позначити як оплачено та активувати unlock")
+    def action_mark_paid(self, request, queryset):
+        activated = 0
+        skipped   = 0
+
+        for order in queryset.select_related("profile_unlock"):
+            if order.status == PaymentOrder.Status.PAID:
+                skipped += 1
+                continue
+
+            order.status  = PaymentOrder.Status.PAID
+            order.paid_at = timezone.now()
+            order.save(update_fields=["status", "paid_at"])
+
+            try:
+                unlock = order.profile_unlock
+                if unlock.status != ProfileUnlock.Status.ACTIVE:
+                    unlock.activate()
+                activated += 1
+            except ProfileUnlock.DoesNotExist:
+                skipped += 1
+
+        self.message_user(
+            request,
+            f"Активовано: {activated}. Пропущено (вже оплачено або немає unlock): {skipped}.",
+            messages.SUCCESS,
+        )
+
+    @admin.action(description="⏳ Позначити як прострочено")
+    def action_mark_expired(self, request, queryset):
+        updated = queryset.filter(
+            status=PaymentOrder.Status.PENDING
+        ).update(status=PaymentOrder.Status.EXPIRED)
+        self.message_user(request, f"Прострочено: {updated} замовлень.", messages.WARNING)
+
+    # ── Display helpers ───────────────────────────────────────────────────
+
+    @admin.display(description="Користувач")
+    def user_link(self, obj):
+        return format_html(
+            '<a href="/admin/user/user/{}/change/">{}</a>',
+            obj.user_id,
+            obj.user,
+        )
+
+    @admin.display(description="Сума")
+    def amount_uah(self, obj):
+        return f"{obj.amount_expected / 100:.0f} грн"
+
+    @admin.display(description="Статус")
+    def status_badge(self, obj):
+        colors = {
+            PaymentOrder.Status.PENDING: ("#F58A3D", "Очікує"),
+            PaymentOrder.Status.PAID:    ("#3aaf6f", "Оплачено"),
+            PaymentOrder.Status.EXPIRED: ("#aaa",    "Прострочено"),
+        }
+        color, label = colors.get(obj.status, ("#aaa", obj.status))
+        return format_html(
+            '<span style="color:{}; font-weight:700;">{}</span>', color, label
+        )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  ProfileUnlock
+# ══════════════════════════════════════════════════════════════════════════════
+
+@admin.register(ProfileUnlock)
+class ProfileUnlockAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "buyer_link",
+        "match_id",
+        "status_badge",
+        "order_link",
+        "unlocked_at",
+        "created_at",
+    )
+    list_filter  = ("status",)
+    search_fields = (
+        "buyer__email",
+        "buyer__id",
+        "order__comment_id",
+    )
+    readonly_fields = (
+        "buyer",
+        "match",
+        "order",
+        "created_at",
+        "unlocked_at",
+    )
+    ordering = ("-created_at",)
+    raw_id_fields = ("buyer", "match", "order")
+
+    # ── Actions ───────────────────────────────────────────────────────────
+
+    actions = ["action_activate", "action_refund"]
+
+    @admin.action(description="✅ Активувати розблокування вручну")
+    def action_activate(self, request, queryset):
+        activated = 0
+        skipped   = 0
+
+        for unlock in queryset:
+            if unlock.status == ProfileUnlock.Status.ACTIVE:
+                skipped += 1
+                continue
+            unlock.activate()
+
+            # Синхронізуємо пов'язаний PaymentOrder
+            if unlock.order and unlock.order.status != PaymentOrder.Status.PAID:
+                unlock.order.status  = PaymentOrder.Status.PAID
+                unlock.order.paid_at = timezone.now()
+                unlock.order.save(update_fields=["status", "paid_at"])
+
+            activated += 1
+
+        self.message_user(
+            request,
+            f"Активовано: {activated}. Вже активних: {skipped}.",
+            messages.SUCCESS,
+        )
+
+    @admin.action(description="↩️ Позначити як повернуто (refunded)")
+    def action_refund(self, request, queryset):
+        refunded = queryset.exclude(
+            status=ProfileUnlock.Status.REFUNDED
+        ).update(status=ProfileUnlock.Status.REFUNDED)
+        self.message_user(
+            request,
+            f"Позначено як повернуто: {refunded}. "
+            "Фактичне повернення коштів виконується вручну через Monobank.",
+            messages.WARNING,
+        )
+
+    # ── Display helpers ───────────────────────────────────────────────────
+
+    @admin.display(description="Покупець")
+    def buyer_link(self, obj):
+        return format_html(
+            '<a href="/admin/user/user/{}/change/">{}</a>',
+            obj.buyer_id,
+            obj.buyer,
+        )
+
+    @admin.display(description="Замовлення")
+    def order_link(self, obj):
+        if not obj.order_id:
+            return "—"
+        return format_html(
+            '<a href="/admin/user/paymentorder/{}/change/">{}</a>',
+            obj.order_id,
+            obj.order.comment_id if obj.order else obj.order_id,
+        )
+
+    @admin.display(description="Статус")
+    def status_badge(self, obj):
+        colors = {
+            ProfileUnlock.Status.PENDING:  ("#F58A3D", "Очікує"),
+            ProfileUnlock.Status.ACTIVE:   ("#3aaf6f", "Активне"),
+            ProfileUnlock.Status.REFUNDED: ("#aaa",    "Повернуто"),
+        }
+        color, label = colors.get(obj.status, ("#aaa", obj.status))
+        return format_html(
+            '<span style="color:{}; font-weight:700;">{}</span>', color, label
+        )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  MatchResult
+# ══════════════════════════════════════════════════════════════════════════════
+
+@admin.register(MatchResult)
+class MatchResultAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user_1_link",
+        "user_2_link",
+        "total_score_display",
+        "status_badge",
+        "hard_filter_passed",
+        "is_stale",
+        "created_at",
+    )
+    list_filter  = ("status", "hard_filter_passed", "is_stale")
+    search_fields = (
+        "user_1__email",
+        "user_2__email",
+        "user_1__id",
+        "user_2__id",
+    )
+    readonly_fields = (
+        "user_1", "user_2",
+        "total_score",
+        "score_vibe", "score_hobbies", "score_cleanliness",
+        "score_smoking", "score_partying", "score_political",
+        "score_personality", "score_schedule", "score_budget",
+        "status", "hard_filter_passed", "skip_reason",
+        "is_stale", "created_at", "updated_at",
+    )
+    ordering = ("-created_at",)
+    raw_id_fields = ("user_1", "user_2")
+
+    fieldsets = (
+        ("Учасники", {
+            "fields": ("user_1", "user_2"),
+        }),
+        ("Результат", {
+            "fields": (
+                "status", "hard_filter_passed", "skip_reason",
+                "is_stale", "total_score",
+            ),
+        }),
+        ("Деталі сумісності", {
+            "classes": ("collapse",),
+            "fields": (
+                "score_vibe", "score_hobbies", "score_cleanliness",
+                "score_smoking", "score_partying", "score_political",
+                "score_personality", "score_schedule", "score_budget",
+            ),
+        }),
+        ("Дати", {
+            "fields": ("created_at", "updated_at"),
+        }),
+    )
+
+    # ── Actions ───────────────────────────────────────────────────────────
+
+    actions = ["action_mark_stale", "action_unmark_stale"]
+
+    @admin.action(description="🔄 Позначити як застарілі (is_stale=True)")
+    def action_mark_stale(self, request, queryset):
+        updated = queryset.update(is_stale=True)
+        self.message_user(request, f"Позначено застарілими: {updated}.", messages.WARNING)
+
+    @admin.action(description="✅ Зняти позначку застарілості")
+    def action_unmark_stale(self, request, queryset):
+        updated = queryset.update(is_stale=False)
+        self.message_user(request, f"Знято позначку: {updated}.", messages.SUCCESS)
+
+    # ── Display helpers ───────────────────────────────────────────────────
+
+    @admin.display(description="Користувач 1")
+    def user_1_link(self, obj):
+        return format_html(
+            '<a href="/admin/user/user/{}/change/">{}</a>',
+            obj.user_1_id,
+            obj.user_1,
+        )
+
+    @admin.display(description="Користувач 2")
+    def user_2_link(self, obj):
+        return format_html(
+            '<a href="/admin/user/user/{}/change/">{}</a>',
+            obj.user_2_id,
+            obj.user_2,
+        )
+
+    @admin.display(description="Сумісність")
+    def total_score_display(self, obj):
+        if obj.total_score is None:
+            return "—"
+        score = round(obj.total_score)
+        if score >= 75:
+            color = "#3aaf6f"
+        elif score >= 50:
+            color = "#F58A3D"
+        else:
+            color = "#e04b3a"
+        return format_html(
+            '<span style="color:{}; font-weight:700;">{}%</span>', color, score
+        )
+
+    @admin.display(description="Статус")
+    def status_badge(self, obj):
+        colors = {
+            MatchResult.Status.PENDING: ("#F58A3D", "Очікує"),
+            MatchResult.Status.DONE:    ("#3aaf6f", "Розраховано"),
+            MatchResult.Status.SKIPPED: ("#aaa",    "Пропущено"),
+            MatchResult.Status.ERROR:   ("#e04b3a", "Помилка"),
+        }
+        color, label = colors.get(obj.status, ("#aaa", obj.status))
+        return format_html(
+            '<span style="color:{}; font-weight:700;">{}</span>', color, label
+        )
