@@ -150,3 +150,66 @@
         width: 100%;
     }
 }
+
+/* ── Блок з коментарем до платежу ───────────────────────────────────── */
+
+.daily-limit-comment-block {
+    margin: 28px auto 0;
+    max-width: 480px;
+    background: #fbf6f2;
+    border: 2px solid #F6DDD4;
+    padding: 16px 20px;
+    text-align: left;
+}
+
+.daily-limit-comment-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.daily-limit-comment-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.daily-limit-comment-id {
+    flex: 1;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #111;
+    background: none;
+    border: none;
+    padding: 0;
+    word-break: break-all;
+}
+
+.daily-limit-btn-copy {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+@media (max-width: 560px) {
+    .daily-limit-comment-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .daily-limit-comment-id {
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .daily-limit-btn-copy {
+        width: 100%;
+        text-align: center;
+    }
+}

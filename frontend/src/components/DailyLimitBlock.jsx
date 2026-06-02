@@ -7,6 +7,11 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
     const [loading, setLoading] = useState(!initialData);
     const [error, setError] = useState("");
     const [unlocking, setUnlocking] = useState(false);
+
+    // Стан після успішного initiateUnlock
+    const [paymentData, setPaymentData] = useState(null); // { comment_id, instruction, jar_url, amount }
+    const [copied, setCopied] = useState(false);
+
     const shownMatchIdsKey = shownMatchIds.filter(Boolean).join(",");
 
     useEffect(() => {
@@ -57,6 +62,7 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
     const viewedText = daily_viewed ?? daily_limit;
     const canUnlock = Boolean(unlock_match_id);
 
+    // ── Крок 1: ініціюємо платіж, показуємо інструкцію ──────────────────
     const handleUnlock = useCallback(async () => {
         if (!canUnlock || unlocking) return;
 
@@ -65,14 +71,15 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
 
         try {
             const response = await initiateUnlock(unlock_match_id);
-            const paymentData = response.ok ? await response.json().catch(() => null) : null;
+            const result = response.ok ? await response.json().catch(() => null) : null;
 
-            if (!response.ok || !paymentData?.jar_url) {
-                setError(paymentData?.error || "Не вдалося створити платіж.");
+            if (!response.ok || !result?.jar_url) {
+                setError(result?.error || "Не вдалося створити платіж.");
                 return;
             }
 
-            window.location.href = paymentData.jar_url;
+            // Показуємо інструкцію замість редіректу
+            setPaymentData(result);
         } catch {
             setError("Не вдалося створити платіж.");
         } finally {
@@ -80,6 +87,84 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
         }
     }, [canUnlock, unlock_match_id, unlocking]);
 
+    // ── Крок 2: юзер натискає "Перейти до оплати" ────────────────────────
+    const handleGoToPay = useCallback(() => {
+        if (paymentData?.jar_url) {
+            window.location.href = paymentData.jar_url;
+        }
+    }, [paymentData]);
+
+    // ── Копіювання comment_id ─────────────────────────────────────────────
+    const handleCopy = useCallback(async () => {
+        if (!paymentData?.comment_id) return;
+        try {
+            await navigator.clipboard.writeText(paymentData.comment_id);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // fallback для старих браузерів
+            const el = document.createElement("textarea");
+            el.value = paymentData.comment_id;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand("copy");
+            document.body.removeChild(el);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    }, [paymentData]);
+
+    // ── Рендер інструкції після отримання paymentData ─────────────────────
+    if (paymentData) {
+        return (
+            <section className="daily-limit-wrap" aria-live="polite">
+                <div className="daily-limit-card">
+                    <div className="daily-limit-kicker">Оплата</div>
+                    <h2 className="daily-limit-title">Переказ на банку</h2>
+
+                    <p className="daily-limit-desc">
+                        Переведи{" "}
+                        <strong>{paymentData.amount} грн</strong>{" "}
+                        на банку та вкажи коментар нижче у призначенні платежу.
+                        Без коментаря ми не зможемо підтвердити оплату.
+                    </p>
+
+                    {/* Блок з comment_id */}
+                    <div className="daily-limit-comment-block">
+                        <div className="daily-limit-comment-label">
+                            Коментар до переказу
+                        </div>
+                        <div className="daily-limit-comment-row">
+                            <code className="daily-limit-comment-id">
+                                {paymentData.comment_id}
+                            </code>
+                            <button
+                                className="daily-limit-btn daily-limit-btn-secondary daily-limit-btn-copy"
+                                type="button"
+                                onClick={handleCopy}
+                            >
+                                {copied ? "Скопійовано ✓" : "Копіювати"}
+                            </button>
+                        </div>
+                    </div>
+
+                    {error && <div className="daily-limit-error">{error}</div>}
+
+                    <div className="daily-limit-actions">
+                        <button
+                            className="daily-limit-btn daily-limit-btn-primary"
+                            type="button"
+                            onClick={handleGoToPay}
+                        >
+                            Перейти до оплати →
+                        </button>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    // ── Основний рендер ───────────────────────────────────────────────────
     return (
         <section className="daily-limit-wrap" aria-live="polite">
             <div className="daily-limit-card">
