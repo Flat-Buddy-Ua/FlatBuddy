@@ -382,12 +382,12 @@
 .bp-compat-panel {
     position: relative;
 }
-/* .bp-compat-panel.is-locked .bp-compat-total,
+.bp-compat-panel.is-locked .bp-compat-total,
 .bp-compat-panel.is-locked .bp-compat-rows {
     filter: blur(6px);
     pointer-events: none;
     user-select: none;
-} */
+}
 .bp-compat-lock {
     position: absolute;
     inset: 0;
