@@ -6,7 +6,7 @@ from .models import (
     User, UserProfile, UserHousing, UserPhoto,
     UserPriority, MatchResult, SeenProfile,
     UserLike, UserMatch,
-    PaymentOrder, ProfileUnlock,
+    PaymentOrder, ProfileUnlock, UnmatchedPayment,
 )
 
 
