@@ -9,7 +9,7 @@ import "./FomoBlock.css";
  */
 export function FomoBlock({ data }) {
     const navigate = useNavigate();
-    const { hidden_count, best_score } = data ?? {};
+    const { hidden_count, best_score, daily_limit } = data ?? {};
 
     const hasFomo = hidden_count > 0;
 
@@ -31,8 +31,9 @@ export function FomoBlock({ data }) {
                             </p>
                         )}
                         <p className="fomo-desc">
-                            Безкоштовний план показує лише 5 найкращих збігів.
-                            Перейди на преміум і знайди ідеального сусіда.
+                            Ти переглянув доступні на сьогодні профілі
+                            {daily_limit ? ` за своїм планом (${daily_limit})` : ""}.
+                            Перейди на преміум і знайди ідеального сусіда без обмежень.
                         </p>
                     </>
                 ) : (

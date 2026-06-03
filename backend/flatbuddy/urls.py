@@ -47,11 +47,11 @@ urlpatterns = [
     path('api/resend-link/', ResendMagicLinkView.as_view(), name='resend-link'),
 
 
-    path('api/profile/general/', MeUserView.as_view(), name='profile-general'),
-    path('api/profile/personal/', MeProfileView.as_view(), name='profile-personal'),
-    path('api/profile/housing/', MeHousingView.as_view(), name='profile-housing'),
-    path('api/profile/photos/', MePhotoListCreateView.as_view(), name='profile-photos-list'),
-    path('api/profile/photos/<int:pk>/', MePhotoDestroyView.as_view(), name='profile-photos-detail'),
+    path('api/profile/general/',               MeUserView.as_view(), name='profile-general'),
+    path('api/profile/personal/',              MeProfileView.as_view(), name='profile-personal'),
+    path('api/profile/housing/',               MeHousingView.as_view(), name='profile-housing'),
+    path('api/profile/photos/',                MePhotoListCreateView.as_view(), name='profile-photos-list'),
+    path('api/profile/photos/<int:pk>/',       MePhotoDestroyView.as_view(), name='profile-photos-detail'),
 
 
     path('api/likes/',                         LikeCreateView.as_view(),    name='like-create'),
@@ -59,20 +59,20 @@ urlpatterns = [
     path('api/likes/outgoing/',                OutgoingLikesView.as_view(), name='likes-outgoing'),
     path('api/likes/<int:user_id>/',           LikeDeleteView.as_view(),    name='like-delete'),
     path('api/matches/',                       MyMatchListView.as_view(),   name='matches-list'),
-    path('api/matches/user/<int:user_id>/',  MyMatchByUserDetailView.as_view(), name='matches-detail-by-user'),
+    path('api/matches/user/<int:user_id>/',    MyMatchByUserDetailView.as_view(), name='matches-detail-by-user'),
     path('api/matches/<int:match_id>/seen/',   MarkSeenView.as_view(),      name='matches-seen'),
     path('api/matches/<int:match_id>/',        MyMatchDetailView.as_view(), name='matches-detail'),
     path('api/user-matches/',                  MyMatchesView.as_view(),     name='user-matches'),
 
 
-    path('api/feed/', FeedView.as_view(), name='feed'),
-    path('api/feed/fomo/', FomoView.as_view(), name='feed-fomo'), 
+    path('api/feed/',                          FeedView.as_view(), name='feed'),
+    path('api/feed/fomo/',                     FomoView.as_view(), name='feed-fomo'), 
 
-    path('api/payment/unlock/', InitiateUnlockView.as_view(), name='payment-unlock'),    
+    path('api/payment/unlock/',                InitiateUnlockView.as_view(), name='payment-unlock'),    
     path('api/payment/status/<str:comment_id>/', PaymentStatusView.as_view(), name='payment-status'),
-    path('api/payment/unlocked/', UnlockedProfilesView.as_view(), name='payment-unlocked'),  
-    path('api/payment/price/', UnlockPriceView.as_view(), name='payment-price'), 
-    path('api/mono-webhook/', mono_webhook, name='mono-webhook'),
+    path('api/payment/unlocked/',              UnlockedProfilesView.as_view(), name='payment-unlocked'),  
+    path('api/payment/price/',                 UnlockPriceView.as_view(), name='payment-price'), 
+    path('api/mono-webhook/',                  mono_webhook, name='mono-webhook'),
 
 
     path('', TemplateView.as_view(template_name='index.html')),

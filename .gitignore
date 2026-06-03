@@ -65,3 +65,10 @@ media/
 # PDF files
 *.pdf 
 
+# PNG files
+*.png
+
+backend/scripts/
+
+
+
