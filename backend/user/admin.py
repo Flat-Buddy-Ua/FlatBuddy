@@ -530,3 +530,36 @@ class ProfileUnlockAdmin(admin.ModelAdmin):
         return format_html(
             '<span style="color:{}; font-weight:700;">{}</span>', color, label
         )
+        
+@admin.register(UnmatchedPayment)
+class UnmatchedPaymentAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "mono_id",
+        "amount_uah",
+        "description",
+        "received_at",
+        "note_preview",
+    )
+    search_fields = ("mono_id", "description", "note")
+    ordering = ("-received_at",)
+    list_per_page = 50
+    readonly_fields = ("mono_id", "amount", "description", "received_at", "created_at")
+    fieldsets = (
+        ("Платіж", {
+            "fields": ("mono_id", "amount", "description", "received_at", "created_at"),
+        }),
+        ("Нотатка адміна", {
+            "fields": ("note",),
+        }),
+    )
+
+    @admin.display(description="Сума")
+    def amount_uah(self, obj):
+        return f"{obj.amount / 100:.0f} грн"
+
+    @admin.display(description="Нотатка")
+    def note_preview(self, obj):
+        if not obj.note:
+            return "—"
+        return (obj.note[:40] + "…") if len(obj.note) > 40 else obj.note

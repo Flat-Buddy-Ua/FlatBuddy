@@ -35,8 +35,20 @@ def mono_webhook(request):
     comment = statement.get("comment", "").strip()
 
     if not comment:
-        logger.info("Платіж без коментаря — пропускаємо")
+        from user.models import UnmatchedPayment
+        UnmatchedPayment.objects.get_or_create(
+            mono_id=statement.get("id", ""),
+            defaults={
+                "amount":      amount,
+                "description": statement.get("description", ""),
+                "received_at": timezone.datetime.fromtimestamp(
+                    statement.get("time", 0), tz=timezone.utc
+                ),
+            }
+        )
+        logger.warning(f"Платіж без коментаря збережено: сума={amount}")
         return JsonResponse({"ok": True})
+    
     try:
         order = (
             PaymentOrder.objects
