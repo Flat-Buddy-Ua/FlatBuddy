@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './SmartCalendar.css';
 
 const parseSafeDate = (val) => {
@@ -22,12 +23,14 @@ const parseSafeDate = (val) => {
 const SmartCalendar = ({
   onChange,
   value,
-  placeholder = "Оберіть дату",
+  placeholder,
   minDate: minDateProp,
   maxDate: maxDateProp,
   onFocus,
   onBlur,
 }) => {
+  const { t, i18n } = useTranslation();
+  const displayPlaceholder = placeholder || t("smart_calendar.placeholder", "Оберіть дату");
   const [showCalendar, setShowCalendar] = useState(false);
   const [date, setDate] = useState(() => parseSafeDate(value));
   const [view, setView] = useState('month');
@@ -51,7 +54,7 @@ const SmartCalendar = ({
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (calendarRef.current && !calendarRef.current.contains(event.target) &&
-          inputRef.current && !inputRef.current.contains(event.target)) {
+        inputRef.current && !inputRef.current.contains(event.target)) {
         setShowCalendar(false);
       }
     };
@@ -90,7 +93,7 @@ const SmartCalendar = ({
           day: '2-digit',
           month: '2-digit',
           year: 'numeric'
-        }) : placeholder}</span>
+        }) : displayPlaceholder}</span>
       </div>
 
       {showCalendar && (
@@ -110,6 +113,7 @@ const SmartCalendar = ({
 };
 
 const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChange, maxDate, minDate }) => {
+  const { t } = useTranslation();
   const [date, setDate] = useState(value || new Date());
   const [yearViewStart, setYearViewStart] = useState(new Date().getFullYear() - 6);
 
@@ -168,11 +172,29 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
   };
 
   const monthNames = [
-    'Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень',
-    'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'
+    t('smart_calendar.months.0'),
+    t('smart_calendar.months.1'),
+    t('smart_calendar.months.2'),
+    t('smart_calendar.months.3'),
+    t('smart_calendar.months.4'),
+    t('smart_calendar.months.5'),
+    t('smart_calendar.months.6'),
+    t('smart_calendar.months.7'),
+    t('smart_calendar.months.8'),
+    t('smart_calendar.months.9'),
+    t('smart_calendar.months.10'),
+    t('smart_calendar.months.11')
   ];
 
-  const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
+  const weekdays = [
+    t('smart_calendar.weekdays.0'),
+    t('smart_calendar.weekdays.1'),
+    t('smart_calendar.weekdays.2'),
+    t('smart_calendar.weekdays.3'),
+    t('smart_calendar.weekdays.4'),
+    t('smart_calendar.weekdays.5'),
+    t('smart_calendar.weekdays.6')
+  ];
 
   const switchToYearView = () => {
     onViewChange('year');
@@ -248,8 +270,8 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
   const isToday = (day) => {
     const today = new Date();
     return day === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear();
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
   };
 
   const isSelected = (day) => day === date.getDate();
@@ -348,7 +370,7 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
                     onClick={() => !isDisabled(day) && selectDay(day)}
                     className={dayBtnClass(day)}
                     disabled={isDisabled(day)}
-                    title={isDisabled(day) ? "Недоступна дата" : ""}
+                    title={isDisabled(day) ? t("smart_calendar.disabled_date", "Недоступна дата") : ""}
                   >
                     {day}
                   </button>
@@ -368,7 +390,7 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
                 key={month}
                 onClick={() => !disabled && selectMonth(index)}
                 disabled={disabled}
-                title={disabled ? "Недоступний місяць" : ""}
+                title={disabled ? t("smart_calendar.disabled_month", "Недоступний місяць") : ""}
                 className={monthBtnClass(index)}
               >
                 {month}
@@ -387,7 +409,7 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
                 key={year}
                 onClick={() => !disabled && selectYear(year)}
                 disabled={disabled}
-                title={disabled ? "Недоступний рік" : ""}
+                title={disabled ? t("smart_calendar.disabled_year", "Недоступний рік") : ""}
                 className={yearBtnClass(year)}
               >
                 {year}
@@ -401,11 +423,11 @@ const FlatBuddyCalendar = ({ onChange, value, currentView = 'month', onViewChang
         <div className="fb-cal-view-buttons">
           {currentView === 'months' && (
             <button onClick={switchToYearView} className="fb-cal-view-btn">
-              Обрати рік
+              {t("smart_calendar.select_year", "Обрати рік")}
             </button>
           )}
           <button onClick={switchToMonthView} className="fb-cal-view-btn">
-            Повернутися до днів
+            {t("smart_calendar.back_to_days", "Повернутися до днів")}
           </button>
         </div>
       )}

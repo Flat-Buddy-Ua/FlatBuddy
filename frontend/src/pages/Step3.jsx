@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
+import i18n from 'i18next';
 
 import { SmartSelect } from '../components/SmartSelect.jsx';
 import { SmartInput } from '../components/SmartInput.jsx';
@@ -35,24 +37,24 @@ function buildRegistrationPayload(formState) {
 }
 
 const ROOM_SHARING_OPTIONS = [
-	{ value: 1, label: 'Мені комфортно ділити кімнату з співмешканцем' },
-	{ value: 2, label: 'Я хочу мати окрему кімнату' },
+	{ value: 1, get label() { return i18n.t('step3.room_sharing_options.1'); } },
+	{ value: 2, get label() { return i18n.t('step3.room_sharing_options.2'); } },
 ];
 
 const PREFERRED_GENDER_OPTIONS = [
-	{ value: 1, label: 'Лише з хлопцями' },
-	{ value: 2, label: 'Лише з дівчатами' },
-	{ value: 3, label: 'Не має значення' },
+	{ value: 1, get label() { return i18n.t('step3.preferred_gender_options.1'); } },
+	{ value: 2, get label() { return i18n.t('step3.preferred_gender_options.2'); } },
+	{ value: 3, get label() { return i18n.t('step3.preferred_gender_options.3'); } },
 ];
 
 const HOUSING_STATUS_OPTIONS = [
-	{ value: 1, label: 'Я шукаю житло та співмешканця' },
-	{ value: 2, label: 'Я шукаю лише співмешканця, маю своє/орендоване житло' },
+	{ value: 1, get label() { return i18n.t('step3.housing_status_options.1'); } },
+	{ value: 2, get label() { return i18n.t('step3.housing_status_options.2'); } },
 ];
 
 const HAS_PET_OPTIONS = [
-	{ value: true, label: 'Так, є' },
-	{ value: false, label: 'Ні, нема' },
+	{ value: true, get label() { return i18n.t('step3.has_pet_options.true'); } },
+	{ value: false, get label() { return i18n.t('step3.has_pet_options.false'); } },
 ];
 
 const REQUIRED_FIELDS_BASE = [
@@ -69,18 +71,20 @@ const REQUIRED_FIELDS_BASE = [
 ];
 
 function CharCounter({ value, min, max }) {
+	const { t } = useTranslation();
 	const len = value ? value.length : 0;
 	const tooShort = len > 0 && len < min;
 	const tooLong = len > max;
 	const color = tooShort || tooLong ? '#ff3333' : '#666';
 	return (
 		<div style={{ fontSize: '12px', fontFamily: 'Inter', color, marginTop: '2px', textAlign: 'right' }}>
-			{len} / {max} (мін. {min})
+			{len} / {max} ({t('step3.min')} {min})
 		</div>
 	);
 }
 
 export default function Step3() {
+	const { t } = useTranslation();
 	const [formState, setFormState] = useState({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState("");
@@ -203,11 +207,11 @@ export default function Step3() {
 				navigate('/');
 			} else {
 				const errorData = await response.json().catch(() => ({}));
-				setSubmitError(errorData.detail || "Не вдалося зберегти дані.");
+				setSubmitError(errorData.detail || t("step3.error_save_failed"));
 				console.error("Помилка збереження:", errorData);
 			}
 		} catch (error) {
-			setSubmitError("Помилка мережі. Спробуйте пізніше.");
+			setSubmitError(t("step3.error_network"));
 			console.error("Network error:", error);
 		} finally {
 			setIsSubmitting(false);
@@ -234,115 +238,115 @@ export default function Step3() {
 						justifyContent: "center",
 						flexWrap: "wrap"
 					}}>
-						<NavStep onClick={() => navigate('/profile/details')}>1. Базові дані</NavStep>
-						<NavStep onClick={() => navigate('/profile/personal')}>2. Про мене</NavStep>
-						<NavStep isActive>3. Проживання</NavStep>
+						<NavStep onClick={() => navigate('/profile/details')}>{t('step1.nav_basic')}</NavStep>
+						<NavStep onClick={() => navigate('/profile/personal')}>{t('step2.nav_about')}</NavStep>
+						<NavStep isActive>{t('step3.nav_housing')}</NavStep>
 					</div>
 
 					<div className='main-grid responsive-form-grid'>
 
 						{/* PREFERENCES */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Оберіть свою преференцію</div>
+							<div className="form-label">{t('step3.room_sharing')}</div>
 							<SmartBox mywidth="100%" fieldName="room_sharing_preference" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={ROOM_SHARING_OPTIONS}
 									name="room_sharing_preference"
-									placeholder="Чому ви надаєте перевагу?"
+									placeholder={t('step3.room_sharing_placeholder')}
 								/>
 							</SmartBox>
 						</div>
 
 						{/* WHO TO LIVE WITH */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Із ким ви б хотіли проживати?</div>
+							<div className="form-label">{t('step3.preferred_gender')}</div>
 							<SmartBox mywidth="100%" fieldName="preferred_gender" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={PREFERRED_GENDER_OPTIONS}
 									name="preferred_gender"
-									placeholder="Оберіть варіант"
+									placeholder={t('step3.preferred_gender_placeholder')}
 								/>
 							</SmartBox>
 						</div>
 
 						{/* HOUSING STATUS */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Що найкраще описує вашу ситуацію?</div>
+							<div className="form-label">{t('step3.housing_status')}</div>
 							<SmartBox mywidth="100%" fieldName="housing_status" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={HOUSING_STATUS_OPTIONS}
 									name="housing_status"
-									placeholder="Оберіть варіант"
+									placeholder={t('step3.housing_status_placeholder')}
 								/>
 							</SmartBox>
 						</div>
 
 						{/* BUDGET */}
 						<div>
-							<div className="form-label" style={{ marginBottom: "8px", marginTop: "14px" }}>Бюджет від (грн)</div>
+							<div className="form-label" style={{ marginBottom: "8px", marginTop: "14px" }}>{t('step3.budget_min')}</div>
 							<SmartBox mywidth="100%" fieldName="budget_min" formState={formState} setFormState={setFormState}>
-								<SmartInput name="budget_min" placeholder="Мінімум 500" type="number" step="100" prefix="₴" />
+								<SmartInput name="budget_min" placeholder={t('step3.budget_min_placeholder')} type="number" step="100" prefix="₴" />
 							</SmartBox>
 						</div>
 
 						<div>
-							<div className="form-label" style={{ marginBottom: "8px", marginTop: "14px" }}>Бюджет до (грн)</div>
+							<div className="form-label" style={{ marginBottom: "8px", marginTop: "14px" }}>{t('step3.budget_max')}</div>
 							<SmartBox mywidth="100%" fieldName="budget_max" formState={formState} setFormState={setFormState}>
-								<SmartInput name="budget_max" placeholder="Максимум 100000" type="number" step="100" prefix="₴" />
+								<SmartInput name="budget_max" placeholder={t('step3.budget_max_placeholder')} type="number" step="100" prefix="₴" />
 							</SmartBox>
 						</div>
 
 						{/* DESTINATION CITY */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Місто проживання</div>
+							<div className="form-label">{t('step3.destination')}</div>
 							<SmartBox mywidth="100%" fieldName="destination" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={CityOptions}
 									name="destination"
-									placeholder="Оберіть місто"
+									placeholder={t('step3.destination_placeholder')}
 								/>
 							</SmartBox>
 						</div>
 
 						{/* DISTRICTS */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label" style={{ marginBottom: "0px" }}>Район/-и проживання</div>
+							<div className="form-label" style={{ marginBottom: "0px" }}>{t('step3.preferred_districts')}</div>
 							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
 								{destinationId
-									? `Доступні райони для обраного міста (макс. 10)`
-									: 'Спочатку оберіть місто вище'}
+									? t('step3.districts_desc_selected')
+									: t('step3.districts_desc_empty')}
 							</div>
 							<SmartBox mywidth="100%" fieldName="preferred_districts" formState={formState} setFormState={setFormState} disabled={!destinationId}>
 								<SmartSelect
 									isMulti
 									options={districtOptions}
 									name="preferred_districts"
-									placeholder={destinationId ? "Оберіть район/-и" : "Спочатку оберіть місто"}
+									placeholder={destinationId ? t('step3.districts_placeholder') : t('step3.districts_placeholder_empty')}
 									isDisabled={!destinationId}
-									noOptionsMessage={() => destinationId ? "Для цього міста немає районів у списку" : "Оберіть місто"}
+									noOptionsMessage={() => destinationId ? t('step3.no_districts_message') : t('step3.districts_placeholder_empty')}
 								/>
 							</SmartBox>
 						</div>
 
 						{/* PLANNED DURATION */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">На який термін плануєте проживання?</div>
+							<div className="form-label">{t('step3.planned_duration')}</div>
 							<SmartBox mywidth="100%" fieldName="planned_duration" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={plannedDurationOptions}
 									name="planned_duration"
-									placeholder="Оберіть термін"
+									placeholder={t('step3.planned_duration_placeholder')}
 								/>
 							</SmartBox>
 						</div>
 
 						{/* MOVE IN DATE */}
 						<div style={{ gridColumn: "1 / -1", position: "relative", zIndex: 1001 }}>
-							<div className="form-label">Коли плануєте почати проживання?</div>
+							<div className="form-label">{t('step3.move_in_date')}</div>
 							<SmartBox mywidth="100%" fieldName="move_in_date" formState={formState} setFormState={setFormState}>
 								<SmartCalendar
 									name="move_in_date"
-									placeholder="Оберіть дату"
+									placeholder={t('step3.move_in_date_placeholder')}
 									minDate={moveInMinDate}
 									maxDate={moveInMaxDate}
 								/>
@@ -351,12 +355,12 @@ export default function Step3() {
 
 						{/* PET */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Чи є у вас домашній улюбленець?</div>
+							<div className="form-label">{t('step3.has_pet')}</div>
 							<SmartBox mywidth="100%" fieldName="has_pet" formState={formState} setFormState={setFormState}>
 								<SmartSelect
 									options={HAS_PET_OPTIONS}
 									name="has_pet"
-									placeholder="Оберіть варіант"
+									placeholder={t('step3.has_pet_placeholder')}
 								/>
 							</SmartBox>
 						</div>
@@ -364,9 +368,9 @@ export default function Step3() {
 						{/* PET DESCRIPTION */}
 						{formState.has_pet?.realValue?.value === true && (
 							<div style={{ gridColumn: "1 / -1" }}>
-								<div className="form-label">Розкажіть про своїх улюбленців</div>
+								<div className="form-label">{t('step3.pet_description')}</div>
 								<SmartBox mywidth="100%" fieldName="pet_description" formState={formState} setFormState={setFormState}>
-									<SmartText name="pet_description" placeholder="Ваші улюбленці" />
+									<SmartText name="pet_description" placeholder={t('step3.pet_description_placeholder')} />
 								</SmartBox>
 								<CharCounter value={formState.pet_description?.realValue} min={3} max={100} />
 							</div>
@@ -381,7 +385,7 @@ export default function Step3() {
 						<SubmitBtn
 							onClick={onSubmitClick}
 							disabled={!isFormValid(formState) || isSubmitting}
-							btntext="Зберегти"
+							btntext={t('step3.save_btn')}
 						/>
 					</div>
 				</div>

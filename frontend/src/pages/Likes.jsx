@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 import { Header } from "../components/Header.jsx";
 import {
     getIncomingLikes,
@@ -11,15 +13,16 @@ import {
 import "./Likes.css";
 
 const TABS = [
-    { key: "matches",  label: "Матчі"     },
-    { key: "incoming", label: "Хто лайкнув мене" },
-    { key: "outgoing", label: "Кого я лайкнув"   },
+    { key: "matches", get label() { return i18n.t("likes.tab_matches"); } },
+    { key: "incoming", get label() { return i18n.t("likes.tab_incoming"); } },
+    { key: "outgoing", get label() { return i18n.t("likes.tab_outgoing"); } },
 ];
 
 function PersonCard({ user, score, dateLabel, actions, matchResultId }) {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const photo = user?.photo;
-    const name  = `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim() || "Без імені";
+    const name = `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim() || t('likes.no_name');
 
     const handlePhotoClick = () => {
         if (matchResultId && user?.id) {
@@ -36,7 +39,8 @@ function PersonCard({ user, score, dateLabel, actions, matchResultId }) {
         <div className="likes-card">
             <div
                 className="likes-card-photo"
-                style={{...(photo ? { backgroundImage: `url('${photo}')` } : {}),
+                style={{
+                    ...(photo ? { backgroundImage: `url('${photo}')` } : {}),
                     cursor: "pointer"
                 }}
                 onClick={handlePhotoClick}
@@ -47,7 +51,7 @@ function PersonCard({ user, score, dateLabel, actions, matchResultId }) {
                 <div className="likes-card-name">{name}</div>
                 {score !== undefined && score !== null && (
                     <div className="likes-card-score">
-                        Сумісність: <strong>{Math.round(score)}%</strong>
+                        {t('likes.compatibility')} <strong>{Math.round(score)}%</strong>
                     </div>
                 )}
                 {dateLabel && (
@@ -72,16 +76,18 @@ function formatDate(iso) {
 }
 
 export function Likes() {
+    const { t } = useTranslation();
+
     if (!localStorage.getItem("access_token")) {
         return <Navigate to="/" replace />;
     }
 
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("matches");
-    const [loading,   setLoading]   = useState(false);
-    const [error,     setError]     = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const [matches,  setMatches]  = useState([]);
+    const [matches, setMatches] = useState([]);
     const [incoming, setIncoming] = useState([]);
     const [outgoing, setOutgoing] = useState([]);
 
@@ -104,7 +110,7 @@ export function Likes() {
             setIncoming(Array.isArray(i) ? i : []);
             setOutgoing(Array.isArray(o) ? o : []);
         } catch (e) {
-            setError("Не вдалось завантажити дані. Спробуй пізніше.");
+            setError(t('likes.error_load'));
         } finally {
             setLoading(false);
         }
@@ -145,20 +151,20 @@ export function Likes() {
 
     // ── Рендер ───────────────────────────────────────────────────────────
     const counts = {
-        matches:  matches.length,
+        matches: matches.length,
         incoming: incoming.length,
         outgoing: outgoing.length,
     };
 
     let body;
     if (loading) {
-        body = <div className="likes-empty">Завантаження…</div>;
+        body = <div className="likes-empty">{t('likes.loading')}</div>;
     } else if (error) {
         body = <div className="likes-empty">{error}</div>;
     } else if (activeTab === "matches") {
         body = matches.length === 0 ? (
             <div className="likes-empty">
-                Поки що жодного матчу. Лайкай профілі — і коли хтось відповість тим самим, вони з'являться тут.
+                {t('likes.empty_matches')}
             </div>
         ) : (
             <div className="likes-grid">
@@ -167,7 +173,7 @@ export function Likes() {
                         key={m.id}
                         user={m.other_user}
                         score={m.compatibility_score}
-                        dateLabel={`Матч від ${formatDate(m.matched_at)}`}
+                        dateLabel={`${t('likes.match_from')} ${formatDate(m.matched_at)}`}
                         matchResultId={m.match_result_id}
                         actions={
                             <>
@@ -179,13 +185,13 @@ export function Likes() {
                                             : "/buddies"
                                     )}
                                 >
-                                    До стрічки
+                                    {t('likes.to_feed')}
                                 </button>
                                 <button
                                     className="likes-btn"
                                     onClick={() => handleOpenContacts(m.other_user)}
                                 >
-                                    Контакти
+                                    {t('likes.contacts')}
                                 </button>
                             </>
                         }
@@ -196,7 +202,7 @@ export function Likes() {
     } else if (activeTab === "incoming") {
         body = incoming.length === 0 ? (
             <div className="likes-empty">
-                Поки що тебе ніхто не лайкнув. Заповни профіль — це сильно допомагає.
+                {t('likes.empty_incoming')}
             </div>
         ) : (
             <div className="likes-grid">
@@ -206,14 +212,14 @@ export function Likes() {
                         <PersonCard
                             key={like.id}
                             user={u}
-                            dateLabel={`Лайк від ${formatDate(like.created_at)}`}
+                            dateLabel={`${t('likes.like_from')} ${formatDate(like.created_at)}`}
                             actions={
                                 <button
                                     className="likes-btn primary"
                                     disabled={pendingId === u.id}
                                     onClick={() => handleLikeBack(u.id)}
                                 >
-                                    {pendingId === u.id ? "…" : "Лайкнути у відповідь ♥"}
+                                    {pendingId === u.id ? "…" : t('likes.like_back')}
                                 </button>
                             }
                         />
@@ -224,7 +230,7 @@ export function Likes() {
     } else {
         body = outgoing.length === 0 ? (
             <div className="likes-empty">
-                Ти ще нікого не лайкнув. Зайди в стрічку і починай.
+                {t('likes.empty_outgoing')}
             </div>
         ) : (
             <div className="likes-grid">
@@ -234,14 +240,14 @@ export function Likes() {
                         <PersonCard
                             key={like.id}
                             user={u}
-                            dateLabel={`Лайк від ${formatDate(like.created_at)}`}
+                            dateLabel={`${t('likes.like_from')} ${formatDate(like.created_at)}`}
                             actions={
                                 <button
                                     className="likes-btn"
                                     disabled={pendingId === u.id}
                                     onClick={() => handleUnlike(u.id)}
                                 >
-                                    {pendingId === u.id ? "…" : "Скасувати лайк"}
+                                    {pendingId === u.id ? "…" : t('likes.unlike')}
                                 </button>
                             }
                         />
@@ -255,17 +261,17 @@ export function Likes() {
         <>
             <Header />
             <main className="likes-page">
-                <h1 className="likes-title">Лайки</h1>
+                <h1 className="likes-title">{t('likes.title')}</h1>
 
                 <div className="likes-tabs">
-                    {TABS.map((t) => (
+                    {TABS.map((tabItem) => (
                         <button
-                            key={t.key}
-                            className={`likes-tab ${activeTab === t.key ? "is-active" : ""}`}
-                            onClick={() => setActiveTab(t.key)}
+                            key={tabItem.key}
+                            className={`likes-tab ${activeTab === tabItem.key ? "is-active" : ""}`}
+                            onClick={() => setActiveTab(tabItem.key)}
                         >
-                            {t.label}
-                            <span className="likes-tab-count">{counts[t.key]}</span>
+                            {tabItem.label}
+                            <span className="likes-tab-count">{counts[tabItem.key]}</span>
                         </button>
                     ))}
                 </div>
@@ -283,24 +289,24 @@ export function Likes() {
                             type="button"
                             className="likes-contact-close"
                             onClick={handleCloseContacts}
-                            aria-label="Закрити контакти"
+                            aria-label={t('likes.close')}
                         >
                             ×
                         </button>
-                        <div className="likes-contact-title">Контакти</div>
+                        <div className="likes-contact-title">{t('likes.contacts')}</div>
                         <div className="likes-contact-name">
-                            {`${contactUser?.first_name ?? ""} ${contactUser?.last_name ?? ""}`.trim() || "Користувач"}
+                            {`${contactUser?.first_name ?? ""} ${contactUser?.last_name ?? ""}`.trim() || t('likes.fallback_user')}
                         </div>
-                        <div className="likes-contact-phone-label">Телефон</div>
+                        <div className="likes-contact-phone-label">{t('likes.phone_label')}</div>
                         <a
                             className="likes-contact-phone"
                             href={contactUser?.phone_number ? `tel:${contactUser.phone_number}` : undefined}
                         >
-                            {contactUser?.phone_number || "Номер не вказано"}
+                            {contactUser?.phone_number || t('likes.no_phone')}
                         </a>
                         <div className="likes-contact-actions">
                             <button type="button" className="likes-btn primary" onClick={handleCloseContacts}>
-                                Закрити
+                                {t('likes.close')}
                             </button>
                         </div>
                     </div>

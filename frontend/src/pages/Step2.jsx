@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 import { SmartSelect } from '../components/SmartSelect.jsx';
 import { SmartText } from '../components/SmartText.jsx';
@@ -66,18 +67,20 @@ const REQUIRED_FIELDS = [
 ];
 
 function CharCounter({ value, min, max }) {
+	const { t } = useTranslation();
 	const len = value ? value.length : 0;
 	const tooShort = len > 0 && len < min;
 	const tooLong = len > max;
 	const color = tooShort || tooLong ? '#ff3333' : '#666';
 	return (
 		<div style={{ fontSize: '12px', fontFamily: 'Inter', color, marginTop: '2px', textAlign: 'right' }}>
-			{len} / {max} (мін. {min})
+			{len} / {max} ({t('step2.min')} {min})
 		</div>
 	);
 }
 
 export default function Step2() {
+	const { t } = useTranslation();
 	const [formState, setFormState] = useState({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState("");
@@ -161,11 +164,11 @@ export default function Step2() {
 				navigate('/profile/housing');
 			} else {
 				const errorData = await response.json().catch(() => ({}));
-				setSubmitError(errorData.detail || "Не вдалося зберегти дані.");
+				setSubmitError(errorData.detail || t("step2.error_save_failed"));
 				console.error("Помилка збереження:", errorData);
 			}
 		} catch (error) {
-			setSubmitError("Помилка мережі. Спробуйте пізніше.");
+			setSubmitError(t("step2.error_network"));
 			console.error("Network error:", error);
 		} finally {
 			setIsSubmitting(false);
@@ -199,13 +202,13 @@ export default function Step2() {
 						justifyContent: "center",
 						flexWrap: "wrap"
 					}}>
-						<NavStep onClick={() => navigate('/profile/details')}>1. Базові дані</NavStep>
-						<NavStep isActive>2. Про мене</NavStep>
-						<NavStep onClick={() => navigate('/profile/housing')}>3. Проживання</NavStep>
+						<NavStep onClick={() => navigate('/profile/details')}>{t('step1.nav_basic')}</NavStep>
+						<NavStep isActive>{t('step2.nav_personal')}</NavStep>
+						<NavStep onClick={() => navigate('/profile/housing')}>{t('step3.nav_housing')}</NavStep>
 					</div>
 
 					{/* PHOTO */}
-					<div className="form-label" style={{ alignSelf: "flex-start" }}>Фотографія профілю</div>
+					<div className="form-label" style={{ alignSelf: "flex-start" }}>{t('step2.profile_photo')}</div>
 					<div style={{
 						position: "relative",
 						width: "100%",
@@ -221,36 +224,36 @@ export default function Step2() {
 
 						{/* STATUS */}
 						<div>
-							<div className="form-label">Статус</div>
+							<div className="form-label">{t('step2.status')}</div>
 							<SmartBox mywidth="100%" fieldName="status" formState={formState} setFormState={setFormState}>
-								<SmartSelect name="status" placeholder="Студент / працюю / обоє" options={statusOptions} />
+								<SmartSelect name="status" placeholder={t('step2.status_placeholder')} options={statusOptions} />
 							</SmartBox>
 						</div>
 
 						{/* ORBIT */}
 						<div>
-							<div className="form-label">Сфера діяльності</div>
+							<div className="form-label">{t('step2.orbit')}</div>
 							<SmartBox mywidth="100%" fieldName="orbit" formState={formState} setFormState={setFormState}>
-								<SmartSelect name="orbit" placeholder="Оберіть сферу" options={orbitOptions} />
+								<SmartSelect name="orbit" placeholder={t('step2.orbit_placeholder')} options={orbitOptions} />
 							</SmartBox>
 						</div>
 
 						{/* LANGUAGES */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label" style={{ marginBottom: "0px" }}>Мови</div>
+							<div className="form-label" style={{ marginBottom: "0px" }}>{t('step2.languages')}</div>
 							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
-								Допустимі мови спілкування
+								{t('step2.languages_desc')}
 							</div>
 							<SmartBox mywidth="100%" fieldName="languages" formState={formState} setFormState={setFormState}>
-								<MultiSelect name="languages" options={languageOptions} placeholder="Оберіть мови" />
+								<MultiSelect name="languages" options={languageOptions} placeholder={t('step2.languages_placeholder')} />
 							</SmartBox>
 						</div>
 
 						{/* POLITICAL COORDINATES */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Політична координата</div>
+							<div className="form-label">{t('step2.political')}</div>
 							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
-								<p>Якщо ви не знаєте своєї політичної координати, пройдіть тест за посиланням
+								<p>{t('step2.political_desc')}
 									<br />
 									<a href="https://www.idrlabs.com/political-coordinates/test.php">
 										https://www.idrlabs.com/political-coordinates/test.php
@@ -270,9 +273,9 @@ export default function Step2() {
 								list='markers'
 							/>
 							<div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px" }}>
-								<span>Лівий</span>
+								<span>{t('step2.left')}</span>
 								<span style={{ marginLeft: "16px", fontSize: "21px", pointerEvents: "none" }}>·</span>
-								<span>Правий</span>
+								<span>{t('step2.right')}</span>
 							</div>
 						</div>
 
@@ -286,15 +289,15 @@ export default function Step2() {
 								onChange={(e) => setSliderField("political_coordinate_social", e.target.value)}
 							/>
 							<div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px" }}>
-								<span>Ліберальний</span>
+								<span>{t('step2.liberal')}</span>
 								<span style={{ marginLeft: "11px", fontSize: "21px", pointerEvents: "none" }}>·</span>
-								<span>Комунітарний</span>
+								<span>{t('step2.communitarian')}</span>
 							</div>
 						</div>
 
 						{/* CLEANLINESS */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Охайність</div>
+							<div className="form-label">{t('step2.cleanliness')}</div>
 							<input
 								className='slider'
 								type='range'
@@ -305,66 +308,66 @@ export default function Step2() {
 								onChange={(e) => setSliderField("cleanliness", e.target.value)}
 							/>
 							<div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px" }}>
-								<span>Абсолютно неохайний</span>
-								<span>Чистюня</span>
+								<span>{t('step2.messy')}</span>
+								<span>{t('step2.neat')}</span>
 							</div>
 						</div>
 
 						{/* MY VIBE */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Розкажіть про себе</div>
+							<div className="form-label">{t('step2.my_vibe')}</div>
 							<SmartBox mywidth="100%" fieldName="my_vibe" formState={formState} setFormState={setFormState}>
-								<SmartText name="my_vibe" placeholder="Опишіть себе детально (200–600 символів)" />
+								<SmartText name="my_vibe" placeholder={t('step2.my_vibe_placeholder')} />
 							</SmartBox>
 							<CharCounter value={formState.my_vibe?.realValue} min={200} max={600} />
 						</div>
 
 						{/* BUDDY VIBE */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Якого співмешканця шукаєте</div>
+							<div className="form-label">{t('step2.buddy_vibe')}</div>
 							<SmartBox mywidth="100%" fieldName="buddy_vibe" formState={formState} setFormState={setFormState}>
-								<SmartText name="buddy_vibe" placeholder="Опишіть бажаного співмешканця (200–600 символів)" />
+								<SmartText name="buddy_vibe" placeholder={t('step2.buddy_vibe_placeholder')} />
 							</SmartBox>
 							<CharCounter value={formState.buddy_vibe?.realValue} min={200} max={600} />
 						</div>
 
 						{/* SCHEDULE */}
 						<div>
-							<div className="form-label">Розклад</div>
+							<div className="form-label">{t('step2.schedule')}</div>
 							<SmartBox mywidth="100%" fieldName="schedule" formState={formState} setFormState={setFormState}>
-								<SmartText name="schedule" placeholder="Опишіть ваш розклад" />
+								<SmartText name="schedule" placeholder={t('step2.schedule_placeholder')} />
 							</SmartBox>
 							<CharCounter value={formState.schedule?.realValue} min={3} max={100} />
 						</div>
 
 						{/* SLEEP SCHEDULE */}
 						<div>
-							<div className="form-label">Графік сну</div>
+							<div className="form-label">{t('step2.sleep_schedule')}</div>
 							<SmartBox mywidth="100%" fieldName="sleep_schedule" formState={formState} setFormState={setFormState}>
-								<SmartText name="sleep_schedule" placeholder="Опишіть ваш графік сну" />
+								<SmartText name="sleep_schedule" placeholder={t('step2.sleep_schedule_placeholder')} />
 							</SmartBox>
 							<CharCounter value={formState.sleep_schedule?.realValue} min={3} max={100} />
 						</div>
 
 						{/* SMOKING */}
 						<div>
-							<div className="form-label">Куріння</div>
+							<div className="form-label">{t('step2.smoking')}</div>
 							<SmartBox mywidth="100%" fieldName="smoking" formState={formState} setFormState={setFormState}>
-								<SmartSelect name="smoking" placeholder="Ставлення до паління" options={smokingOptions} />
+								<SmartSelect name="smoking" placeholder={t('step2.smoking_placeholder')} options={smokingOptions} />
 							</SmartBox>
 						</div>
 
 						{/* PARTYING */}
 						<div>
-							<div className="form-label">Вечірки/гості</div>
+							<div className="form-label">{t('step2.partying')}</div>
 							<SmartBox mywidth="100%" fieldName="partying" formState={formState} setFormState={setFormState}>
-								<SmartSelect name="partying" placeholder="Ставлення до вечірок" options={partyingOptions} />
+								<SmartSelect name="partying" placeholder={t('step2.partying_placeholder')} options={partyingOptions} />
 							</SmartBox>
 						</div>
 
 						{/* INTRO-/EXTROVERT */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label">Інтроверт/екстраверт</div>
+							<div className="form-label">{t('step2.intro_extro')}</div>
 							<input
 								className='slider'
 								type='range'
@@ -375,24 +378,24 @@ export default function Step2() {
 								onChange={(e) => setSliderField("extra_intro_version", e.target.value)}
 							/>
 							<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "14px", fontFamily: "Inter", color: "#000" }}>
-								<span>Інтроверт</span>
-								<span style={{ marginLeft: '12px' }}>Амбіверт</span>
-								<span>Екстраверт</span>
+								<span>{t('step2.introvert')}</span>
+								<span style={{ marginLeft: '12px' }}>{t('step2.ambivert')}</span>
+								<span>{t('step2.extrovert')}</span>
 							</div>
 						</div>
 
 						{/* HOBBIES */}
 						<div style={{ gridColumn: "1 / -1" }}>
-							<div className="form-label" style={{ marginBottom: "0px" }}>Захоплення/хобі</div>
+							<div className="form-label" style={{ marginBottom: "0px" }}>{t('step2.hobbies')}</div>
 							<div style={{ fontSize: "12px", fontFamily: "Inter", color: "#000", marginTop: "-4px", marginBottom: "6px" }}>
-								До 10 зі списку + до 5 власних (введіть і натисніть Enter)
+								{t('step2.hobbies_desc')}
 							</div>
 							<SmartBox mywidth="100%" fieldName="hobbies" formState={formState} setFormState={setFormState}>
 								<MultiSelect
 									name="hobbies"
 									options={hobbyOptions}
-									placeholder="Оберіть або введіть своє хобі"
-									formatCreateLabel={(input) => `Додати «${input}»`}
+									placeholder={t('step2.hobbies_placeholder')}
+									formatCreateLabel={(input) => t('step2.add_custom_hobby', { input })}
 									isValidNewOption={(input) => {
 										const trimmed = (input || '').trim();
 										return trimmed.length > 0 && trimmed.length <= 50;
@@ -410,7 +413,7 @@ export default function Step2() {
 						<SubmitBtn
 							onClick={onSubmitClick}
 							disabled={!isFormValid(formState) || isSubmitting}
-							btntext="Далі"
+							btntext={t('step2.save_btn')}
 						/>
 					</div>
 				</div>

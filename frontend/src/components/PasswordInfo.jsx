@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { SmartInput } from "./SmartInput";
 import { EyeOFF, EyeON } from "./EyeComponent";
 import "./PasswordInfo.css";
 
-export function PasswordInput ({ value, onChange, onFocus, onBlur, name, hideInfo = false }) {
+export function PasswordInput({ value, onChange, onFocus, onBlur, name, hideInfo = false }) {
+    const { t } = useTranslation();
     const [showInfo, setShowInfo] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isActive, setIsActive] = useState(false);
@@ -17,7 +19,7 @@ export function PasswordInput ({ value, onChange, onFocus, onBlur, name, hideInf
         <div className={wrapClass}>
             <SmartInput
                 margintop="0px"
-                placeholder="Пароль"
+                placeholder={t("password_info.placeholder", "Пароль")}
                 type={showPassword ? "text" : "password"}
                 name={name}
                 value={typeof value === 'object' ? value?.realValue || '' : value || ''}
@@ -52,14 +54,14 @@ export function PasswordInput ({ value, onChange, onFocus, onBlur, name, hideInf
 
                     {showInfo && (
                         <div className="password-info-popover">
-                            <strong>Password requirements:</strong>
+                            <strong>{t("password_info.requirements_title")}</strong>
                             <ul>
-                                <li>Як мінімум 8 символів</li>
-                                <li>Максимум 20 символів</li>
-                                <li>Щонайменше одна велика літера</li>
-                                <li>Щонайменше одна мала літера</li>
-                                <li>Щонайменше одна цифра</li>
-                                <li>Щонайменше один спеціальний символ</li>
+                                <li>{t("password_info.req_min_len")}</li>
+                                <li>{t("password_info.req_max_len")}</li>
+                                <li>{t("password_info.req_upper")}</li>
+                                <li>{t("password_info.req_lower")}</li>
+                                <li>{t("password_info.req_digit")}</li>
+                                <li>{t("password_info.req_special")}</li>
                             </ul>
                         </div>
                     )}

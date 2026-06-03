@@ -1,9 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./MatchModal.css";
 
 export function MatchModal({ buddy, onClose }) {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const photo = buddy?.photos?.[0];
 
     const handleSeeMatches = () => {
@@ -14,9 +16,9 @@ export function MatchModal({ buddy, onClose }) {
     return (
         <div className="match-modal-backdrop" onClick={onClose}>
             <div className="match-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="match-modal-title">Це матч!</div>
+                <div className="match-modal-title">{t("match_modal.title")}</div>
                 <div className="match-modal-sub">
-                    Ви з {buddy?.name?.split(" ")[0] ?? "цією людиною"} обоє поставили лайк.
+                    {t("match_modal.subtitle", { name: buddy?.name?.split(" ")[0] ?? t("match_modal.subtitle_fallback") })}
                 </div>
 
                 {photo && (
@@ -31,13 +33,13 @@ export function MatchModal({ buddy, onClose }) {
                         className="match-modal-btn primary"
                         onClick={handleSeeMatches}
                     >
-                        Переглянути матчі
+                        {t("match_modal.see_matches")}
                     </button>
                     <button
                         className="match-modal-btn"
                         onClick={onClose}
                     >
-                        Продовжити пошук
+                        {t("match_modal.keep_searching")}
                     </button>
                 </div>
             </div>

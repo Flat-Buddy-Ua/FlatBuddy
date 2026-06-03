@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./FomoBlock.css";
 
 /**
@@ -9,6 +10,7 @@ import "./FomoBlock.css";
  */
 export function FomoBlock({ data }) {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { hidden_count, best_score } = data ?? {};
 
     const hasFomo = hidden_count > 0;
@@ -21,26 +23,30 @@ export function FomoBlock({ data }) {
                 {hasFomo ? (
                     <>
                         <h2 className="fomo-title">
-                            Ще <span className="fomo-accent">{hidden_count}</span>{" "}
-                            {plural(hidden_count, "збіг", "збіги", "збігів")} чекає на тебе
+                            {t("fomo_block.matches_waiting_prefix")}{" "}
+                            <span className="fomo-accent">{hidden_count}</span>{" "}
+                            {plural(
+                                hidden_count,
+                                t("fomo_block.match_one", "збіг чекає на тебе"),
+                                t("fomo_block.match_few", "збіги чекають на тебе"),
+                                t("fomo_block.match_many", "збігів чекають на тебе")
+                            )}
                         </h2>
                         {best_score !== null && best_score !== undefined && (
                             <p className="fomo-sub">
-                                Найкращий скор сумісності серед прихованих —{" "}
+                                {t("fomo_block.best_score_hidden")}{" "}
                                 <strong>{Math.round(best_score)}%</strong>
                             </p>
                         )}
                         <p className="fomo-desc">
-                            Безкоштовний план показує лише 5 найкращих збігів.
-                            Перейди на преміум і знайди ідеального сусіда.
+                            {t("fomo_block.free_plan_desc")}
                         </p>
                     </>
                 ) : (
                     <>
-                        <h2 className="fomo-title">Нові збіги незабаром</h2>
+                        <h2 className="fomo-title">{t("fomo_block.new_matches_soon")}</h2>
                         <p className="fomo-desc">
-                            Ти переглянув усі доступні анкети. Повертайся пізніше — ми
-                            регулярно додаємо нових користувачів.
+                            {t("fomo_block.viewed_all_desc")}
                         </p>
                     </>
                 )}
@@ -50,7 +56,7 @@ export function FomoBlock({ data }) {
                         className="fomo-btn"
                         onClick={() => navigate("/profile/personal")}
                     >
-                        Отримати преміум →
+                        {t("fomo_block.get_premium_btn")}
                     </button>
                 )}
             </div>

@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getFomoData, initiateUnlock } from "../utils/api.js";
 import "./DailyLimitBlock.css";
 
 export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
+    const { t } = useTranslation();
     const [data, setData] = useState(initialData ?? null);
     const [loading, setLoading] = useState(!initialData);
     const [error, setError] = useState("");
@@ -33,11 +35,11 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
                     if (nextData) {
                         setData(nextData);
                     } else {
-                        setError("Не вдалося отримати дані про ліміт.");
+                        setError(t("daily_limit_block.error_limit_data"));
                     }
                 }
             } catch {
-                if (!cancelled) setError("Не вдалося отримати дані про ліміт.");
+                if (!cancelled) setError(t("daily_limit_block.error_limit_data"));
             } finally {
                 if (!cancelled) setLoading(false);
             }
@@ -74,14 +76,14 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
             const result = response.ok ? await response.json().catch(() => null) : null;
 
             if (!response.ok || !result?.jar_url) {
-                setError(result?.error || "Не вдалося створити платіж.");
+                setError(result?.error || t("daily_limit_block.error_payment"));
                 return;
             }
 
             // Показуємо інструкцію замість редіректу
             setPaymentData(result);
         } catch {
-            setError("Не вдалося створити платіж.");
+            setError(t("daily_limit_block.error_payment"));
         } finally {
             setUnlocking(false);
         }
@@ -119,20 +121,20 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
         return (
             <section className="daily-limit-wrap" aria-live="polite">
                 <div className="daily-limit-card">
-                    <div className="daily-limit-kicker">Оплата</div>
-                    <h2 className="daily-limit-title">Переказ на банку</h2>
+                    <div className="daily-limit-kicker">{t("daily_limit_block.payment_kicker")}</div>
+                    <h2 className="daily-limit-title">{t("daily_limit_block.transfer_bank")}</h2>
 
                     <p className="daily-limit-desc">
-                        Переведи{" "}
-                        <strong>{paymentData.amount} грн</strong>{" "}
-                        на банку та вкажи коментар нижче у призначенні платежу.
-                        Без коментаря ми не зможемо підтвердити оплату.
+                        {t("daily_limit_block.transfer_action")}{" "}
+                        <strong>{paymentData.amount} {t("daily_limit_block.currency")}</strong>{" "}
+                        {t("daily_limit_block.transfer_desc_1")}{" "}
+                        {t("daily_limit_block.transfer_desc_2")}
                     </p>
 
                     {/* Блок з comment_id */}
                     <div className="daily-limit-comment-block">
                         <div className="daily-limit-comment-label">
-                            Коментар до переказу
+                            {t("daily_limit_block.transfer_comment_label")}
                         </div>
                         <div className="daily-limit-comment-row">
                             <code className="daily-limit-comment-id">
@@ -143,7 +145,7 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
                                 type="button"
                                 onClick={handleCopy}
                             >
-                                {copied ? "Скопійовано ✓" : "Копіювати"}
+                                {copied ? t("daily_limit_block.copied") : t("daily_limit_block.copy")}
                             </button>
                         </div>
                     </div>
@@ -156,7 +158,7 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
                             type="button"
                             onClick={handleGoToPay}
                         >
-                            Перейти до оплати →
+                            {t("daily_limit_block.go_to_payment")}
                         </button>
                     </div>
                 </div>
@@ -168,34 +170,33 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
     return (
         <section className="daily-limit-wrap" aria-live="polite">
             <div className="daily-limit-card">
-                <div className="daily-limit-kicker">Денний ліміт</div>
+                <div className="daily-limit-kicker">{t("daily_limit_block.daily_limit_kicker")}</div>
                 <h2 className="daily-limit-title">
-                    Перегляди профілів на сьогодні вичерпано
+                    {t("daily_limit_block.views_exhausted")}
                 </h2>
 
                 {loading ? (
-                    <p className="daily-limit-desc">Оновлюємо дані про твій ліміт...</p>
+                    <p className="daily-limit-desc">{t("daily_limit_block.updating_limit")}</p>
                 ) : (
                     <p className="daily-limit-desc">
                         {daily_limit
-                            ? `Ти вже переглянув ${viewedText} із ${daily_limit} доступних профілів за своїм планом.`
-                            : "Ти переглянув усі доступні на сьогодні профілі."}
-                        {" "}Нові перегляди відкриються завтра.
+                            ? t("daily_limit_block.viewed_x_of_y", { viewed: viewedText, total: daily_limit })
+                            : t("daily_limit_block.viewed_all")}
+                        {" "}{t("daily_limit_block.new_views_tomorrow")}
                     </p>
                 )}
 
                 {hasHiddenProfiles && (
                     <div className="daily-limit-insight">
                         <div>
-                            <span className="daily-limit-number">{hidden_count}</span>
                             <span className="daily-limit-label">
-                                {plural(hidden_count, "профіль", "профілі", "профілів")} ще чекає
+                                {t("daily_limit_block.profiles_waiting", { count: hidden_count })}
                             </span>
                         </div>
                         {best_score !== null && best_score !== undefined && (
                             <div>
                                 <span className="daily-limit-number">{Math.round(best_score)}%</span>
-                                <span className="daily-limit-label">найкраща сумісність</span>
+                                <span className="daily-limit-label">{t("daily_limit_block.best_compatibility")}</span>
                             </div>
                         )}
                     </div>
@@ -210,7 +211,7 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
                         onClick={handleUnlock}
                         disabled={!canUnlock || unlocking || loading}
                     >
-                        {unlocking ? "Створюємо платіж..." : "Розблокувати анкету"}
+                        {unlocking ? t("daily_limit_block.creating_payment") : t("daily_limit_block.unlock_profile")}
                     </button>
                 </div>
             </div>
