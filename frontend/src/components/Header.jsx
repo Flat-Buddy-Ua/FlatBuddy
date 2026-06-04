@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoginPopup } from "./LoginPopup.jsx";
 import "./Header.css";
-
+import i18n from "../i18n.js";
 
 
 export function Header({
@@ -11,6 +11,7 @@ export function Header({
 	onExitClick,
 }) {
 	const { t } = useTranslation();
+	const [lang, setLang] = useState(localStorage.getItem("lang") || "ua");
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isLoginOpen, setIsLoginOpen] = useState(false);
 	const navigate = useNavigate();
@@ -104,6 +105,13 @@ export function Header({
 		navigate("/profile/details");
 	}
 
+	const toggleLang = () => {
+	    const next = lang === "ua" ? "en" : "ua";
+	    i18n.changeLanguage(next);
+	    localStorage.setItem("lang", next);
+	    setLang(next);
+	};
+
 	return (
 		<>
 			<header className="fb-header">
@@ -152,6 +160,9 @@ export function Header({
 								<button type="button" className="fb-header__link fb-header__auth-link" onClick={handleSignUpClick}>
 									{t("header.register")}
 								</button>
+								<button type="button" className="fb-header__link" onClick={toggleLang}>
+								    {lang === "ua" ? "EN" : "UA"}
+								</button>
 							</div>
 						) : (
 							<div className="fb-header__right">
@@ -160,6 +171,9 @@ export function Header({
 								</button>
 								<button type="button" className="fb-header__link fb-header__auth-link" onClick={handleLogout}>
 									{t("header.logout")}
+								</button>
+								<button type="button" className="fb-header__link" onClick={toggleLang}>
+								    {lang === "ua" ? "EN" : "UA"}
 								</button>
 							</div>
 						)}
