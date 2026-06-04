@@ -55,7 +55,7 @@ class User(AbstractUser):
     package = models.CharField(
         max_length=7,
         choices=Package.choices,
-        default=Package.PREMIUM,
+        default=Package.FREE,
     )
     objects = UserManager()
     
@@ -399,3 +399,18 @@ class PaymentOrder(models.Model):
     )
     class Meta:
         db_table = 'payment_order'
+        
+        
+class UnmatchedPayment(models.Model):
+    mono_id     = models.CharField(max_length=100, unique=True)
+    amount      = models.IntegerField()
+    description = models.CharField(max_length=255, blank=True)
+    received_at = models.DateTimeField()
+    created_at  = models.DateTimeField(auto_now_add=True)
+    note        = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'unmatched_payment'
+
+    def __str__(self):
+        return f"UnmatchedPayment {self.mono_id} {self.amount/100:.0f}грн"

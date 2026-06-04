@@ -69,11 +69,6 @@ function CompatibilityPanel({ buddy }) {
 
     return (
         <div className={`bp-compat-panel ${locked ? "is-locked" : ""}`}>
-            {locked && (
-                <div className="bp-compat-lock">
-                    {t("card.compat_locked")}
-                </div>
-            )}
             <div className="bp-compat-total">
                 <div className="bp-compat-total-label">{t("card.total_compat")}</div>
                 <div

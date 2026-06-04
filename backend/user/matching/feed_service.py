@@ -191,9 +191,9 @@ def get_fomo_data(user, shown_match_ids: list) -> dict:
 
     return {
         **daily,
-        "hidden_count": 0,
+        "hidden_count": hidden_qs.count(),
         "has_hidden_profiles": best_match is not None,
-        "best_score": None,
+        "best_score": best_match.total_score if best_match is not None else None,
         "unlock_match_id": best_match.id if best_match is not None else None,
         "show_fomo":    True,
     }

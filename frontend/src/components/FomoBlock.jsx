@@ -11,7 +11,7 @@ import "./FomoBlock.css";
 export function FomoBlock({ data }) {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const { hidden_count, best_score } = data ?? {};
+    const { hidden_count, best_score, daily_limit } = data ?? {};
 
     const hasFomo = hidden_count > 0;
 
