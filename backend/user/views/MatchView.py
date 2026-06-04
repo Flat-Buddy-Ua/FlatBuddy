@@ -200,5 +200,5 @@ def _access_state(user, match: MatchResult) -> dict:
     return {
         "can_view": True,
         "counts_as_view": not already_seen and not is_unlocked,
-        "scores_locked": is_free,
+        "scores_locked": False,
     }
