@@ -66,11 +66,6 @@ function CompatibilityPanel({ buddy }) {
 
     return (
         <div className={`bp-compat-panel ${locked ? "is-locked" : ""}`}>
-            {locked && (
-                <div className="bp-compat-lock">
-                    Сумісність доступна на платних пакетах
-                </div>
-            )}
             <div className="bp-compat-total">
                 <div className="bp-compat-total-label">Загальна сумісність</div>
                 <div
