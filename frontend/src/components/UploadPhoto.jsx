@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { listPhotos, uploadPhoto, deletePhoto } from "../utils/photoApi.js";
 import "./UploadPhoto.css";
 
@@ -15,6 +16,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
  *   - on ×: DELETE /api/profile/photos/<id>/ → remove from state
  */
 export function UploadPhoto({ onChange }) {
+    const { t } = useTranslation();
     const [photos, setPhotos] = useState([]);
     const [loadError, setLoadError] = useState('');
     const fileInputRef = useRef(null);
@@ -30,7 +32,7 @@ export function UploadPhoto({ onChange }) {
                 const items = existing.map((p) => ({ ...p, status: 'saved' }));
                 setPhotos(items);
             } catch (err) {
-                if (!cancelled) setLoadError(err.message || 'Не вдалося завантажити фото');
+                if (!cancelled) setLoadError(err.message || t('upload_photo.error_load'));
             }
         })();
         return () => { cancelled = true; };
@@ -42,10 +44,10 @@ export function UploadPhoto({ onChange }) {
 
     const validateFile = (file) => {
         if (!ALLOWED_TYPES.includes(file.type)) {
-            return 'Тільки JPG / PNG';
+            return t('upload_photo.error_format');
         }
         if (file.size > MAX_SIZE_BYTES) {
-            return 'Розмір файлу до 5 МБ';
+            return t('upload_photo.error_size');
         }
         return null;
     };
@@ -87,7 +89,7 @@ export function UploadPhoto({ onChange }) {
             } catch (err) {
                 setPhotos((prev) => prev.map((p) =>
                     p.tempId === placeholder.tempId
-                        ? { ...p, status: 'failed', error: err.message || 'Не вдалося завантажити' }
+                        ? { ...p, status: 'failed', error: err.message || t('upload_photo.error_upload') }
                         : p
                 ));
             }
@@ -107,7 +109,7 @@ export function UploadPhoto({ onChange }) {
             await deletePhoto(item.id);
         } catch (err) {
             setPhotos(snapshot);
-            setLoadError(err.message || 'Не вдалося видалити фото');
+            setLoadError(err.message || t('upload_photo.error_delete'));
         }
     };
 
@@ -131,10 +133,10 @@ export function UploadPhoto({ onChange }) {
                                 type="button"
                                 onClick={() => handleRemove(item)}
                                 className="upload-photo-remove"
-                                aria-label="Видалити фото"
+                                aria-label={t('upload_photo.delete')}
                             >×</button>
                             {item.status === 'uploading' && (
-                                <div className="upload-photo-overlay">Завантаження…</div>
+                                <div className="upload-photo-overlay">{t('upload_photo.uploading')}</div>
                             )}
                             {item.status === 'failed' && (
                                 <div className="upload-photo-overlay upload-photo-overlay--error">
@@ -152,7 +154,7 @@ export function UploadPhoto({ onChange }) {
                     >
                         <div className="upload-photo-add-inner">
                             <div className="upload-photo-add-plus">+</div>
-                            <span className="upload-photo-add-label">Додати фото</span>
+                            <span className="upload-photo-add-label">{t('upload_photo.add_photo')}</span>
                             <div className="upload-photo-add-counter">
                                 ({photos.length}/{MAX_PHOTOS})
                             </div>

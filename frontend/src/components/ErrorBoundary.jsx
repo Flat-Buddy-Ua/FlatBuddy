@@ -1,4 +1,5 @@
 import React from 'react';
+import i18n from "i18next";
 import { pushEntry } from '../utils/errorBus.js';
 
 export class ErrorBoundary extends React.Component {
@@ -41,10 +42,10 @@ export class ErrorBoundary extends React.Component {
                 margin: '40px auto',
                 lineHeight: 1.5,
             }}>
-                <h2 style={{ marginTop: 0 }}>Щось пішло не так 😔</h2>
+                <h2 style={{ marginTop: 0 }}>{i18n.t("error_boundary.title")}</h2>
                 <p>
-                    Сторінка зловила помилку. Скопіюй текст нижче і надішли в підтримку —
-                    допоможе швидко полагодити.
+                    {i18n.t("error_boundary.description_1")}{' '}
+                    {i18n.t("error_boundary.description_2")}
                 </p>
                 <pre style={{
                     background: '#f5f5f5',
@@ -69,7 +70,7 @@ export class ErrorBoundary extends React.Component {
                             fontFamily: 'Inter, sans-serif',
                         }}
                     >
-                        Скопіювати помилку
+                        {i18n.t("error_boundary.copy_btn")}
                     </button>
                     <button
                         onClick={() => { window.location.href = '/'; }}
@@ -82,7 +83,7 @@ export class ErrorBoundary extends React.Component {
                             fontFamily: 'Inter, sans-serif',
                         }}
                     >
-                        На головну
+                        {i18n.t("error_boundary.home_btn")}
                     </button>
                 </div>
             </div>

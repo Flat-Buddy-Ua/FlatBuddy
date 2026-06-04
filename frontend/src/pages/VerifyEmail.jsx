@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { Header } from '../components/Header.jsx';
@@ -16,6 +17,7 @@ const STATE = {
 const Spinner = () => <div className="verify-spinner" />;
 
 export default function VerifyEmail() {
+	const { t } = useTranslation();
 	const { token } = useParams();
 	const navigate = useNavigate();
 	const [state, setState] = useState(STATE.LOADING);
@@ -43,11 +45,11 @@ export default function VerifyEmail() {
 					}, 1800);
 				} else {
 					const body = await res.json().catch(() => ({}));
-					setErrorDetail(body.detail || 'Посилання недійсне або застаріло');
+					setErrorDetail(body.detail || t('verify_email.invalid_token'));
 					setState(STATE.ERROR);
 				}
 			} catch {
-				setErrorDetail('Мережева помилка. Перевірте з\'єднання та спробуйте знову.');
+				setErrorDetail(t('verify_email.network_error'));
 				setState(STATE.ERROR);
 			}
 		})();
@@ -55,7 +57,7 @@ export default function VerifyEmail() {
 
 	const handleResend = async () => {
 		if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) {
-			setResendStatus({ kind: 'error', text: 'Введіть коректну адресу пошти' });
+			setResendStatus({ kind: 'error', text: t('verify_email.enter_valid_email') });
 			return;
 		}
 		setIsResending(true);
@@ -68,14 +70,14 @@ export default function VerifyEmail() {
 			});
 			const body = await res.json().catch(() => ({}));
 			if (res.ok) {
-				setResendStatus({ kind: 'ok', text: body.detail || `Лист надіслано на ${email}` });
+				setResendStatus({ kind: 'ok', text: body.detail || t('verify_email.email_sent_to', { email }) });
 			} else if (res.status === 429) {
-				setResendStatus({ kind: 'error', text: body.detail || 'Забагато спроб, спробуй пізніше' });
+				setResendStatus({ kind: 'error', text: body.detail || t('verify_email.too_many_attempts') });
 			} else {
-				setResendStatus({ kind: 'error', text: body.detail || 'Не вдалося надіслати лист' });
+				setResendStatus({ kind: 'error', text: body.detail || t('verify_email.send_failed') });
 			}
 		} catch {
-			setResendStatus({ kind: 'error', text: 'Мережева помилка. Спробуйте знову.' });
+			setResendStatus({ kind: 'error', text: t('verify_email.network_error_retry') });
 		} finally {
 			setIsResending(false);
 		}
@@ -90,16 +92,16 @@ export default function VerifyEmail() {
 					{state === STATE.LOADING && (
 						<>
 							<Spinner />
-							<h2 className="verify-heading">Підтверджуємо вашу пошту…</h2>
-							<p className="verify-note">Зачекайте секунду.</p>
+							<h2 className="verify-heading">{t('verify_email.loading')}</h2>
+							<p className="verify-note">{t('verify_email.wait')}</p>
 						</>
 					)}
 
 					{state === STATE.SUCCESS && (
 						<>
 							<div className="verify-icon">✅</div>
-							<h2 className="verify-heading">Пошта підтверджена</h2>
-							<p className="verify-note">Зараз перенаправимо на заповнення профілю…</p>
+							<h2 className="verify-heading">{t('verify_email.success')}</h2>
+							<p className="verify-note">{t('verify_email.redirecting')}</p>
 						</>
 					)}
 
@@ -107,9 +109,7 @@ export default function VerifyEmail() {
 						<>
 							<div className="verify-icon">⚠️</div>
 							<h2 className="verify-heading">{errorDetail}</h2>
-							<p className="verify-note">
-								Введіть email і ми надішлемо новий лист підтвердження.
-							</p>
+							<p className="verify-note">{t('verify_email.enter_email')}</p>
 							<input
 								type="email"
 								value={email}
@@ -127,7 +127,7 @@ export default function VerifyEmail() {
 								<SubmitBtn
 									onClick={handleResend}
 									disabled={isResending || !email.trim()}
-									btntext={isResending ? 'Надсилання…' : 'Надіслати новий лист'}
+									btntext={isResending ? t('verify_email.send_new') : t('verify_email.enter_email')}
 								/>
 							</div>
 							<button
@@ -135,7 +135,7 @@ export default function VerifyEmail() {
 								onClick={() => navigate('/')}
 								className="verify-link-btn"
 							>
-								На головну
+								{t('verify_email.back_to_home')}
 							</button>
 						</>
 					)}

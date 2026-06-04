@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 import { Header } from "../components/Header.jsx";
 import { fetchWithAuth, getMatches, getMatchByUserId, markSeen, getFomoData, likeUser } from "../utils/api.js";
 import { adaptMatch } from "../utils/adaptMatch.js";
@@ -42,15 +44,15 @@ function checkCompleteness(profile, housing, photos) {
 }
 
 const SCORE_ROWS = [
-    { key: "vibe",        label: "Характер та цілі" },
-    { key: "budget",      label: "Бюджет"            },
-    { key: "hobbies",     label: "Захоплення"       },
-    { key: "cleanliness", label: "Охайність"         },
-    { key: "smoking",     label: "Куріння"           },
-    { key: "partying",    label: "Вечірки / гості"   },
-    { key: "schedule",    label: "Розклад"           },
-    { key: "personality", label: "Інтровертність"    },
-    { key: "political",   label: "Світогляд"         },
+    { key: "vibe", get label() { return i18n.t("card.score_rows.vibe"); } },
+    { key: "budget", get label() { return i18n.t("card.score_rows.budget"); } },
+    { key: "hobbies", get label() { return i18n.t("card.score_rows.hobbies"); } },
+    { key: "cleanliness", get label() { return i18n.t("card.score_rows.cleanliness"); } },
+    { key: "smoking", get label() { return i18n.t("card.score_rows.smoking"); } },
+    { key: "partying", get label() { return i18n.t("card.score_rows.partying"); } },
+    { key: "schedule", get label() { return i18n.t("card.score_rows.schedule"); } },
+    { key: "personality", get label() { return i18n.t("card.score_rows.personality"); } },
+    { key: "political", get label() { return i18n.t("card.score_rows.political"); } },
 ];
 
 function scoreColor(val) {
@@ -60,6 +62,7 @@ function scoreColor(val) {
 }
 
 function CompatibilityPanel({ buddy }) {
+    const { t } = useTranslation();
     const total = buddy.totalScore ?? 0;
     const scores = buddy.scores ?? {};
     const locked = buddy.scoresLocked === true;
@@ -67,7 +70,7 @@ function CompatibilityPanel({ buddy }) {
     return (
         <div className={`bp-compat-panel ${locked ? "is-locked" : ""}`}>
             <div className="bp-compat-total">
-                <div className="bp-compat-total-label">Загальна сумісність</div>
+                <div className="bp-compat-total-label">{t("card.total_compat")}</div>
                 <div
                     className="bp-compat-total-value"
                     style={{ color: scoreColor(total) }}
@@ -120,6 +123,7 @@ function CompatibilityPanel({ buddy }) {
 }
 
 function ProfileCard({ buddy }) {
+    const { t } = useTranslation();
     return (
         <div className="bp-wrap">
             {/* HERO */}
@@ -154,51 +158,51 @@ function ProfileCard({ buddy }) {
 
             {/* ABOUT */}
             <div className="bp-card">
-                <h2>Про мене</h2>
+                <h2>{t("card.about_me")}</h2>
                 <p className="bp-bio">{buddy.myVibe}</p>
             </div>
 
             {/* LOOKING FOR */}
             <div className="bp-card">
-                <h2>Кого шукаю</h2>
+                <h2>{t("card.looking_for")}</h2>
                 <p className="bp-bio">{buddy.buddyVibe}</p>
             </div>
 
             {/* LIFESTYLE */}
             <div className="bp-card">
-                <h2>Стиль життя</h2>
+                <h2>{t("card.lifestyle")}</h2>
 
                 <div className="bp-slider-row">
-                    <div className="bp-label">Охайність</div>
+                    <div className="bp-label">{t("step2.cleanliness")}</div>
                     <div className="bp-slider-track">
                         <div className="bp-slider-thumb" style={{ left: `${buddy.cleanlinessPct}%` }} />
                     </div>
-                    <div className="bp-slider-labels"><span>Абсолютно неохайний</span><span>Чистюня</span></div>
+                    <div className="bp-slider-labels"><span>{t("step2.messy")}</span><span>{t("step2.neat")}</span></div>
                 </div>
 
                 <div className="bp-slider-row">
-                    <div className="bp-label">Інтроверт ↔ Екстраверт</div>
+                    <div className="bp-label">{t("card.intro_extro")}</div>
                     <div className="bp-slider-track">
                         <div className="bp-slider-thumb" style={{ left: `${buddy.personalityPct}%` }} />
                     </div>
-                    <div className="bp-slider-labels"><span>Інтроверт</span><span>Амбіверт</span><span>Екстраверт</span></div>
+                    <div className="bp-slider-labels"><span>{t("step2.introvert")}</span><span>{t("step2.ambivert")}</span><span>{t("step2.extrovert")}</span></div>
                 </div>
 
                 <div className="bp-row" style={{ marginTop: 8 }}>
                     <div>
-                        <div className="bp-label">Розклад</div>
+                        <div className="bp-label">{t("card.schedule")}</div>
                         <div className="bp-val">{buddy.schedule}</div>
                     </div>
                     <div>
-                        <div className="bp-label">Графік сну</div>
+                        <div className="bp-label">{t("card.sleep_schedule")}</div>
                         <div className="bp-val">{buddy.sleepSchedule}</div>
                     </div>
                     <div>
-                        <div className="bp-label">Ставлення до куріння</div>
+                        <div className="bp-label">{t("card.smoking_label")}</div>
                         <div className="bp-val">{buddy.smokingLabel}</div>
                     </div>
                     <div>
-                        <div className="bp-label">Ставлення до вечірок/гостей</div>
+                        <div className="bp-label">{t("card.partying_label")}</div>
                         <div className="bp-val">{buddy.partyingLabel}</div>
                     </div>
                 </div>
@@ -206,28 +210,28 @@ function ProfileCard({ buddy }) {
 
             {/* POLITICAL */}
             <div className="bp-card">
-                <h2>Світогляд</h2>
+                <h2>{t("card.worldview")}</h2>
 
                 <div className="bp-slider-row">
-                    <div className="bp-label">Економічна ось — {buddy.politicalEconLabel}</div>
+                    <div className="bp-label">{t("card.econ_axis")} — {buddy.politicalEconLabel}</div>
                     <div className="bp-slider-track">
                         <div className="bp-slider-thumb" style={{ left: `${buddy.politicalEconPct}%` }} />
                     </div>
-                    <div className="bp-slider-labels"><span>Лівий</span><span>·</span><span>Правий</span></div>
+                    <div className="bp-slider-labels"><span>{t("card.left")}</span><span>·</span><span>{t("card.right")}</span></div>
                 </div>
 
                 <div className="bp-slider-row">
-                    <div className="bp-label">Соціальна ось — {buddy.politicalSocLabel}</div>
+                    <div className="bp-label">{t("card.soc_axis")} — {buddy.politicalSocLabel}</div>
                     <div className="bp-slider-track">
                         <div className="bp-slider-thumb" style={{ left: `${buddy.politicalSocPct}%` }} />
                     </div>
-                    <div className="bp-slider-labels"><span>Ліберальний</span><span>·</span><span>Комунітарний</span></div>
+                    <div className="bp-slider-labels"><span>{t("card.liberal")}</span><span>·</span><span>{t("card.communitarian")}</span></div>
                 </div>
             </div>
 
             {/* LANGUAGES */}
             <div className="bp-card">
-                <h2>Мови</h2>
+                <h2>{t("card.languages")}</h2>
                 <div className="bp-tag-list">
                     {buddy.languages.map((l, i) => (
                         <span key={i} className="bp-tag">{l}</span>
@@ -237,7 +241,7 @@ function ProfileCard({ buddy }) {
 
             {/* HOBBIES */}
             <div className="bp-card">
-                <h2>Захоплення / хобі</h2>
+                <h2>{t("card.hobbies")}</h2>
                 <div className="bp-tag-list">
                     {buddy.hobbies.map((h, i) => (
                         <span key={i} className="bp-tag">{h}</span>
@@ -250,14 +254,28 @@ function ProfileCard({ buddy }) {
 
             {/* HOUSING */}
             <div className="bp-card">
-                <h2>Житлові уподобання</h2>
+                <h2>{t("card.housing_prefs")}</h2>
                 <div className="bp-housing-grid">
-                    {buddy.housing.map(([label, val], i) => (
-                        <div key={i} className="bp-housing-cell">
-                            <div className="bp-label">{label}</div>
-                            <div className="bp-val">{val}</div>
-                        </div>
-                    ))}
+                    {buddy.housing.map(([label, val], i) => {
+                        const keyMap = {
+                            "Преференція": "card.housing_labels.preference",
+                            "З ким готовий жити": "card.housing_labels.gender",
+                            "Ситуація": "card.housing_labels.status",
+                            "Бюджет": "card.housing_labels.budget",
+                            "Місто": "card.housing_labels.city",
+                            "Бажані райони": "card.housing_labels.districts",
+                            "Термін проживання": "card.housing_labels.duration",
+                            "Дата заселення": "card.housing_labels.move_in",
+                            "Тваринка": "card.housing_labels.pet"
+                        };
+                        const displayLabel = keyMap[label] ? t(keyMap[label]) : label;
+                        return (
+                            <div key={i} className="bp-housing-cell">
+                                <div className="bp-label">{displayLabel}</div>
+                                <div className="bp-val">{val}</div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>
@@ -265,8 +283,10 @@ function ProfileCard({ buddy }) {
 }
 
 export function Card() {
+    const { t } = useTranslation();
+
     if (!localStorage.getItem("access_token")) {
-        alert("Необхідний вхід у профіль");
+        alert(t("card.auth_required"));
         return <Navigate to="/" replace />;
     }
 
@@ -274,29 +294,29 @@ export function Card() {
     const { id: routeId } = useParams();
 
     // ── стан профілю ──────────────────────────────────────────────────────
-    const [loading,    setLoading]    = useState(true);
+    const [loading, setLoading] = useState(true);
     const [isComplete, setIsComplete] = useState(false);
 
     // ── стан стрічки ──────────────────────────────────────────────────────
-    const [matches,      setMatches]      = useState([]);   // адаптована feed-стрічка
+    const [matches, setMatches] = useState([]);   // адаптована feed-стрічка
     const [teaserUserIds, setTeaserUserIds] = useState(new Set());
-    const [feedLoading,  setFeedLoading]  = useState(false);
-    const [feedLoaded,   setFeedLoaded]   = useState(false);
-    const [fomoData,     setFomoData]     = useState(null); // { hidden_count, best_score }
+    const [feedLoading, setFeedLoading] = useState(false);
+    const [feedLoaded, setFeedLoaded] = useState(false);
+    const [fomoData, setFomoData] = useState(null); // { hidden_count, best_score }
     const [matchedBuddy, setMatchedBuddy] = useState(null); // не-null коли є мютуал
     const [actionLocked, setActionLocked] = useState(false); // блокує дабл-клік
 
     // ── стан поточного матча (керується URL) ─────────────────────────────
     const [currentBuddy, setCurrentBuddy] = useState(null);
     const [matchLoading, setMatchLoading] = useState(false);
-    const [matchError,   setMatchError]   = useState(null); // 'not_found' | 'forbidden' | 'error'
+    const [matchError, setMatchError] = useState(null); // 'not_found' | 'forbidden' | 'error'
 
     const loadFeedMatches = useCallback(async () => {
         const r = await getMatches();
         const raw = r.ok ? await r.json().catch(() => ({})) : {};
-        const free      = Array.isArray(raw.free) ? raw.free : [];
-        const unlocked  = Array.isArray(raw.unlocked) ? raw.unlocked : [];
-        const teaser    = raw.teaser && typeof raw.teaser === 'object' ? [raw.teaser] : [];
+        const free = Array.isArray(raw.free) ? raw.free : [];
+        const unlocked = Array.isArray(raw.unlocked) ? raw.unlocked : [];
+        const teaser = raw.teaser && typeof raw.teaser === 'object' ? [raw.teaser] : [];
 
         const buildList = (items, isTeaser = false) => items
             .map(item => {
@@ -326,7 +346,7 @@ export function Card() {
 
                 const profile = profileRes.ok ? await profileRes.json().catch(() => null) : null;
                 const housing = housingRes.ok ? await housingRes.json().catch(() => null) : null;
-                const photos  = photosRes.ok  ? await photosRes.json().catch(() => [])   : [];
+                const photos = photosRes.ok ? await photosRes.json().catch(() => []) : [];
 
                 if (cancelled) return;
                 setIsComplete(checkCompleteness(profile, housing, photos));
@@ -454,7 +474,7 @@ export function Card() {
                 return;
             }
             if (r.status === 403) { setMatchError("forbidden"); setCurrentBuddy(null); return; }
-            if (!r.ok)            { setMatchError("error"); setCurrentBuddy(null); return; }
+            if (!r.ok) { setMatchError("error"); setCurrentBuddy(null); return; }
 
             const data = await r.json().catch(() => null);
             const adapted = data ? adaptMatch(data) : null;
@@ -478,7 +498,7 @@ export function Card() {
 
         setActionLocked(true);
         try {
-            await markSeen(currentBuddy.id).catch(() => {});
+            await markSeen(currentBuddy.id).catch(() => { });
             await advance();
         } finally {
             setActionLocked(false);
@@ -491,7 +511,7 @@ export function Card() {
 
         setActionLocked(true);
         try {
-            await markSeen(currentBuddy.id).catch(() => {});
+            await markSeen(currentBuddy.id).catch(() => { });
 
             let isMatch = false;
             try {
@@ -519,10 +539,10 @@ export function Card() {
     }, [advance]);
 
     // ── рендер ────────────────────────────────────────────────────────────
-    const showGate   = !loading && !isComplete;
+    const showGate = !loading && !isComplete;
     const cardLoading = matchLoading || (!routeId && (feedLoading || matches.length > 0));
-    const isBlurred  = loading || !isComplete || cardLoading;
-    const showEmpty  = !cardLoading && !routeId && !feedLoading && matches.length === 0;
+    const isBlurred = loading || !isComplete || cardLoading;
+    const showEmpty = !cardLoading && !routeId && !feedLoading && matches.length === 0;
 
     return (
         <>
@@ -530,24 +550,24 @@ export function Card() {
                 <Header />
                 <main className="bp-main">
                     {cardLoading && (
-                        <div className="bp-feed-loading">Завантаження…</div>
+                        <div className="bp-feed-loading">{t("card.loading")}</div>
                     )}
 
                     {!cardLoading && matchError === "not_found" && (
                         <div className="bp-empty">
-                            Цей матч недоступний.
+                            {t("card.not_found")}
                         </div>
                     )}
 
                     {!cardLoading && matchError === "forbidden" && (
                         <div className="bp-empty">
-                            У тебе немає доступу до цього матчу.
+                            {t("card.forbidden")}
                         </div>
                     )}
 
                     {!cardLoading && matchError === "error" && (
                         <div className="bp-empty">
-                            Щось пішло не так. Спробуй ще раз.
+                            {t("card.error")}
                         </div>
                     )}
 
@@ -570,14 +590,14 @@ export function Card() {
                                     onClick={handlePass}
                                     disabled={actionLocked}
                                 >
-                                    Пропустити
+                                    {t("card.pass")}
                                 </button>
                                 <button
                                     className="bp-nav-btn bp-nav-like"
                                     onClick={handleLike}
                                     disabled={actionLocked}
                                 >
-                                    Подобається ♥
+                                    {t("card.like")}
                                 </button>
                             </div>
                         </>
@@ -585,7 +605,7 @@ export function Card() {
 
                     {showEmpty && (
                         <div className="bp-empty">
-                            Поки немає нових збігів. Зайди пізніше 👋
+                            {t("card.no_matches")}
                         </div>
                     )}
                 </main>
@@ -594,12 +614,12 @@ export function Card() {
             {showGate && (
                 <div className="bp-gate">
                     <div className="bp-gate-card">
-                        <h2>Перевір заповненість профілю</h2>
+                        <h2>{t("card.check_profile")}</h2>
                         <button
                             className="bp-gate-btn"
                             onClick={() => navigate("/profile/personal")}
                         >
-                            Перейти до заповнення
+                            {t("card.go_to_profile")}
                         </button>
                     </div>
                 </div>
