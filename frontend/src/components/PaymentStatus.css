@@ -1,0 +1,136 @@
+.ps-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 48px 16px;
+    font-family: 'Inter', sans-serif;
+}
+
+.ps-card {
+    width: 100%;
+    max-width: 520px;
+    background: #fff;
+    border: 3px solid #111;
+    box-shadow: 6px 6px 0 #111;
+    padding: 40px 44px;
+    text-align: center;
+}
+
+.ps-kicker {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 12px;
+    margin-bottom: 20px;
+    border: 2px solid currentColor;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.ps-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 64px;
+}
+
+.ps-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f0f0f0;
+    border-top-color: #F58A3D;
+    border-radius: 50%;
+    animation: ps-spin 0.8s linear infinite;
+    display: inline-block;
+}
+
+@keyframes ps-spin {
+    to { transform: rotate(360deg); }
+}
+
+.ps-title {
+    margin: 0 0 12px;
+    color: #111;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.ps-desc {
+    margin: 0 auto;
+    max-width: 400px;
+    color: #555;
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+.ps-progress {
+    margin: 24px auto 0;
+    max-width: 400px;
+    height: 6px;
+    background: #f0f0f0;
+    border: 1.5px solid #ddd;
+}
+
+.ps-progress-fill {
+    height: 100%;
+    background: #F58A3D;
+    transition: width 0.4s ease;
+}
+
+.ps-actions {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.ps-btn {
+    border: 2px solid #111;
+    box-shadow: 3px 3px 0 #111;
+    padding: 12px 28px;
+    color: #111;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ps-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 #111;
+}
+
+.ps-btn:active {
+    transform: translate(0, 0);
+    box-shadow: 1px 1px 0 #111;
+}
+
+.ps-btn-primary {
+    background: #FCD531;
+}
+
+.ps-btn-secondary {
+    background: #fff;
+}
+
+@media (max-width: 560px) {
+    .ps-card {
+        padding: 28px 22px;
+    }
+
+    .ps-title {
+        font-size: 22px;
+    }
+
+    .ps-btn {
+        width: 100%;
+    }
+}

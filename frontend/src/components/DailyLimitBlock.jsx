@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { getFomoData, initiateUnlock } from "../utils/api.js";
 import "./DailyLimitBlock.css";
 
+import { useNavigate } from "react-router-dom";
+
 export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
     const [data, setData] = useState(initialData ?? null);
     const [loading, setLoading] = useState(!initialData);
@@ -13,6 +15,8 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
     const [copied, setCopied] = useState(false);
 
     const shownMatchIdsKey = shownMatchIds.filter(Boolean).join(",");
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         let cancelled = false;
@@ -90,9 +94,10 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
     // ── Крок 2: юзер натискає "Перейти до оплати" ────────────────────────
     const handleGoToPay = useCallback(() => {
         if (paymentData?.jar_url) {
-            window.location.href = paymentData.jar_url;
+            window.open(paymentData.jar_url, '_blank');
+            navigate(`/payment/status/${paymentData.comment_id}`);
         }
-    }, [paymentData]);
+    }, [paymentData, navigate]);
 
     // ── Копіювання comment_id ─────────────────────────────────────────────
     const handleCopy = useCallback(async () => {

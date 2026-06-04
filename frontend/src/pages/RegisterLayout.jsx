@@ -7,6 +7,7 @@ import VerifyEmail from './VerifyEmail.jsx';
 import React, { useState } from 'react';
 import { Card } from './Card.jsx';
 import { Likes } from './Likes.jsx';
+import { PaymentStatus } from './PaymentStatus.jsx';
 
 function AppRoutes() {
     const navigate = useNavigate();
@@ -65,6 +66,8 @@ function AppRoutes() {
 
             {/* Magic-link email verification landing page */}
             <Route path="/verify/:token" element={<VerifyEmail />} />
+
+            <Route path="/payment/status/:commentId" element={<PaymentStatus />} />
         </Routes>
     );
 }
