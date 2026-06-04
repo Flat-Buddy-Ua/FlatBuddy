@@ -239,7 +239,7 @@ export default function Step3() {
 						flexWrap: "wrap"
 					}}>
 						<NavStep onClick={() => navigate('/profile/details')}>{t('step1.nav_basic')}</NavStep>
-						<NavStep onClick={() => navigate('/profile/personal')}>{t('step2.nav_about')}</NavStep>
+						<NavStep onClick={() => navigate('/profile/personal')}>{t('step2.nav_personal')}</NavStep>
 						<NavStep isActive>{t('step3.nav_housing')}</NavStep>
 					</div>
 
