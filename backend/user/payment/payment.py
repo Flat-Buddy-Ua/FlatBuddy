@@ -5,7 +5,7 @@ from django.utils import timezone
  
 from user.models import PaymentOrder, User, MatchResult, ProfileUnlock
  
-UNLOCK_PRICE = 1_00  # 1 гривня в копійках
+UNLOCK_PRICE = 50_00
  
 JAR_URL = f"https://send.monobank.ua/jar/{settings.MONOBANK_JAR_ID}"
  

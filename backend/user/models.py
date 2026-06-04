@@ -55,7 +55,7 @@ class User(AbstractUser):
     package = models.CharField(
         max_length=7,
         choices=Package.choices,
-        default=Package.PREMIUM,
+        default=Package.FREE,
     )
     objects = UserManager()
     
