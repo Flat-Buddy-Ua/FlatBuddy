@@ -15,6 +15,12 @@ from user.views.UserHousingView import UserHousingViewSet, MeHousingView
 from user.views.UserRegistrationView import UserRegistrationView
 from user.views.VerifyMagicLinkView import VerifyMagicLinkView
 from user.views.ResendMagicLinkView import ResendMagicLinkView
+from user.views.ResetPasswordView import (
+    RequestResetPasswordView, 
+    VerifyResetTokenView,
+    ConfirmNewPasswordView,
+) 
+
 from user.views.MatchView import (
     MyMatchListView,
     MyMatchDetailView,
@@ -80,6 +86,9 @@ urlpatterns = [
 
     path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/reset-password/request/', RequestResetPasswordView.as_view(), name='request-reset-password'),
+    path('api/reset-password/verify/<token>/', VerifyResetTokenView.as_view(), name='verify-reset-token'),
+    path('api/reset-password/confirm/<token>/', ConfirmNewPasswordView.as_view(), name='confirm-password'),
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

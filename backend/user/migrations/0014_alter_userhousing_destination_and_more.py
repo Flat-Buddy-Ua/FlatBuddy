@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user', '0009_userlike_usermatch'),
+        ('user', '0013_paymentorder_profileunlock'),
     ]
 
     operations = [
