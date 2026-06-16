@@ -14,7 +14,7 @@ MATCH_TRIGGER_FIELDS = EMBEDDING_FIELDS | {
 }
 
 def connect_signals():
-    from user.models import UserProfile, UserHousing, UserPriority
+    from user.models import UserProfile, UserHousing, UserPriority, UserMatch, MatchReport
 
     @receiver(post_save, sender=UserProfile)
     def on_profile_save(sender, instance, created, update_fields, **kwargs):
@@ -116,3 +116,22 @@ def connect_signals():
                 "[Signals] Failed to enqueue matching recalc for user %s",
                 instance.user_id,
             )
+
+    @receiver(post_save, sender=UserMatch)
+    def create_match_report(sender, instance: UserMatch, created: bool, **kwargs):
+        if not created:
+            return 
+
+        MatchReport.objects.update_or_create(
+            user_match=instance,
+            defaults={
+                'user_1_id_ref':     instance.user_1_id,
+                'user_1_first_name': instance.user_1.first_name,
+                'user_1_last_name':  instance.user_1.last_name,
+                'user_2_id_ref':     instance.user_2_id,
+                'user_2_first_name': instance.user_2.first_name,
+                'user_2_last_name':  instance.user_2.last_name,
+                'compatibility_score': instance.compatibility_score,
+                'matched_at':        instance.matched_at,
+            }
+        )
