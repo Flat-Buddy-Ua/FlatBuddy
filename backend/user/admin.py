@@ -7,6 +7,7 @@ from .models import (
     UserPriority, MatchResult, SeenProfile,
     UserLike, UserMatch,
     PaymentOrder, ProfileUnlock, UnmatchedPayment,
+    MatchReport,
 )
 
 
@@ -365,6 +366,25 @@ class UserMatchAdmin(admin.ModelAdmin):
         n = queryset.update(is_active=True)
         self.message_user(request, f"Активовано: {n}")
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  MatchReport
+# ══════════════════════════════════════════════════════════════════════════════
+
+@admin.register(MatchReport)
+class MatchReportAdmin(admin.ModelAdmin):
+    list_display  = (
+        'user_1_id_ref', 'user_1_first_name', 'user_1_last_name',
+        'user_2_id_ref', 'user_2_first_name', 'user_2_last_name',
+        'compatibility_score', 'matched_at',
+    )
+    search_fields = (
+        'user_1_first_name', 'user_1_last_name',
+        'user_2_first_name', 'user_2_last_name',
+    )
+    list_filter   = ('matched_at',)
+    ordering      = ('-matched_at',)
+    readonly_fields = [f.name for f in MatchReport._meta.get_fields()]
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  PaymentOrder

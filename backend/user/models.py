@@ -325,6 +325,41 @@ class UserMatch(models.Model):
         return f"Match {self.user_1_id} ↔ {self.user_2_id}"
 
 
+class MatchReport(models.Model):
+    user_match = models.OneToOneField(
+        'UserMatch',
+        on_delete=models.CASCADE,
+        related_name='report',
+    )
+
+    user_1_id_ref   = models.IntegerField()
+    user_1_first_name = models.CharField(max_length=150)
+    user_1_last_name  = models.CharField(max_length=150)
+
+    user_2_id_ref   = models.IntegerField()
+    user_2_first_name = models.CharField(max_length=150)
+    user_2_last_name  = models.CharField(max_length=150)
+
+    compatibility_score = models.FloatField(null=True, blank=True)
+    matched_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'match_report'
+        indexes = [
+            models.Index(fields=['user_1_id_ref']),
+            models.Index(fields=['user_2_id_ref']),
+            models.Index(fields=['matched_at']),
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.user_1_first_name} {self.user_1_last_name}"
+            f" ↔ {self.user_2_first_name} {self.user_2_last_name}"
+            f" (score: {self.compatibility_score})"
+        )
+
+
 class ProfileUnlock(models.Model):
     class Status(models.TextChoices):
         PENDING  = 'pending',  'Очікує оплати'
