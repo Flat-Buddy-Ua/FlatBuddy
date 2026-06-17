@@ -70,6 +70,21 @@ def send_magic_link(user, token):
 
     _send(user.email, "Підтвердження реєстрації у FlatBuddy", html)
 
+def send_reset_password_email(user, token):
+    link = f"{settings.FRONTEND_URL}/verify/{token}"
+
+    html = f"""
+    <p>Вітаємо, {user.first_name}!</p>
+    
+    <p>Ми щойно отримали запит на зміну вашого пароля. Якщо ви не відправляли такий запит, проігноруйте це повідомлення. Проте, якщо ви не пам'ятаєте старий пароль, натисніть на посилання нижче, щоб створити новий пароль.</p>
+    
+    <p><a href="{link}">Зміна паролю</a></p>
+    
+    <p>Примітка: посилання дійсне протягом 24 годин з моменту відправлення цього листа.
+    Твій, Flat Buddy</p>
+    """
+
+    _send(user.email, "Зміна паролю FlatBuddy", html)
 
 def send_announcement(user):
     link = settings.FRONTEND_URL
