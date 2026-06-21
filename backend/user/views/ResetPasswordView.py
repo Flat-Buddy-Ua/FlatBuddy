@@ -43,6 +43,7 @@ class VerifyResetTokenView(generics.GenericAPIView):
 
 class ConfirmNewPasswordView(generics.GenericAPIView):
     permission_classes=[AllowAny]
+    authentication_classes = []
     serializer_class = ResetPasswordSerializer
 
     def post(self, request, token):
