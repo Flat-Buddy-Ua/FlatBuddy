@@ -271,6 +271,21 @@ export default function Step1({ isEditing }) {
 
 	};
 
+	const handlePasswordReset = async () => {
+	    const email = formState.email?.realValue;
+	    if (!email) return;
+
+	    try {
+	        await fetch(`${BASE_URL}/api/reset-password/request/`, {
+	            method: 'POST',
+	            headers: { 'Content-Type': 'application/json' },
+	            body: JSON.stringify({ email }),
+	        });
+	        alert(`Лист з посиланням надіслано на ${email}`);
+	    } catch {
+	        alert('Помилка. Спробуйте ще раз.');
+	    }
+	};
 
 	const handleResend = async () => {
 		const target = pendingVerification?.email;
@@ -519,6 +534,14 @@ export default function Step1({ isEditing }) {
 						)}
 
 					</div>
+
+					{isEditing && (
+						<div className="change-password-link">
+							<a onClick={handlePasswordReset} style={{ cursor: 'pointer' }}>
+								{t('step1.change_password')}
+							</a>
+						</div>
+					)}
 
 					{/*SUBMIT BUTTON*/}
 					<div

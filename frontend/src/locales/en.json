@@ -36,7 +36,7 @@
     "email": "Email",
     "password": "Password",
     "repeat_password": "Confirm password",
-    "next": "Next",
+    "next": "Save and continue",
     "register_btn": "Sign up",
     "check_email": "Check your inbox",
     "email_sent_to": "We sent an email with a link to",
@@ -55,7 +55,8 @@
     "error_register_failed": "Registration error. Check your details.",
     "resend_success": "Email resent to {{email}}",
     "error_too_many_attempts": "Too many attempts. Try again later.",
-    "error_send_failed": "Failed to send email"
+    "error_send_failed": "Failed to send email",
+    "change_password": "Change password →"
   },
   "step2": {
     "nav_personal": "2. About me",
@@ -85,7 +86,7 @@
     "extrovert": "Extrovert",
     "hobbies": "Hobbies / Interests",
     "hobbies_desc": "Up to 10 from the list + up to 5 custom (type and press Enter)",
-    "save_btn": "Save",
+    "save_btn": "Save and continue",
     "min": "min.",
     "status_placeholder": "Student / working / both",
     "orbit_placeholder": "Select field of activity",
@@ -342,6 +343,21 @@
     "too_many_attempts": "Too many attempts, please try again later",
     "send_failed": "Failed to send email",
     "network_error_retry": "Network error. Please try again."
+  },
+  "reset_password": {
+    "loading": "Verifying link...",
+    "wait": "Please wait a second.",
+    "title": "New password",
+    "subtitle": "Enter a new password for your account.",
+    "saving": "Saving...",
+    "submit_btn": "Save password",
+    "success": "Password changed!",
+    "redirecting": "Redirecting to home...",
+    "error_note": "Try requesting a new password reset link.",
+    "back_to_home": "Back to Home",
+    "invalid_token": "Link is invalid or has expired",
+    "network_error": "Network error. Please check your connection and try again.",
+    "error_failed": "Something went wrong. Please try again."
   },
   "validations": {
     "name_required": "First name is required",

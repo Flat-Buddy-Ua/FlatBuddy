@@ -71,7 +71,7 @@ def send_magic_link(user, token):
     _send(user.email, "Підтвердження реєстрації у FlatBuddy", html)
 
 def send_reset_password_email(user, token):
-    link = f"{settings.FRONTEND_URL}/verify/{token}"
+    link = f"{settings.FRONTEND_URL}/reset-password/{token}"
 
     html = f"""
     <p>Вітаємо, {user.first_name}!</p>

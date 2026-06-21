@@ -4,6 +4,7 @@ import Step1 from './Step1.jsx';
 import Step2 from './Step2.jsx';
 import Step3 from './Step3.jsx';
 import VerifyEmail from './VerifyEmail.jsx';
+import ResetPassword from './ResetPassword.jsx';
 import React, { useState } from 'react';
 import { Card } from './Card.jsx';
 import { Likes } from './Likes.jsx';
@@ -66,7 +67,7 @@ function AppRoutes() {
 
             {/* Magic-link email verification landing page */}
             <Route path="/verify/:token" element={<VerifyEmail />} />
-
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/payment/status/:commentId" element={<PaymentStatus />} />
         </Routes>
     );
