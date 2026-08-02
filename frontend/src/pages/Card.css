@@ -57,26 +57,112 @@
     display: grid;
     grid-template-columns: 220px 1fr;
     gap: 32px;
-    align-items: center;
+    align-items: start;
 }
 .bp-photo-stack { display: flex; flex-direction: column; gap: 8px; }
 .bp-photo-main {
     width: 220px;
     height: 260px;
     border: 3px solid #111;
-    background-size: cover;
-    background-position: center;
-    background-color: #F6DDD4;
-}
-.bp-photo-row { display: flex; gap: 6px; }
-.bp-photo-thumb {
-    width: 50px;
-    height: 50px;
-    border: 2px solid #111;
+    box-shadow: 5px 5px 0 #111;
     background-size: cover;
     background-position: center;
     background-color: #F6DDD4;
     cursor: pointer;
+}
+.bp-photo-row { display: flex; gap: 6px; margin-top: 6px; }
+.bp-photo-thumb {
+    width: 50px;
+    height: 50px;
+    box-shadow: 3px 3px 0 #F6DDD4;
+    background-size: cover;
+    background-position: center;
+    background-color: #F6DDD4;
+    cursor: pointer;
+}
+
+/* Photo lightbox */
+.bp-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(17, 17, 17, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bp-lightbox-content {
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bp-lightbox-img {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border: 3px solid #fff;
+    user-select: none;
+}
+.bp-lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 36px;
+    line-height: 1;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+.bp-lightbox-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid #fff;
+    color: #fff;
+    font-size: 32px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+}
+.bp-lightbox-arrow:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+.bp-lightbox-arrow-left { left: 16px; }
+.bp-lightbox-arrow-right { right: 16px; }
+.bp-lightbox-dots {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+.bp-lightbox-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+}
+.bp-lightbox-dot.active {
+    background: #fff;
+}
+
+@media (max-width: 720px) {
+    .bp-lightbox-arrow { width: 40px; height: 40px; font-size: 26px; }
+    .bp-lightbox-close { font-size: 30px; top: 14px; right: 16px; }
 }
 .bp-name {
     margin: 0 0 6px;
@@ -84,7 +170,7 @@
     font-weight: 700;
     line-height: 1.1;
 }
-.bp-sub { color: #555; font-size: 16px; margin: 0 0 16px; }
+.bp-sub { color: #555; font-size: 16px; margin: 0 0 26px; }
 .bp-badges { display: flex; flex-wrap: wrap; gap: 10px; }
 .bp-badge {
     padding: 8px 16px;
@@ -320,6 +406,20 @@
     .bp-compat-panel {
         position: static;
         order: -1;
+    }
+}
+
+/* Pass/Like buttons inside profile hero */
+.bp-hero-nav {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+    .bp-hero-nav {
+        justify-content: center;
     }
 }
 

@@ -122,8 +122,98 @@ function CompatibilityPanel({ buddy }) {
     );
 }
 
-function ProfileCard({ buddy }) {
+function PhotoLightbox({ photos, startIndex, onClose }) {
+    const [index, setIndex] = useState(startIndex);
+
+    const goPrev = useCallback((e) => {
+        e?.stopPropagation();
+        setIndex((i) => (i - 1 + photos.length) % photos.length);
+    }, [photos.length]);
+
+    const goNext = useCallback((e) => {
+        e?.stopPropagation();
+        setIndex((i) => (i + 1) % photos.length);
+    }, [photos.length]);
+
+    // Клавіатура: ← → Esc
+    useEffect(() => {
+        function onKeyDown(e) {
+            if (e.key === "ArrowLeft") goPrev();
+            else if (e.key === "ArrowRight") goNext();
+            else if (e.key === "Escape") onClose();
+        }
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [goPrev, goNext, onClose]);
+
+    // Свайп на мобільних
+    const touchStartX = React.useRef(null);
+    function onTouchStart(e) {
+        touchStartX.current = e.touches[0].clientX;
+    }
+    function onTouchEnd(e) {
+        if (touchStartX.current === null) return;
+        const delta = e.changedTouches[0].clientX - touchStartX.current;
+        if (delta > 50) goPrev();
+        else if (delta < -50) goNext();
+        touchStartX.current = null;
+    }
+
+    return (
+        <div className="bp-lightbox" onClick={onClose}>
+            <button className="bp-lightbox-close" onClick={onClose} aria-label="Закрити">
+                &times;
+            </button>
+
+            {photos.length > 1 && (
+                <button
+                    className="bp-lightbox-arrow bp-lightbox-arrow-left"
+                    onClick={goPrev}
+                    aria-label="Попереднє фото"
+                >
+                    &#8249;
+                </button>
+            )}
+
+            <div
+                className="bp-lightbox-content"
+                onClick={(e) => e.stopPropagation()}
+                onTouchStart={onTouchStart}
+                onTouchEnd={onTouchEnd}
+            >
+                <img className="bp-lightbox-img" src={photos[index]} alt="" />
+            </div>
+
+            {photos.length > 1 && (
+                <button
+                    className="bp-lightbox-arrow bp-lightbox-arrow-right"
+                    onClick={goNext}
+                    aria-label="Наступне фото"
+                >
+                    &#8250;
+                </button>
+            )}
+
+            {photos.length > 1 && (
+                <div className="bp-lightbox-dots" onClick={(e) => e.stopPropagation()}>
+                    {photos.map((_, i) => (
+                        <button
+                            key={i}
+                            className={`bp-lightbox-dot ${i === index ? "active" : ""}`}
+                            onClick={() => setIndex(i)}
+                            aria-label={`Фото ${i + 1}`}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function ProfileCard({ buddy, onPass, onLike, actionLocked }) {
     const { t } = useTranslation();
+    const [lightboxIndex, setLightboxIndex] = useState(null);
+
     return (
         <div className="bp-wrap">
             {/* HERO */}
@@ -132,6 +222,9 @@ function ProfileCard({ buddy }) {
                     <div
                         className="bp-photo-main"
                         style={{ backgroundImage: `url('${buddy.photos[0]}')` }}
+                        onClick={() => setLightboxIndex(0)}
+                        role="button"
+                        tabIndex={0}
                     />
                     <div className="bp-photo-row">
                         {buddy.photos.map((src, i) => (
@@ -139,6 +232,9 @@ function ProfileCard({ buddy }) {
                                 key={i}
                                 className="bp-photo-thumb"
                                 style={{ backgroundImage: `url('${src}')` }}
+                                onClick={() => setLightboxIndex(i)}
+                                role="button"
+                                tabIndex={0}
                             />
                         ))}
                     </div>
@@ -152,6 +248,22 @@ function ProfileCard({ buddy }) {
                                 {b.text}
                             </div>
                         ))}
+                    </div>
+                    <div className="bp-hero-nav">
+                        <button
+                            className="bp-nav-btn bp-nav-pass"
+                            onClick={onPass}
+                            disabled={actionLocked}
+                        >
+                            {t("card.pass")}
+                        </button>
+                        <button
+                            className="bp-nav-btn bp-nav-like"
+                            onClick={onLike}
+                            disabled={actionLocked}
+                        >
+                            {t("card.like")}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -278,6 +390,14 @@ function ProfileCard({ buddy }) {
                     })}
                 </div>
             </div>
+
+            {lightboxIndex !== null && (
+                <PhotoLightbox
+                    photos={buddy.photos}
+                    startIndex={lightboxIndex}
+                    onClose={() => setLightboxIndex(null)}
+                />
+            )}
         </div>
     );
 }
@@ -581,24 +701,13 @@ export function Card() {
                     {!cardLoading && !matchError && fomoData === null && currentBuddy && (
                         <>
                             <div className="bp-feed-layout">
-                                <ProfileCard buddy={currentBuddy} />
+                                <ProfileCard
+                                    buddy={currentBuddy}
+                                    onPass={handlePass}
+                                    onLike={handleLike}
+                                    actionLocked={actionLocked}
+                                />
                                 <CompatibilityPanel buddy={currentBuddy} />
-                            </div>
-                            <div className="bp-nav">
-                                <button
-                                    className="bp-nav-btn bp-nav-pass"
-                                    onClick={handlePass}
-                                    disabled={actionLocked}
-                                >
-                                    {t("card.pass")}
-                                </button>
-                                <button
-                                    className="bp-nav-btn bp-nav-like"
-                                    onClick={handleLike}
-                                    disabled={actionLocked}
-                                >
-                                    {t("card.like")}
-                                </button>
                             </div>
                         </>
                     )}
