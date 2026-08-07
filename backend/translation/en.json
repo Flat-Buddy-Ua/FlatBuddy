@@ -55,7 +55,9 @@
     "error_register_failed": "Registration error. Check your details.",
     "resend_success": "Email resent to {{email}}",
     "error_too_many_attempts": "Too many attempts. Try again later.",
-    "error_send_failed": "Failed to send email"
+    "error_send_failed": "Failed to send email",
+    "change_password": "Change password",
+    "delete_profile": "Delete profile"
   },
   "step2": {
     "nav_personal": "2. About me",
@@ -274,7 +276,7 @@
     "hobbies": "Hobbies / Interests",
     "housing_prefs": "Housing preferences",
     "pass": "Pass",
-    "like": "Like ♥",
+    "like": "Like",
     "check_profile": "Check your profile completeness",
     "go_to_profile": "Complete profile",
     "no_matches": "No new matches yet. Check back later 👋",
@@ -524,5 +526,26 @@
     "req_lower": "At least one lowercase letter",
     "req_digit": "At least one digit",
     "req_special": "At least one special character"
+  },
+  "delete_profile": {
+    "title": "Delete Profile",
+    "warning": "This action cannot be undone. Your profile will be deactivated.",
+    "type_to_confirm": "To confirm, please type the text below:",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "reason_title": "Why are you leaving?",
+    "reason_optional": "This is optional, but will help us become better",
+    "reason_found_here": "Found buddy here",
+    "reason_found_elsewhere": "Found buddy elsewhere",
+    "reason_not_useful": "Service was not useful",
+    "reason_notifications": "Too many notifications",
+    "reason_privacy": "Privacy concerns",
+    "reason_technical": "Technical issues",
+    "reason_other": "Other reason",
+    "reason_other_placeholder": "Tell us more (optional)",
+    "skip": "Skip",
+    "confirm_delete": "Delete Profile",
+    "deleting": "Deleting...",
+    "error_generic": "Something went wrong. Please try again."
   }
 }

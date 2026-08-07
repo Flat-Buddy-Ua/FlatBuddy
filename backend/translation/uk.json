@@ -57,7 +57,9 @@
     "error_register_failed": "Помилка реєстрації. Перевірте дані.",
     "resend_success": "Лист повторно надіслано на {{email}}",
     "error_too_many_attempts": "Забагато спроб. Спробуй пізніше.",
-    "error_send_failed": "Не вдалося надіслати лист"
+    "error_send_failed": "Не вдалося надіслати лист",
+    "change_password": "Змінити пароль",
+    "delete_profile": "Видалити профіль"
   },
   "step2": {
     "nav_about": "2. Про мене",
@@ -526,5 +528,26 @@
     "req_lower": "Щонайменше одна мала літера",
     "req_digit": "Щонайменше одна цифра",
     "req_special": "Щонайменше один спеціальний символ"
+  },
+  "delete_profile": {
+    "title": "Видалення профілю",
+    "warning": "Цю дію не можна скасувати самостійно. Ваш профіль буде деактивовано.",
+    "type_to_confirm": "Щоб підтвердити, введіть текст нижче:",
+    "cancel": "Скасувати",
+    "continue": "Продовжити",
+    "reason_title": "Чому ви йдете?",
+    "reason_optional": "Це опційно, але допоможе нам стати кращими",
+    "reason_found_here": "Знайшов/-ла buddy тут",
+    "reason_found_elsewhere": "Знайшов/-ла buddy деінде",
+    "reason_not_useful": "Сервіс виявився не корисним",
+    "reason_notifications": "Забагато сповіщень",
+    "reason_privacy": "Питання приватності",
+    "reason_technical": "Технічні проблеми",
+    "reason_other": "Інша причина",
+    "reason_other_placeholder": "Розкажіть детальніше (опційно)",
+    "skip": "Пропустити",
+    "confirm_delete": "Видалити профіль",
+    "deleting": "Видаляємо...",
+    "error_generic": "Щось пішло не так. Спробуйте ще раз."
   }
 }

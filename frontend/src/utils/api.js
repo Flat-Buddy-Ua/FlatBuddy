@@ -56,7 +56,7 @@ export async function fetchWithAuth(url, options = {}) {
     return response;
 }
 
-function logoutUser() {
+export function logoutUser() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     window.location.href = '/'; // Викидаємо на головну

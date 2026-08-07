@@ -52,6 +52,8 @@ class User(AbstractUser):
     phone_number = models.CharField(unique=True)
     email = models.EmailField(unique=True, max_length=254)
     is_active = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
     package = models.CharField(
         max_length=7,
         choices=Package.choices,
@@ -449,3 +451,40 @@ class UnmatchedPayment(models.Model):
 
     def __str__(self):
         return f"UnmatchedPayment {self.mono_id} {self.amount/100:.0f}грн"
+
+
+class ProfileDeletionFeedback(models.Model):
+    class Reason(models.TextChoices):
+        FOUND_HERE           = 'found_here',              'Знайшов/-ла buddy тут'
+        FOUND_ELSEWHERE      = 'found_elsewhere',          'Знайшов/-ла buddy деінде'
+        NOT_USEFUL           = 'not_useful',                'Сервіс виявився не корисним'
+        TOO_MANY_NOTIFICATIONS = 'too_many_notifications',  'Забагато сповіщень'
+        PRIVACY_CONCERNS     = 'privacy_concerns',          'Питання приватності'
+        TECHNICAL_ISSUES     = 'technical_issues',          'Технічні проблеми'
+        OTHER                = 'other',                     'Інша причина'
+
+    # SET_NULL, бо це soft delete — user-рядок лишається, але про всяк
+    # випадок (якщо колись таки буде hard delete) фідбек не повинен зникати.
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='deletion_feedback',
+    )
+    # Дублюємо email окремо — щоб фідбек лишався читабельним навіть якщо
+    # user колись буде фізично видалений (SET_NULL занулить FK).
+    user_email = models.EmailField(max_length=254, blank=True)
+
+    reason_code = models.CharField(max_length=30, choices=Reason.choices, null=True, blank=True)
+    note        = models.TextField(max_length=500, blank=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'profile_deletion_feedback'
+        indexes = [
+            models.Index(fields=['reason_code']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f"Deletion feedback: {self.user_email or self.user_id} [{self.reason_code or 'no reason'}]"

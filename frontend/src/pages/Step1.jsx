@@ -16,8 +16,9 @@ import { PassConfirm } from '../components/PassConfirm.jsx';
 import { SubmitBtn } from '../components/SubmitBtn.jsx';
 import { CitySelector } from '../components/CitySelector.jsx';
 import { NavStep } from '../components/NavStep.jsx';
+import { DeleteProfileModal } from '../components/DeleteProfileModal.jsx';
 
-import { fetchWithAuth } from '../utils/api.js';
+import { fetchWithAuth, logoutUser } from '../utils/api.js';
 
 function buildRegistrationPayload(formState) {
 	const result = {};
@@ -88,6 +89,7 @@ export default function Step1({ isEditing }) {
 	const [pendingVerification, setPendingVerification] = useState(null); // null | { email }
 	const [resendStatus, setResendStatus] = useState({ kind: null, text: '' });
 	const [isResending, setIsResending] = useState(false);
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const BASE_URL = import.meta.env.VITE_API_URL;
 	const MAPBOX = import.meta.env.VITE_MAPBOX_TOKEN;
 	const navigate = useNavigate();
@@ -285,6 +287,23 @@ export default function Step1({ isEditing }) {
 	    } catch {
 	        alert('Помилка. Спробуйте ще раз.');
 	    }
+	};
+
+	const handleDeleteProfile = async (reason) => {
+		const response = await fetchWithAuth(`${BASE_URL}/api/profile/delete/`, {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ reason: reason?.code ?? null, note: reason?.note ?? '' }),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			throw new Error(errorData.detail || 'Delete failed');
+		}
+
+		setIsDeleteModalOpen(false);
+		logoutUser();
+		navigate('/');
 	};
 
 	const handleResend = async () => {
@@ -543,6 +562,14 @@ export default function Step1({ isEditing }) {
 						</div>
 					)}
 
+					{isEditing && (
+						<div className="change-password-link">
+							<a onClick={() => setIsDeleteModalOpen(true)} style={{ cursor: 'pointer' }}>
+								{t('step1.delete_profile')}
+							</a>
+						</div>
+					)}
+
 					{/*SUBMIT BUTTON*/}
 					<div
 						style={{
@@ -561,6 +588,12 @@ export default function Step1({ isEditing }) {
 					</div>
 				</div>
 			</div>
+
+			<DeleteProfileModal
+				isOpen={isDeleteModalOpen}
+				onClose={() => setIsDeleteModalOpen(false)}
+				onConfirmDelete={handleDeleteProfile}
+			/>
 		</div>
 	);
 }
@@ -578,4 +611,3 @@ function RequiredLabel({ children }) {
 const requiredAsteriskStyle = {
 	color: "#ff3333",
 };
-
