@@ -44,16 +44,16 @@ class UserPhotoInline(admin.TabularInline):
 class UserAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'email', 'first_name', 'last_name',
-        'gender', 'city', 'package', 'is_active', 'date_joined',
+        'gender', 'city', 'package', 'is_active', 'is_deleted', 'date_joined',
     )
     list_filter = (
-        'is_active', 'is_staff', 'gender', 'country', 'city', 'package',
+        'is_active', 'is_deleted', 'is_staff', 'gender', 'country', 'city', 'package',
     )
     search_fields = ('email', 'first_name', 'last_name', 'phone_number')
     date_hierarchy = 'date_joined'
     ordering = ('-date_joined',)
     list_per_page = 50
-    readonly_fields = ('date_joined', 'last_login', 'password')
+    readonly_fields = ('date_joined', 'last_login', 'password', 'is_deleted', 'deleted_at')
     fieldsets = (
         (None, {
             'fields': ('email', 'phone_number', 'is_active', 'is_staff', 'is_superuser'),
@@ -63,6 +63,9 @@ class UserAdmin(admin.ModelAdmin):
         }),
         ('Пакет', {
             'fields': ('package',),
+        }),
+        ('Видалення профілю', {
+            'fields': ('is_deleted', 'deleted_at'),
         }),
         ('Службове', {
             'fields': ('date_joined', 'last_login', 'password'),
