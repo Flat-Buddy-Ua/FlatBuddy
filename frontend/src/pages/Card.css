@@ -81,6 +81,78 @@
     cursor: pointer;
 }
 
+/* Blur gate — заблюрений контент з кнопкою розблокування поверх */
+.bp-blur-gate {
+    position: relative;
+}
+.bp-blur-gate-content {
+    filter: blur(6px);
+    user-select: none;
+    pointer-events: none;
+}
+.bp-blur-gate-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.35);
+}
+.bp-blur-gate-btn {
+    background: #FCD531;
+    border: 2px solid #111;
+    box-shadow: 3px 3px 0 #111;
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    color: #111;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
+}
+.bp-blur-gate-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 #111;
+}
+.bp-blur-gate-btn:active {
+    transform: translate(0, 0);
+    box-shadow: 1px 1px 0 #111;
+}
+
+/* Unlock modal (оплата, викликана з BlurGate) */
+.bp-unlock-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+    background: rgba(17, 17, 17, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.bp-unlock-modal {
+    position: relative;
+    background: #fff;
+    border: 3px solid #111;
+    box-shadow: 6px 6px 0 #111;
+    padding: 32px 36px;
+    max-width: 440px;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+}
+.bp-unlock-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    color: #111;
+}
+
 /* Photo lightbox */
 .bp-lightbox {
     position: fixed;
@@ -170,7 +242,7 @@
     font-weight: 700;
     line-height: 1.1;
 }
-.bp-sub { color: #555; font-size: 16px; margin: 0 0 26px; }
+.bp-sub { color: #555; font-size: 16px; margin: 0 0 22px; }
 .bp-badges { display: flex; flex-wrap: wrap; gap: 10px; }
 .bp-badge {
     padding: 8px 16px;

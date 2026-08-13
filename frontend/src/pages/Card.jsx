@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import i18n from "i18next";
 import { Header } from "../components/Header.jsx";
-import { fetchWithAuth, getMatches, getMatchByUserId, markSeen, getFomoData, likeUser } from "../utils/api.js";
+import { fetchWithAuth, getMatches, getMatchByUserId, markSeen, getFomoData, likeUser, initiateUnlock } from "../utils/api.js";
 import { adaptMatch } from "../utils/adaptMatch.js";
 import { DailyLimitBlock } from "../components/DailyLimitBlock.jsx";
 import { MatchModal } from "../components/MatchModal.jsx";
@@ -61,7 +61,159 @@ function scoreColor(val) {
     return "#e04b3a";
 }
 
-function CompatibilityPanel({ buddy }) {
+function UnlockModal({ matchId, isOpen, onClose }) {
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [paymentData, setPaymentData] = useState(null);
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen) {
+            // скидаємо стан, щоб наступне відкриття було "з чистого аркуша"
+            setPaymentData(null);
+            setError("");
+            return;
+        }
+
+        let cancelled = false;
+        setLoading(true);
+        setError("");
+
+        (async () => {
+            try {
+                const response = await initiateUnlock(matchId);
+                const result = response.ok ? await response.json().catch(() => null) : null;
+
+                if (cancelled) return;
+
+                if (!response.ok || !result?.jar_url) {
+                    setError(result?.error || t("daily_limit_block.error_payment"));
+                    return;
+                }
+                setPaymentData(result);
+            } catch {
+                if (!cancelled) setError(t("daily_limit_block.error_payment"));
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+
+        return () => { cancelled = true; };
+    }, [isOpen, matchId, t]);
+
+    const handleCopy = useCallback(async () => {
+        if (!paymentData?.comment_id) return;
+        try {
+            await navigator.clipboard.writeText(paymentData.comment_id);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            const el = document.createElement("textarea");
+            el.value = paymentData.comment_id;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand("copy");
+            document.body.removeChild(el);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    }, [paymentData]);
+
+    const handleGoToPay = useCallback(() => {
+        if (paymentData?.jar_url) {
+            window.open(paymentData.jar_url, '_blank');
+            navigate(`/payment/status/${paymentData.comment_id}`);
+        }
+    }, [paymentData, navigate]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="bp-unlock-modal-overlay" onClick={onClose}>
+            <div className="bp-unlock-modal" onClick={(e) => e.stopPropagation()}>
+                <button className="bp-unlock-modal-close" onClick={onClose} aria-label="Закрити">
+                    &times;
+                </button>
+
+                {loading && (
+                    <p className="daily-limit-desc">{t("daily_limit_block.creating_payment")}</p>
+                )}
+
+                {!loading && error && (
+                    <div className="daily-limit-error">{error}</div>
+                )}
+
+                {!loading && paymentData && (
+                    <>
+                        <div className="daily-limit-kicker">{t("daily_limit_block.payment_kicker")}</div>
+                        <h2 className="daily-limit-title">{t("daily_limit_block.transfer_bank")}</h2>
+
+                        <p className="daily-limit-desc">
+                            {t("daily_limit_block.transfer_action")}{" "}
+                            <strong>{paymentData.amount} {t("daily_limit_block.currency")}</strong>{" "}
+                            {t("daily_limit_block.transfer_desc_1")}{" "}
+                            {t("daily_limit_block.transfer_desc_2")}
+                        </p>
+
+                        <div className="daily-limit-comment-block">
+                            <div className="daily-limit-comment-label">
+                                {t("daily_limit_block.transfer_comment_label")}
+                            </div>
+                            <div className="daily-limit-comment-row">
+                                <code className="daily-limit-comment-id">
+                                    {paymentData.comment_id}
+                                </code>
+                                <button
+                                    className="daily-limit-btn daily-limit-btn-secondary daily-limit-btn-copy"
+                                    type="button"
+                                    onClick={handleCopy}
+                                >
+                                    {copied ? t("daily_limit_block.copied") : t("daily_limit_block.copy")}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="daily-limit-actions">
+                            <button
+                                className="daily-limit-btn daily-limit-btn-primary"
+                                type="button"
+                                onClick={handleGoToPay}
+                            >
+                                {t("daily_limit_block.go_to_payment")}
+                            </button>
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function BlurGate({ locked, onUnlockClick, children }) {
+    const { t } = useTranslation();
+    if (!locked) return <>{children}</>;
+
+    return (
+        <div className="bp-blur-gate">
+            <div className="bp-blur-gate-content" aria-hidden="true">
+                {children}
+            </div>
+            <div className="bp-blur-gate-overlay">
+                <button
+                    type="button"
+                    className="bp-blur-gate-btn"
+                    onClick={onUnlockClick}
+                >
+                    🔒 {t("card.unlock_section")}
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function CompatibilityPanel({ buddy, onUnlockClick }) {
     const { t } = useTranslation();
     const total = buddy.totalScore ?? 0;
     const scores = buddy.scores ?? {};
@@ -90,34 +242,36 @@ function CompatibilityPanel({ buddy }) {
 
             <div className="bp-compat-divider" />
 
-            <div className="bp-compat-rows">
-                {SCORE_ROWS.map(({ key, label }) => {
-                    const val = scores[key] ?? 0;
-                    const pct = Math.round(val);
-                    return (
-                        <div key={key} className="bp-compat-row">
-                            <div className="bp-compat-row-label">{label}</div>
-                            <div className="bp-compat-row-right">
-                                <div className="bp-compat-bar-track">
+            <BlurGate locked={locked} onUnlockClick={onUnlockClick}>
+                <div className="bp-compat-rows">
+                    {SCORE_ROWS.map(({ key, label }) => {
+                        const val = scores[key] ?? 0;
+                        const pct = Math.round(val);
+                        return (
+                            <div key={key} className="bp-compat-row">
+                                <div className="bp-compat-row-label">{label}</div>
+                                <div className="bp-compat-row-right">
+                                    <div className="bp-compat-bar-track">
+                                        <div
+                                            className="bp-compat-bar-fill"
+                                            style={{
+                                                width: `${pct}%`,
+                                                background: scoreColor(val),
+                                            }}
+                                        />
+                                    </div>
                                     <div
-                                        className="bp-compat-bar-fill"
-                                        style={{
-                                            width: `${pct}%`,
-                                            background: scoreColor(val),
-                                        }}
-                                    />
-                                </div>
-                                <div
-                                    className="bp-compat-row-pct"
-                                    style={{ color: scoreColor(val) }}
-                                >
-                                    {pct}%
+                                        className="bp-compat-row-pct"
+                                        style={{ color: scoreColor(val) }}
+                                    >
+                                        {pct}%
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                </div>
+            </BlurGate>
         </div>
     );
 }
@@ -210,7 +364,7 @@ function PhotoLightbox({ photos, startIndex, onClose }) {
     );
 }
 
-function ProfileCard({ buddy, onPass, onLike, actionLocked }) {
+function ProfileCard({ buddy, onPass, onLike, actionLocked, locked, onUnlockClick }) {
     const { t } = useTranslation();
     const [lightboxIndex, setLightboxIndex] = useState(null);
 
@@ -283,85 +437,91 @@ function ProfileCard({ buddy, onPass, onLike, actionLocked }) {
             {/* LIFESTYLE */}
             <div className="bp-card">
                 <h2>{t("card.lifestyle")}</h2>
+                <BlurGate locked={locked} onUnlockClick={onUnlockClick}>
+                    <div className="bp-slider-row">
+                        <div className="bp-label">{t("step2.cleanliness")}</div>
+                        <div className="bp-slider-track">
+                            <div className="bp-slider-thumb" style={{ left: `${buddy.cleanlinessPct}%` }} />
+                        </div>
+                        <div className="bp-slider-labels"><span>{t("step2.messy")}</span><span>{t("step2.neat")}</span></div>
+                    </div>
 
-                <div className="bp-slider-row">
-                    <div className="bp-label">{t("step2.cleanliness")}</div>
-                    <div className="bp-slider-track">
-                        <div className="bp-slider-thumb" style={{ left: `${buddy.cleanlinessPct}%` }} />
+                    <div className="bp-slider-row">
+                        <div className="bp-label">{t("card.intro_extro")}</div>
+                        <div className="bp-slider-track">
+                            <div className="bp-slider-thumb" style={{ left: `${buddy.personalityPct}%` }} />
+                        </div>
+                        <div className="bp-slider-labels"><span>{t("step2.introvert")}</span><span>{t("step2.ambivert")}</span><span>{t("step2.extrovert")}</span></div>
                     </div>
-                    <div className="bp-slider-labels"><span>{t("step2.messy")}</span><span>{t("step2.neat")}</span></div>
-                </div>
 
-                <div className="bp-slider-row">
-                    <div className="bp-label">{t("card.intro_extro")}</div>
-                    <div className="bp-slider-track">
-                        <div className="bp-slider-thumb" style={{ left: `${buddy.personalityPct}%` }} />
+                    <div className="bp-row" style={{ marginTop: 8 }}>
+                        <div>
+                            <div className="bp-label">{t("card.schedule")}</div>
+                            <div className="bp-val">{buddy.schedule}</div>
+                        </div>
+                        <div>
+                            <div className="bp-label">{t("card.sleep_schedule")}</div>
+                            <div className="bp-val">{buddy.sleepSchedule}</div>
+                        </div>
+                        <div>
+                            <div className="bp-label">{t("card.smoking_label")}</div>
+                            <div className="bp-val">{buddy.smokingLabel}</div>
+                        </div>
+                        <div>
+                            <div className="bp-label">{t("card.partying_label")}</div>
+                            <div className="bp-val">{buddy.partyingLabel}</div>
+                        </div>
                     </div>
-                    <div className="bp-slider-labels"><span>{t("step2.introvert")}</span><span>{t("step2.ambivert")}</span><span>{t("step2.extrovert")}</span></div>
-                </div>
-
-                <div className="bp-row" style={{ marginTop: 8 }}>
-                    <div>
-                        <div className="bp-label">{t("card.schedule")}</div>
-                        <div className="bp-val">{buddy.schedule}</div>
-                    </div>
-                    <div>
-                        <div className="bp-label">{t("card.sleep_schedule")}</div>
-                        <div className="bp-val">{buddy.sleepSchedule}</div>
-                    </div>
-                    <div>
-                        <div className="bp-label">{t("card.smoking_label")}</div>
-                        <div className="bp-val">{buddy.smokingLabel}</div>
-                    </div>
-                    <div>
-                        <div className="bp-label">{t("card.partying_label")}</div>
-                        <div className="bp-val">{buddy.partyingLabel}</div>
-                    </div>
-                </div>
+                </BlurGate>
             </div>
 
             {/* POLITICAL */}
             <div className="bp-card">
                 <h2>{t("card.worldview")}</h2>
-
-                <div className="bp-slider-row">
-                    <div className="bp-label">{t("card.econ_axis")} — {buddy.politicalEconLabel}</div>
-                    <div className="bp-slider-track">
-                        <div className="bp-slider-thumb" style={{ left: `${buddy.politicalEconPct}%` }} />
+                <BlurGate locked={locked} onUnlockClick={onUnlockClick}>
+                    <div className="bp-slider-row">
+                        <div className="bp-label">{t("card.econ_axis")} — {buddy.politicalEconLabel}</div>
+                        <div className="bp-slider-track">
+                            <div className="bp-slider-thumb" style={{ left: `${buddy.politicalEconPct}%` }} />
+                        </div>
+                        <div className="bp-slider-labels"><span>{t("card.left")}</span><span>·</span><span>{t("card.right")}</span></div>
                     </div>
-                    <div className="bp-slider-labels"><span>{t("card.left")}</span><span>·</span><span>{t("card.right")}</span></div>
-                </div>
 
-                <div className="bp-slider-row">
-                    <div className="bp-label">{t("card.soc_axis")} — {buddy.politicalSocLabel}</div>
-                    <div className="bp-slider-track">
-                        <div className="bp-slider-thumb" style={{ left: `${buddy.politicalSocPct}%` }} />
+                    <div className="bp-slider-row">
+                        <div className="bp-label">{t("card.soc_axis")} — {buddy.politicalSocLabel}</div>
+                        <div className="bp-slider-track">
+                            <div className="bp-slider-thumb" style={{ left: `${buddy.politicalSocPct}%` }} />
+                        </div>
+                        <div className="bp-slider-labels"><span>{t("card.liberal")}</span><span>·</span><span>{t("card.communitarian")}</span></div>
                     </div>
-                    <div className="bp-slider-labels"><span>{t("card.liberal")}</span><span>·</span><span>{t("card.communitarian")}</span></div>
-                </div>
+                </BlurGate>
             </div>
 
             {/* LANGUAGES */}
             <div className="bp-card">
                 <h2>{t("card.languages")}</h2>
-                <div className="bp-tag-list">
-                    {buddy.languages.map((l, i) => (
-                        <span key={i} className="bp-tag">{l}</span>
-                    ))}
-                </div>
+                <BlurGate locked={locked} onUnlockClick={onUnlockClick}>
+                    <div className="bp-tag-list">
+                        {buddy.languages.map((l, i) => (
+                            <span key={i} className="bp-tag">{l}</span>
+                        ))}
+                    </div>
+                </BlurGate>
             </div>
 
             {/* HOBBIES */}
             <div className="bp-card">
                 <h2>{t("card.hobbies")}</h2>
-                <div className="bp-tag-list">
-                    {buddy.hobbies.map((h, i) => (
-                        <span key={i} className="bp-tag">{h}</span>
-                    ))}
-                    {buddy.customHobbies.map((h, i) => (
-                        <span key={`c${i}`} className="bp-tag custom">{h}</span>
-                    ))}
-                </div>
+                <BlurGate locked={locked} onUnlockClick={onUnlockClick}>
+                    <div className="bp-tag-list">
+                        {buddy.hobbies.map((h, i) => (
+                            <span key={i} className="bp-tag">{h}</span>
+                        ))}
+                        {buddy.customHobbies.map((h, i) => (
+                            <span key={`c${i}`} className="bp-tag custom">{h}</span>
+                        ))}
+                    </div>
+                </BlurGate>
             </div>
 
             {/* HOUSING */}
@@ -425,6 +585,7 @@ export function Card() {
     const [fomoData, setFomoData] = useState(null); // { hidden_count, best_score }
     const [matchedBuddy, setMatchedBuddy] = useState(null); // не-null коли є мютуал
     const [actionLocked, setActionLocked] = useState(false); // блокує дабл-клік
+    const [unlockModalOpen, setUnlockModalOpen] = useState(false);
 
     // ── стан поточного матча (керується URL) ─────────────────────────────
     const [currentBuddy, setCurrentBuddy] = useState(null);
@@ -449,7 +610,19 @@ export function Card() {
             })
             .filter(Boolean);
 
-        return [...buildList(free), ...buildList(unlocked), ...buildList(teaser, true)];
+        const combined = [...buildList(free), ...buildList(unlocked), ...buildList(teaser, true)];
+
+        // Дедублікація: той самий юзер міг випадково потрапити в кілька
+        // категорій одночасно (free/unlocked/teaser) через race condition
+        // на бекенді — без цього advance() міг "зациклюватись" на дублікаті.
+        const seen = new Set();
+        const deduped = [];
+        for (const m of combined) {
+            if (seen.has(m.matchedUserId)) continue;
+            seen.add(m.matchedUserId);
+            deduped.push(m);
+        }
+        return deduped;
     }, []);
 
     // ── завантаження повноти профілю ──────────────────────────────────────
@@ -527,7 +700,18 @@ export function Card() {
     // ── перехід до наступної картки (без дії з поточною) ─────────────────
     const advance = useCallback(async () => {
         const idx = matches.findIndex(m => String(m.matchedUserId) === String(routeId));
-        const next = idx >= 0 ? matches[idx + 1] : matches[0];
+        let next = idx >= 0 ? matches[idx + 1] : matches[0];
+
+        // Захист від зависання: якщо "наступний" матч — це той самий юзер,
+        // на якому ми зараз стоїмо, navigate() у той самий URL нічого не
+        // зробить (React Router ігнорує навігацію в поточний шлях), і UI
+        // виглядатиме "заціпенілим". У такому разі шукаємо далі по списку.
+        if (next && String(next.matchedUserId) === String(routeId)) {
+            const nextIdx = matches.findIndex(
+                (m, i) => i > idx && String(m.matchedUserId) !== String(routeId)
+            );
+            next = nextIdx >= 0 ? matches[nextIdx] : undefined;
+        }
 
         if (next) {
             navigate(`/buddies/${next.matchedUserId}`);
@@ -706,8 +890,13 @@ export function Card() {
                                     onPass={handlePass}
                                     onLike={handleLike}
                                     actionLocked={actionLocked}
+                                    locked={currentBuddy.scoresLocked === true}
+                                    onUnlockClick={() => setUnlockModalOpen(true)}
                                 />
-                                <CompatibilityPanel buddy={currentBuddy} />
+                                <CompatibilityPanel
+                                    buddy={currentBuddy}
+                                    onUnlockClick={() => setUnlockModalOpen(true)}
+                                />
                             </div>
                         </>
                     )}
@@ -736,6 +925,14 @@ export function Card() {
 
             {matchedBuddy && (
                 <MatchModal buddy={matchedBuddy} onClose={handleCloseMatchModal} />
+            )}
+
+            {currentBuddy && (
+                <UnlockModal
+                    matchId={currentBuddy.id}
+                    isOpen={unlockModalOpen}
+                    onClose={() => setUnlockModalOpen(false)}
+                />
             )}
         </>
     );
