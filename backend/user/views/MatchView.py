@@ -197,8 +197,11 @@ def _access_state(user, match: MatchResult) -> dict:
             "scores_locked": False,
         }
 
+    # Матч у межах "видимого" діапазону — картку показуємо завжди,
+    # але деталі (розбивку скорів + преміум-секції на фронті) блюримо,
+    # поки юзер не преміум і не купив unlock саме цього матчу.
     return {
         "can_view": True,
         "counts_as_view": not already_seen and not is_unlocked,
-        "scores_locked": False,
+        "scores_locked": not is_unlimited,
     }
