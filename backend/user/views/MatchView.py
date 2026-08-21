@@ -24,6 +24,24 @@ SCORE_FIELDS = (
     "score_political", "score_personality",
 )
 
+LOCKED_SCALAR_FIELDS = (
+    "cleanliness", "schedule", "sleep_schedule", "smoking", "partying",
+    "political_coordinate_economic", "political_coordinate_social",
+)
+LOCKED_LIST_FIELDS = ("languages", "hobbies", "custom_hobbies")
+
+
+def _mask_matched_profile(data: dict) -> None:
+    profile = data.get("matched_user", {}).get("profile")
+    if not profile:
+        return
+    for f in LOCKED_SCALAR_FIELDS:
+        if f in profile:
+            profile[f] = None
+    for f in LOCKED_LIST_FIELDS:
+        if f in profile:
+            profile[f] = []
+
 class MyMatchListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -158,6 +176,8 @@ def serialize_accessible_match(user, match: MatchResult, request) -> dict:
     if access["scores_locked"]:
         for f in SCORE_FIELDS:
             data[f] = None
+        _mask_matched_profile(data)
+
     data["scores_locked"] = access["scores_locked"]
 
     return data
