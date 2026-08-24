@@ -266,6 +266,7 @@
     "fallback_user": "Користувач"
   },
   "card": {
+    "unlock_section": "Розблокувати розділ",
     "about_me": "Про мене",
     "looking_for": "Кого шукаю",
     "lifestyle": "Стиль життя",

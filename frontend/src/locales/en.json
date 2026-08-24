@@ -264,6 +264,7 @@
     "fallback_user": "User"
   },
   "card": {
+    "unlock_section": "Unlock section",
     "about_me": "About me",
     "looking_for": "Looking for",
     "lifestyle": "Lifestyle",
