@@ -58,12 +58,18 @@ def create_unlock_order(user: User, match_id: int) -> dict:
     return _build_response(order)
  
 def _build_response(order: PaymentOrder) -> dict:
+    match = order.match
+    matched_user_id = (
+        match.user_2_id if match.user_1_id == order.user_id else match.user_1_id
+    )
+
     return {
-        "order_id":    order.id,
-        "comment_id":  order.comment_id,
-        "amount":      UNLOCK_PRICE / 100,          
-        "jar_url":     JAR_URL,
-        "instruction": f"При оплаті вкажіть коментар: {order.comment_id}",
+        "order_id":        order.id,
+        "comment_id":       order.comment_id,
+        "amount":          UNLOCK_PRICE / 100,
+        "jar_url":         JAR_URL,
+        "instruction":     f"При оплаті вкажіть коментар: {order.comment_id}",
+        "matched_user_id": matched_user_id,
     }
  
 def activate_profile_unlock(order: PaymentOrder) -> None:

@@ -9,6 +9,8 @@ const MAX_POLLS     = 30;    // максимум 2 хвилини
 export function PaymentStatus() {
     const { commentId } = useParams();
     const navigate      = useNavigate();
+    const location      = useLocation();
+    const returnUserId  = location.state?.userId; // Отримуємо userId з state
 
     const [status,    setStatus]    = useState("pending"); // pending | paid | expired | error
     const [pollCount, setPollCount] = useState(0);
@@ -30,6 +32,14 @@ export function PaymentStatus() {
             setLoading(false);
         }
     }, [commentId]);
+
+    const goBack = () => {
+        if (returnUserId) {
+            navigate(`/buddies/${returnUserId}`);
+        } else {
+            navigate("/buddies");
+        }
+    };
 
     useEffect(() => {
         let timer;
@@ -123,7 +133,7 @@ export function PaymentStatus() {
                     {status === "paid" && (
                         <button
                             className="ps-btn ps-btn-primary"
-                            onClick={() => navigate("/buddies")}
+                            onClick={goBack}
                         >
                             Переглянути профіль →
                         </button>
@@ -132,7 +142,7 @@ export function PaymentStatus() {
                     {(status === "expired" || status === "error" || status === "timeout") && (
                         <button
                             className="ps-btn ps-btn-secondary"
-                            onClick={() => navigate("/buddies")}
+                            onClick={goBack}
                         >
                             Повернутись
                         </button>

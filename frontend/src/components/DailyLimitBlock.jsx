@@ -97,7 +97,9 @@ export function DailyLimitBlock({ data: initialData, shownMatchIds = [] }) {
     const handleGoToPay = useCallback(() => {
         if (paymentData?.jar_url) {
             window.open(paymentData.jar_url, '_blank');
-            navigate(`/payment/status/${paymentData.comment_id}`);
+            navigate(`/payment/status/${paymentData.comment_id}`, {
+                state: { userId: paymentData.matched_user_id }
+            });
         }
     }, [paymentData, navigate]);
 
